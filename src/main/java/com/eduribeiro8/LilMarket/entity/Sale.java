@@ -1,0 +1,111 @@
+package com.eduribeiro8.LilMarket.entity;
+
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+@Table(name = "sales")
+public class Sale {
+    /*sale_id INT PRIMARY KEY,
+    customer_id INT,
+    sale_date DATE,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers (customer_id)*/
+
+    @Id
+    @Column(name = "sale_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @ManyToOne()
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
+
+    @Column(name = "sale_date")
+    private Date timestamp;
+
+    @OneToMany(mappedBy = "sale",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE},
+            fetch = FetchType.EAGER)
+    private List<SaleItem> items;
+
+    @Column(name = "total_amount")
+    private double total;
+
+    public Sale() {
+        this.total = 0;
+    }
+
+    public Sale(Customer customer, Date timestamp, List<SaleItem> items, double total) {
+        this.customer = customer;
+        this.timestamp = timestamp;
+        this.items = items;
+        this.total = total;
+    }
+
+    public void addSaleItem(SaleItem product){
+        if (items == null){
+            items = new ArrayList<>();
+        }
+        System.out.println("\nAdding item: " + product);
+        product.setSale(this);
+
+        items.add(product);
+        total += product.getPrice() * product.getQuantity();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Date timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public void setTotal(double total) {
+        this.total = total;
+    }
+
+    public List<SaleItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<SaleItem> items) {
+        this.items = items;
+    }
+
+    @Override
+    public String toString() {
+        return "Sale{" +
+                "id=" + id +
+                ", customer=" + customer.getFirstName() +
+                ", timestamp=" + timestamp +
+                ", items=" + items +
+                ", total=" + total +
+                '}';
+    }
+}
