@@ -2,6 +2,8 @@ package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
 
+import java.text.DecimalFormat;
+
 @Entity
 @Table(name = "sale_items")
 public class SaleItem {
@@ -11,8 +13,9 @@ public class SaleItem {
     private Sale sale;
 
     @Id
-    @Column(name = "product_id")
-    private int product;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
     @Column(name = "price")
     private double price;
@@ -20,12 +23,16 @@ public class SaleItem {
     @Column(name = "quantity")
     private int quantity;
 
+    @Transient
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
     public SaleItem() {
     }
 
     public SaleItem(Product product, int quantity) {
-        this.product = product.getId();
-        this.price = product.getPrice();
+        this.product = product;
+        this.price = product.getPrice() * quantity;
+        this.price = Double.parseDouble(decimalFormat.format(getPrice()));
         this.quantity = quantity;
     }
 
@@ -38,11 +45,11 @@ public class SaleItem {
         this.sale = sale;
     }
 
-    public int getProduct() {
+    public Product getProduct() {
         return product;
     }
 
-    public void setProduct(int product) {
+    public void setProduct(Product product) {
         this.product = product;
     }
 
@@ -65,9 +72,32 @@ public class SaleItem {
     @Override
     public String toString() {
         return "SaleItem{" +
-                "product=" + product +
-                ", price=" + price +
+                "product=" + product.getName() +
+                ", price=" + decimalFormat.format(getPrice()) +
                 ", quantity=" + quantity +
                 '}';
     }
+
+    public void updatePrice() {
+        this.price *= this.quantity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SaleItem saleItem = (SaleItem) o;
+
+        if (sale != null ? !sale.equals(saleItem.sale) : saleItem.sale != null) return false;
+        return product != null ? product.equals(saleItem.product) : saleItem.product == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = sale != null ? sale.hashCode() : 0;
+        result = 31 * result + (product != null ? product.hashCode() : 0);
+        return result;
+    }
+
 }

@@ -30,7 +30,7 @@ public class LilMarketApplication {
 	}
 
 	private void findSale(AppDAO appDAO) {
-		Sale sale = appDAO.findSaleById(37);
+		Sale sale = appDAO.findSaleById(40);
 		System.out.println(sale);
 	}
 
@@ -50,15 +50,10 @@ public class LilMarketApplication {
 		Product tempProduct3 = appDAO.findProductById(3);
 		Product tempProduct2 = appDAO.findProductById(2);
 
-		// Create and associate SaleItem instances with the Sale.
-		SaleItem saleItem1 = new SaleItem(tempProduct1, 3);
-		SaleItem saleItem2 = new SaleItem(tempProduct3, 55);
-		SaleItem saleItem3 = new SaleItem(tempProduct2, 6);
-
 		// Add the SaleItem instances to the Sale.
-		sale.addSaleItem(saleItem1);
-		sale.addSaleItem(saleItem2);
-		sale.addSaleItem(saleItem3);
+		sale.addSaleItem(tempProduct1, 4);
+		sale.addSaleItem(tempProduct2, 5);
+		sale.addSaleItem(tempProduct3, 6);
 
 		// Save the Sale within the same transaction.
 		appDAO.save(sale);

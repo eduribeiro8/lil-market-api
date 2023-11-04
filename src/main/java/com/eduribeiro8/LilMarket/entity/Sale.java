@@ -47,15 +47,17 @@ public class Sale {
         this.total = total;
     }
 
-    public void addSaleItem(SaleItem product){
+    public void addSaleItem(Product product, int quantity){
         if (items == null){
             items = new ArrayList<>();
         }
         System.out.println("\nAdding item: " + product);
-        product.setSale(this);
 
-        items.add(product);
-        total += product.getPrice() * product.getQuantity();
+        SaleItem currentSaleItem = new SaleItem(product, quantity);
+        currentSaleItem.setSale(this);
+
+        total += currentSaleItem.getPrice();
+        items.add(currentSaleItem);
     }
 
     public int getId() {

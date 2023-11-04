@@ -2,6 +2,8 @@ package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -25,6 +27,9 @@ public class Product {
 
     @Column(name = "quantity_in_stock")
     private int quantity;
+
+    @OneToMany
+    private List<SaleItem> saleItemList;
 
     public Product() {
     }
