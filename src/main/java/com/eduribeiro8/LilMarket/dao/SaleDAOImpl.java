@@ -16,8 +16,9 @@ public class SaleDAOImpl implements SaleDAO{
     }
 
     @Override
-    public void save(Sale sale) {
+    public Sale save(Sale sale) {
         entityManager.persist(sale);
+        return sale;
     }
 
     @Override

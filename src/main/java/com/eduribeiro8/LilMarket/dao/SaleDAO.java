@@ -6,7 +6,7 @@ import com.eduribeiro8.LilMarket.entity.Sale;
 
 public interface SaleDAO {
 
-    void save(Sale sale);
+    Sale save(Sale sale);
 
     void deleteSaleId(int id);
 

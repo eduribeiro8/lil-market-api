@@ -18,16 +18,16 @@ public class LilMarketApplication {
 		SpringApplication.run(LilMarketApplication.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(AppDAO appDAO){
-		return  runner -> {
-//			createCustomer(appDAO);
-//			createProducts(appDAO);
-//			createSale(appDAO);
-//			deleteSale(appDAO);
-			findSale(appDAO);
-		};
-	}
+//	@Bean
+//	public CommandLineRunner commandLineRunner(AppDAO appDAO){
+//		return  runner -> {
+////			createCustomer(appDAO);
+////			createProducts(appDAO);
+////			createSale(appDAO);
+////			deleteSale(appDAO);
+//			findSale(appDAO);
+//		};
+//	}
 
 	private void findSale(AppDAO appDAO) {
 		Sale sale = appDAO.findSaleById(40);

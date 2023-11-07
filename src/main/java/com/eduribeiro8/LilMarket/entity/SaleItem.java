@@ -1,5 +1,6 @@
 package com.eduribeiro8.LilMarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.text.DecimalFormat;
@@ -10,6 +11,7 @@ public class SaleItem {
 
     @ManyToOne
     @JoinColumn(name = "sale_id")
+    @JsonBackReference
     private Sale sale;
 
     @Id

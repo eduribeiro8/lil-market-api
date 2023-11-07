@@ -1,5 +1,7 @@
 package com.eduribeiro8.LilMarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -9,11 +11,6 @@ import java.util.List;
 @Entity
 @Table(name = "sales")
 public class Sale {
-    /*sale_id INT PRIMARY KEY,
-    customer_id INT,
-    sale_date DATE,
-    total_amount DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (customer_id) REFERENCES customers (customer_id)*/
 
     @Id
     @Column(name = "sale_id")
@@ -31,6 +28,7 @@ public class Sale {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE},
             fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<SaleItem> items;
 
     @Column(name = "total_amount")
