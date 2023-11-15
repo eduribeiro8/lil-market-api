@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public class ProductDAOImpl implements ProductDAO{
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Autowired
     public ProductDAOImpl(EntityManager entityManager) {
@@ -30,6 +30,10 @@ public class ProductDAOImpl implements ProductDAO{
     @Transactional
     public void delete(Product product) {
         entityManager.remove(product);
+    }
+
+    public Product findProductByBarcode(long barcode){
+        return entityManager.find(Product.class, barcode);
     }
 
     @Override

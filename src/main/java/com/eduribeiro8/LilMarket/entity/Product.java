@@ -15,6 +15,9 @@ public class Product {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "barcode")
+    private Long barcode;
+
     @Column(name = "description")
     private String description;
 
@@ -34,8 +37,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String description, double price, ProductCategory productCategory, int quantity) {
+    public Product(String name, Long barcode, String description, double price, ProductCategory productCategory, int quantity) {
         this.name = name;
+        this.barcode = barcode;
         this.description = description;
         this.price = price;
         this.productCategory = productCategory;
@@ -56,6 +60,14 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(Long barcode) {
+        this.barcode = barcode;
     }
 
     public String getDescription() {

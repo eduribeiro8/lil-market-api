@@ -11,4 +11,6 @@ public interface ProductService {
     Product findProductById(int productId);
 
     Product save(Product theProduct);
+
+    Product findProductByBarcode(long productBarcode);
 }

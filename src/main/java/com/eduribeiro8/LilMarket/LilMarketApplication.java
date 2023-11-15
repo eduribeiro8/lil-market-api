@@ -61,20 +61,20 @@ public class LilMarketApplication {
 
 
 
-	private void createProducts(AppDAO appDAO) {
-		List<Product> productList = new ArrayList<>();
-		Product product1 = new Product("Product1", "", 5.23, ProductCategory.TESTE1, 23);
-		Product product2 = new Product("Product2", "", 5.85, ProductCategory.TESTE2, 25);
-		Product product3 = new Product("Product3", "", 9.65, ProductCategory.TESTE3, 43);
-		Product product4 = new Product("Product4", "", 9.62, ProductCategory.TESTE1, 34);
-
-		productList.add(product1);
-		productList.add(product2);
-		productList.add(product3);
-		productList.add(product4);
-
-		for (Product product: productList) appDAO.save(product);
-	}
+//	private void createProducts(AppDAO appDAO) {
+//		List<Product> productList = new ArrayList<>();
+//		Product product1 = new Product("Product1", "", 5.23, ProductCategory.TESTE1, 23);
+//		Product product2 = new Product("Product2", "", 5.85, ProductCategory.TESTE2, 25);
+//		Product product3 = new Product("Product3", "", 9.65, ProductCategory.TESTE3, 43);
+//		Product product4 = new Product("Product4", "", 9.62, ProductCategory.TESTE1, 34);
+//
+//		productList.add(product1);
+//		productList.add(product2);
+//		productList.add(product3);
+//		productList.add(product4);
+//
+//		for (Product product: productList) appDAO.save(product);
+//	}
 
 	private void createCustomer(AppDAO appDAO) {
 		Customer customer = new Customer();

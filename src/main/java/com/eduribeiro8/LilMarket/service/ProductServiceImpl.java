@@ -32,4 +32,8 @@ public class ProductServiceImpl implements ProductService{
         return productDAO.findProductById(productId);
     }
 
+    @Override
+    public Product findProductByBarcode(long productBarcode) {
+        return productDAO.findProductByBarcode(productBarcode);
+    }
 }
