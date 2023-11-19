@@ -36,4 +36,9 @@ public class ProductServiceImpl implements ProductService{
     public Product findProductByBarcode(long productBarcode) {
         return productDAO.findProductByBarcode(productBarcode);
     }
+
+    @Override
+    public Product updateProduct(Product theProduct) {
+        return productDAO.updateProduct(theProduct);
+    }
 }

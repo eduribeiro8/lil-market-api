@@ -13,4 +13,6 @@ public interface ProductService {
     Product save(Product theProduct);
 
     Product findProductByBarcode(long productBarcode);
+
+    Product updateProduct(Product theProduct);
 }

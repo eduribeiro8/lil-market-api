@@ -43,7 +43,7 @@ public class LilMarketApplication {
 		sale.setCustomer(appDAO.findCustomerById(1));
 
 		Date date = new Date();
-		sale.setTimestamp(date);
+		sale.setTimestamp(String.valueOf(date));
 
 		// Fetch the products within the same transaction to ensure they are managed.
 		Product tempProduct1 = appDAO.findProductById(1);

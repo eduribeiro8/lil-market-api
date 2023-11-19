@@ -17,4 +17,6 @@ public interface ProductDAO {
     Product findProductById(int id);
 
     Product findProductByName(String name);
+
+    Product updateProduct(Product theProduct);
 }

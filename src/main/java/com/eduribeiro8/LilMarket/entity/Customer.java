@@ -97,6 +97,10 @@ public class Customer {
         this.debt = debt;
     }
 
+    public void addDebt(double increment){
+        this.debt += increment;
+    }
+
     @Override
     public String toString() {
         return "Customers{" +

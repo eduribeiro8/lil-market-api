@@ -21,8 +21,8 @@ public class Sale {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @Column(name = "sale_date")
-    private Date timestamp;
+    @Column(name = "timestamp")
+    private String timestamp;
 
     @OneToMany(mappedBy = "sale",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
@@ -38,7 +38,7 @@ public class Sale {
         this.total = 0;
     }
 
-    public Sale(Customer customer, Date timestamp, List<SaleItem> items, double total) {
+    public Sale(Customer customer, String timestamp, List<SaleItem> items, double total) {
         this.customer = customer;
         this.timestamp = timestamp;
         this.items = items;
@@ -74,11 +74,11 @@ public class Sale {
         this.customer = customer;
     }
 
-    public Date getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

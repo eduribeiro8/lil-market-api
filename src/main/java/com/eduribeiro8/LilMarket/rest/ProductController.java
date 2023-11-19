@@ -37,6 +37,15 @@ public class ProductController {
         return productService.save(theProduct);
     }
 
+    @PutMapping("/product")
+    public Product updateProduct(@RequestBody Product theProduct){
+        if (theProduct == null){
+            throw new RuntimeException("product is empty!");
+        }
+
+        return productService.updateProduct(theProduct);
+    }
+
     @GetMapping("/product")
     public List<Product> getAllProducts(){
         return productService.findAllProducts();

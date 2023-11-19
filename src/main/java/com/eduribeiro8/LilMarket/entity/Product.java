@@ -16,7 +16,7 @@ public class Product {
     private String name;
 
     @Column(name = "barcode")
-    private Long barcode;
+    private long barcode;
 
     @Column(name = "description")
     private String description;
@@ -37,7 +37,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, Long barcode, String description, double price, ProductCategory productCategory, int quantity) {
+    public Product(String name, long barcode, String description, double price, ProductCategory productCategory, int quantity) {
         this.name = name;
         this.barcode = barcode;
         this.description = description;
@@ -62,11 +62,11 @@ public class Product {
         this.name = name;
     }
 
-    public Long getBarcode() {
+    public long getBarcode() {
         return barcode;
     }
 
-    public void setBarcode(Long barcode) {
+    public void setBarcode(long barcode) {
         this.barcode = barcode;
     }
 
@@ -102,6 +102,18 @@ public class Product {
         this.quantity = quantity;
     }
 
+    public void decreaseQuantity(int quantity){
+        this.quantity -= quantity;
+    }
+
+    public void updateProduct(Product newProduct){
+        this.setName(newProduct.getName());
+        this.setBarcode(newProduct.getBarcode());
+        this.setQuantity(newProduct.getQuantity());
+        this.setPrice(newProduct.getPrice());
+        this.setProductCategory(newProduct.getProductCategory());
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -113,4 +125,5 @@ public class Product {
                 ", quantity=" + quantity +
                 '}';
     }
+
 }

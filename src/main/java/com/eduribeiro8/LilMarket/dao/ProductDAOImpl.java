@@ -2,6 +2,7 @@ package com.eduribeiro8.LilMarket.dao;
 
 import com.eduribeiro8.LilMarket.entity.Product;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,19 @@ public class ProductDAOImpl implements ProductDAO{
         entityManager.remove(product);
     }
 
+    @Override
     public Product findProductByBarcode(long barcode){
-        return entityManager.find(Product.class, barcode);
+        System.out.println("DAO -> Searching product which barcode = " + barcode);
+
+        TypedQuery<Product> typedQuery = entityManager.createQuery("from Product where barcode = :barcode", Product.class);
+        typedQuery.setParameter("barcode", barcode);
+
+        try {
+            return typedQuery.getSingleResult();
+        }catch (NoResultException e){
+            System.out.println("ERROR -> Product not found in fun findProductById where barcode = " + barcode);
+        }
+        return null;
     }
 
     @Override
@@ -50,5 +62,14 @@ public class ProductDAOImpl implements ProductDAO{
     @Override
     public Product findProductByName(String name) {
         return entityManager.find(Product.class, name);
+    }
+
+    @Override
+    @Transactional
+    public Product updateProduct(Product theProduct) {
+        Product oldProduct = entityManager.find(Product.class, theProduct.getId());
+        oldProduct.updateProduct(theProduct);
+
+        return entityManager.merge(oldProduct);
     }
 }
