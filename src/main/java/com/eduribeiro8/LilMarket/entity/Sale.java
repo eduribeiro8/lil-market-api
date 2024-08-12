@@ -21,7 +21,7 @@ public class Sale {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @Column(name = "timestamp")
+    @Column(name = "sale_timestamp")
     private String timestamp;
 
     @OneToMany(mappedBy = "sale",

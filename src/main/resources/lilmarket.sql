@@ -31,6 +31,7 @@ CREATE TABLE customers (
 CREATE TABLE sales (
     sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     customer_id INT,
+    sale_timestamp VARCHAR(50),
     sale_date DATETIME,
     total_amount DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
