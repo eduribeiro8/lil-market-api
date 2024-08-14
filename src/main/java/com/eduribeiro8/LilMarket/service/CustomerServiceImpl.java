@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class CustomerServiceImpl implements CustomerService{
 
-    private CustomerDAO customerDAO;
+    private final CustomerDAO customerDAO;
 
     @Autowired
     public CustomerServiceImpl(CustomerDAO customerDAO) {

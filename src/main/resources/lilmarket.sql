@@ -47,4 +47,19 @@ CREATE TABLE sale_items (
     FOREIGN KEY (product_id) REFERENCES products (product_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE users (
+    user_name VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255),
+    active BOOLEAN DEFAULT TRUE,
+    PRIMARY KEY (user_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE roles (
+  user_name VARCHAR(50) NOT NULL,
+  role VARCHAR(50) NOT NULL,
+  UNIQUE KEY authorities5_idx_1 (user_name, role),
+  CONSTRAINT authorities5_ibfk_1 FOREIGN KEY (user_name) REFERENCES users (user_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -52,7 +51,7 @@ public class CustomerController {
         return customerService.save(theCustomer);
     }
 
-    @DeleteMapping("/customer/{customerId}")
+    @DeleteMapping("admin/customer/{customerId}")
     public String deleteCustomerById(@PathVariable int customerId){
         Customer customer = customerService.findById(customerId);
 

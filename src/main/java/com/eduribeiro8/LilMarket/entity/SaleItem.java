@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.text.DecimalFormat;
+import java.util.Objects;
 
 @Entity
 @Table(name = "sale_items")
@@ -91,8 +92,8 @@ public class SaleItem {
 
         SaleItem saleItem = (SaleItem) o;
 
-        if (sale != null ? !sale.equals(saleItem.sale) : saleItem.sale != null) return false;
-        return product != null ? product.equals(saleItem.product) : saleItem.product == null;
+        if (!Objects.equals(sale, saleItem.sale)) return false;
+        return Objects.equals(product, saleItem.product);
     }
 
     @Override

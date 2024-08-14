@@ -1,18 +1,26 @@
 package com.eduribeiro8.LilMarket.entity;
 
+import jakarta.persistence.*;
+import org.springframework.context.annotation.Primary;
+
+@Entity
+@Table(name = "users")
 public class User {
 
-    private int id;
-
+    @Column (name = "user_name")
     private String userName;
 
+    @Column (name = "password")
     private String password;
 
+    @Column (name = "first_name")
     private String firstName;
 
-    private int level;
-
+    @Column (name = "active")
     private boolean active;
+
+    @Id
+    private Long id;
 
     public User() {
     }
@@ -21,16 +29,7 @@ public class User {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
-        this.level = level;
         this.active = active;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getUserName() {
@@ -57,14 +56,6 @@ public class User {
         this.firstName = firstName;
     }
 
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
     public boolean isActive() {
         return active;
     }
@@ -80,8 +71,15 @@ public class User {
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", firstName='" + firstName + '\'' +
-                ", level=" + level +
                 ", active=" + active +
                 '}';
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

@@ -6,10 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
 public class SaleController {
 
-    private SaleService saleService;
+    private final SaleService saleService;
 
     @Autowired
     public SaleController(SaleService saleService) {

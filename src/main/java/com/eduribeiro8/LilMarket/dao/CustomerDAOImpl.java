@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public class CustomerDAOImpl implements CustomerDAO{
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Autowired
     public CustomerDAOImpl(EntityManager entityManager) {

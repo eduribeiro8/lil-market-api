@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SaleServiceImpl implements SaleService{
 
-    private SaleDAO saleDAO;
+    private final SaleDAO saleDAO;
 
     @Autowired
     public SaleServiceImpl(SaleDAO saleDAO) {

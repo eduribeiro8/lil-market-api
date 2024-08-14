@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SaleDAOImpl implements SaleDAO{
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Autowired
     public SaleDAOImpl(EntityManager entityManager) {

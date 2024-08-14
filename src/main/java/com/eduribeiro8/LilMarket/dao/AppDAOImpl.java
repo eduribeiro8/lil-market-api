@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AppDAOImpl implements AppDAO{
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Autowired
     public AppDAOImpl(EntityManager entityManager) {
