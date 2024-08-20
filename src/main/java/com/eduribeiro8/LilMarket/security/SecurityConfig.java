@@ -1,5 +1,7 @@
 package com.eduribeiro8.LilMarket.security;
 
+import com.eduribeiro8.LilMarket.security.ratelimiting.RateLimitingFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,12 +13,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 
 @Configuration
 public class SecurityConfig {
+
+    private final RateLimitingFilter rateLimitingFilter;
+
+    @Autowired
+    public SecurityConfig(RateLimitingFilter rateLimitingFilter) {
+        this.rateLimitingFilter = rateLimitingFilter;
+    }
 
     @Bean
     public UserDetailsManager userDetailsManager(DataSource dataSource) {
@@ -27,7 +37,7 @@ public class SecurityConfig {
         );
 
         userDetailsManager.setAuthoritiesByUsernameQuery(
-                "select user_name, role from roles where user_name=?"
+                "select user_name, role from users where user_name=?"
         );
 
         return userDetailsManager;
@@ -35,6 +45,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
         http.authorizeHttpRequests(configurer -> configurer
                 .requestMatchers(
                         requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),

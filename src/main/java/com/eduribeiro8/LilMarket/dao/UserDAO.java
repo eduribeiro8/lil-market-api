@@ -8,5 +8,7 @@ public interface UserDAO {
 
     User findUserById(User user);
 
+    User findUserByUsername(String username);
+
     boolean login(User user);
 }

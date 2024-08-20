@@ -3,7 +3,10 @@ package com.eduribeiro8.LilMarket.dao;
 import com.eduribeiro8.LilMarket.entity.Customer;
 import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.Sale;
+import com.eduribeiro8.LilMarket.entity.User;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -36,6 +39,20 @@ public class AppDAOImpl implements AppDAO{
     @Transactional
     public void save(Sale sale) {
         entityManager.persist(sale);
+    }
+
+    @Override
+    @Transactional
+    public void save(User user) {
+
+        TypedQuery<User> typedQuery = entityManager.createQuery("from User where userName = :username", User.class);
+        typedQuery.setParameter("username", user.getUserName());
+
+        try{
+            typedQuery.getSingleResult();
+        }catch (NoResultException e) {
+            entityManager.persist(user);
+        }
     }
 
     @Override

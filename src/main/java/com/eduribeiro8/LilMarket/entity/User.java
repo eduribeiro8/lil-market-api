@@ -1,11 +1,20 @@
 package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CurrentTimestamp;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    @Id
+    @Column (name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column (name = "user_name")
     private String userName;
@@ -16,20 +25,30 @@ public class User {
     @Column (name = "first_name")
     private String firstName;
 
+    @Column (name = "role")
+    private String role;
+
     @Column (name = "active")
     private boolean active;
 
-    @Id
-    private Long id;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column (updatable = false)
+    @CurrentTimestamp
+    private Date creationDate;
+
+    @CurrentTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastActiveDate;
 
     public User() {
     }
 
-    public User(String userName, String password, String firstName, int level, boolean active) {
+    public User(String userName, String password, String firstName, boolean active) {
         this.userName = userName;
         this.password = password;
         this.firstName = firstName;
         this.active = active;
+        this.role = "ROLE_USER";
     }
 
     public String getUserName() {
@@ -81,5 +100,9 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+
+    public String getRole() {
+        return role;
     }
 }
