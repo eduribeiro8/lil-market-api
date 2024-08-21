@@ -1,6 +1,4 @@
-limite de req
-logging
-validação dos dados 
+validação dos dados
 testes
 caching?
 webhooks?

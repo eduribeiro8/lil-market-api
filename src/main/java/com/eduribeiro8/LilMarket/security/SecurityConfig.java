@@ -1,5 +1,7 @@
 package com.eduribeiro8.LilMarket.security;
 
+import com.eduribeiro8.LilMarket.security.logging.LoggingFilter;
+import com.eduribeiro8.LilMarket.security.logging.LoggingPreAuthFilter;
 import com.eduribeiro8.LilMarket.security.ratelimiting.RateLimitingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -22,10 +24,14 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final RateLimitingFilter rateLimitingFilter;
+    private final LoggingFilter loggingFilter;
+    private final LoggingPreAuthFilter loggingPreAuthFilter;
 
     @Autowired
     public SecurityConfig(RateLimitingFilter rateLimitingFilter) {
         this.rateLimitingFilter = rateLimitingFilter;
+        this.loggingFilter = new LoggingFilter();
+        this.loggingPreAuthFilter = new LoggingPreAuthFilter();
     }
 
     @Bean
@@ -47,7 +53,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 
-        http.authorizeHttpRequests(configurer -> configurer
+        http    .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
+                .addFilterAfter(loggingFilter, AuthorizationFilter.class)
+                .authorizeHttpRequests(configurer -> configurer
                 .requestMatchers(
                         requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
                         "product/**"
