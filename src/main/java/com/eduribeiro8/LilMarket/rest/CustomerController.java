@@ -1,8 +1,11 @@
 package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.entity.Customer;
+import com.eduribeiro8.LilMarket.rest.exception.CustomerNotFoundException;
 import com.eduribeiro8.LilMarket.service.CustomerService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,50 +21,49 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public Customer getCustomer(@PathVariable int customerId){
+    ResponseEntity<Customer> getCustomer(@PathVariable int customerId){
         Customer customer = customerService.findById(customerId);
 
         if (customer == null){
-            throw new RuntimeException("Customer customerId - " + customerId + " not found!");
+            throw new CustomerNotFoundException();
         }
 
-        System.out.println("Returning customer: " + customer);
-
-        return customer;
+        return ResponseEntity.ok(customer);
     }
 
     @GetMapping("/customer")
     public List<Customer> getAllCustomers(){
-        List<Customer> customerList = customerService.findAll();
-
-        if (customerList == null){
-            throw new RuntimeException("There are no customers!");
-        }
-
-        return customerList;
+        return customerService.findAll();
     }
 
     @PostMapping("/customer")
-    public Customer saveCustomer(@RequestBody Customer theCustomer){
-        return customerService.save(theCustomer);
+    ResponseEntity<String> saveCustomer(@Valid @RequestBody Customer theCustomer){
+        return ResponseEntity.ok("Customer was successfully saved");
     }
 
     @PutMapping("/customer")
-    public Customer updateCustomer(@RequestBody Customer theCustomer){
-        return customerService.save(theCustomer);
+    public ResponseEntity<String> updateCustomer(@Valid @RequestBody Customer theCustomer){
+        Customer customer = customerService.findById(theCustomer.getId());
+
+        if (customer == null){
+            throw new CustomerNotFoundException();
+        }
+
+        customerService.save(theCustomer);
+
+        return ResponseEntity.ok("Customer information was successfully updated!");
     }
 
     @DeleteMapping("admin/customer/{customerId}")
-    public String deleteCustomerById(@PathVariable int customerId){
+    public ResponseEntity<String> deleteCustomerById(@PathVariable int customerId){
         Customer customer = customerService.findById(customerId);
 
         if (customer == null){
-            throw new RuntimeException("Customer id " + customerId + " not found!");
+            throw new CustomerNotFoundException();
         }
 
         customerService.deleteById(customerId);
-
-        return "Customer " + customer.getFirstName() + " has been deleted!";
+        return ResponseEntity.ok("Customer " + customer.getFirstName() + " has been deleted!");
     }
 
 

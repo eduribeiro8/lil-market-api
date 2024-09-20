@@ -3,7 +3,10 @@ package com.eduribeiro8.LilMarket.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,42 +22,63 @@ public class Sale {
 
     @ManyToOne()
     @JoinColumn(name = "customer_id")
+    @NotNull(message = "Sale's customer cannot be null.")
     private Customer customer;
 
     @Column(name = "sale_timestamp")
-    private String timestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+//    @NotNull(message = "Sale's timestamp cannot be null.")
+    private Date timestamp;
 
     @OneToMany(mappedBy = "sale",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE},
             fetch = FetchType.EAGER)
     @JsonManagedReference
+    @NotNull(message = "A sale must have items.")
     private List<SaleItem> items;
 
     @Column(name = "total_amount")
-    private double total;
+    private BigDecimal total;
 
     public Sale() {
-        this.total = 0;
+        this.total = BigDecimal.valueOf(0);
     }
 
-    public Sale(Customer customer, String timestamp, List<SaleItem> items, double total) {
+    public Sale(Customer customer, Date timestamp, List<SaleItem> items, BigDecimal total) {
         this.customer = customer;
         this.timestamp = timestamp;
         this.items = items;
         this.total = total;
     }
 
+    public Sale(Sale sale){
+        this.customer = sale.getCustomer();
+        if(sale.getTimestamp() != null){
+            this.timestamp = sale.getTimestamp();
+        }else{
+            this.timestamp = new Date();
+        }
+        this.items = sale.getItems();
+        this.total = BigDecimal.valueOf(0);
+        for(SaleItem item : sale.getItems()){
+            item.setSale(this);
+            this.total = this.total.add(item.getPrice().multiply(
+                    BigDecimal.valueOf(item.getQuantity()))
+            );
+        }
+
+    }
+
     public void addSaleItem(Product product, int quantity){
         if (items == null){
             items = new ArrayList<>();
+            this.total = BigDecimal.valueOf(0);
         }
-        System.out.println("\nAdding item: " + product);
-
         SaleItem currentSaleItem = new SaleItem(product, quantity);
         currentSaleItem.setSale(this);
 
-        total += currentSaleItem.getPrice();
+        this.total = total.add(currentSaleItem.getPrice());
         items.add(currentSaleItem);
     }
 
@@ -74,19 +98,20 @@ public class Sale {
         this.customer = customer;
     }
 
-    public String getTimestamp() {
+    public Date getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Date timestamp) {
         this.timestamp = timestamp;
     }
 
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(double total) {
+
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 

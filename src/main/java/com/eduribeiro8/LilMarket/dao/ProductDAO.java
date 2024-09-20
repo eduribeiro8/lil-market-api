@@ -12,7 +12,7 @@ public interface ProductDAO {
 
     List<Product> findAll();
 
-    Product findProductByBarcode(long barcode);
+    Product findProductByBarcode(String barcode);
 
     Product findProductById(int id);
 

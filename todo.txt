@@ -1,4 +1,3 @@
-validação dos dados
 testes
 caching?
 webhooks?

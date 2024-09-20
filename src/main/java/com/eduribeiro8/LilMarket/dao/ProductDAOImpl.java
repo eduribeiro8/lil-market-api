@@ -1,6 +1,7 @@
 package com.eduribeiro8.LilMarket.dao;
 
 import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.rest.exception.ProductNotFoundException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
@@ -34,7 +35,7 @@ public class ProductDAOImpl implements ProductDAO{
     }
 
     @Override
-    public Product findProductByBarcode(long barcode){
+    public Product findProductByBarcode(String barcode){
         System.out.println("DAO -> Searching product which barcode = " + barcode);
 
         TypedQuery<Product> typedQuery = entityManager.createQuery("from Product where barcode = :barcode", Product.class);
@@ -68,6 +69,9 @@ public class ProductDAOImpl implements ProductDAO{
     @Transactional
     public Product updateProduct(Product theProduct) {
         Product oldProduct = entityManager.find(Product.class, theProduct.getId());
+        if (oldProduct == null){
+            throw new ProductNotFoundException();
+        }
         oldProduct.updateProduct(theProduct);
 
         return entityManager.merge(oldProduct);

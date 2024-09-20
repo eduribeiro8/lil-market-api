@@ -1,6 +1,10 @@
 package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "customers")
@@ -12,11 +16,13 @@ public class Customer {
     private int id;
 
     @Column(name = "first_name")
+    @NotNull(message = "Name cannot be null.")
     private String firstName;
 
     @Column(name = "last_name")
     private String lastName;
 
+    @Email(message = "Email must be valid.")
     @Column(name = "email")
     private String email;
 
@@ -27,7 +33,7 @@ public class Customer {
     private String address;
 
     @Column(name = "debt")
-    private double debt;
+    private BigDecimal debt;
 
     public Customer() {
     }
@@ -38,7 +44,7 @@ public class Customer {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.debt = debt;
+        this.debt = BigDecimal.valueOf(debt);
     }
 
     public int getId() {
@@ -89,16 +95,20 @@ public class Customer {
         this.address = address;
     }
 
-    public double getDebt() {
+    public BigDecimal getDebt() {
         return debt;
     }
 
-    public void setDebt(double debt) {
+    public void setDebt(BigDecimal debt) {
         this.debt = debt;
     }
 
     public void addDebt(double increment){
-        this.debt += increment;
+        this.debt = debt.add(BigDecimal.valueOf(increment));
+    }
+
+    public void addDebt(BigDecimal increment){
+        this.debt = debt.add(increment);
     }
 
     @Override

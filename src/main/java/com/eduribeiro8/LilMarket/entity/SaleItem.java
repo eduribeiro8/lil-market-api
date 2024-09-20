@@ -3,6 +3,7 @@ package com.eduribeiro8.LilMarket.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class SaleItem {
     private Product product;
 
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "quantity")
     private int quantity;
@@ -34,8 +35,8 @@ public class SaleItem {
 
     public SaleItem(Product product, int quantity) {
         this.product = product;
-        this.price = product.getPrice() * quantity;
-        this.price = Double.parseDouble(decimalFormat.format(getPrice()));
+        this.price = product.getPrice().multiply(BigDecimal.valueOf(quantity));
+        this.price = getPrice();
         this.quantity = quantity;
     }
 
@@ -56,11 +57,11 @@ public class SaleItem {
         this.product = product;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -82,7 +83,7 @@ public class SaleItem {
     }
 
     public void updatePrice() {
-        this.price *= this.quantity;
+        this.price = this.price.multiply(BigDecimal.valueOf(this.quantity));
     }
 
     @Override

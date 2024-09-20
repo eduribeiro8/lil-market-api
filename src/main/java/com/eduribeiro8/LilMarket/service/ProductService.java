@@ -12,7 +12,7 @@ public interface ProductService {
 
     Product save(Product theProduct);
 
-    Product findProductByBarcode(long productBarcode);
+    Product findProductByBarcode(String productBarcode);
 
     Product updateProduct(Product theProduct);
 }

@@ -1,7 +1,9 @@
 package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -12,22 +14,32 @@ public class Product {
     @Column(name = "product_id")
     private int id;
 
+    @NotNull(message = "Product name cannot be null.")
+    @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters.")
     @Column(name = "name")
     private String name;
 
+    @NotNull(message = "Product barcode cannot be null.")
+    @Size(min = 10, message = "Product barcode must be at least 10 digits.")
     @Column(name = "barcode")
-    private long barcode;
+    private String barcode;
 
     @Column(name = "description")
     private String description;
 
+    @NotNull(message = "Product price cannot be null")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Product price must be greater than 0.00")
+    @Digits(integer = 10, fraction = 2, message = "Product price must have 2 decimal digits")
     @Column(name = "price")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "category")
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Product category cannot be null")
     private ProductCategory productCategory;
 
+    @NotNull
+    @Min(value = 0, message = "Product quantity must be greater than 0.")
     @Column(name = "quantity_in_stock")
     private int quantity;
 
@@ -37,11 +49,20 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, long barcode, String description, double price, ProductCategory productCategory, int quantity) {
+    public Product(String name, String barcode, String description, BigDecimal price, ProductCategory productCategory, int quantity) {
         this.name = name;
         this.barcode = barcode;
         this.description = description;
         this.price = price;
+        this.productCategory = productCategory;
+        this.quantity = quantity;
+    }
+
+    public Product(String name, String barcode, String description, double v, ProductCategory productCategory, int quantity) {
+        this.name = name;
+        this.barcode = barcode;
+        this.description = description;
+        this.price = BigDecimal.valueOf(v);
         this.productCategory = productCategory;
         this.quantity = quantity;
     }
@@ -62,11 +83,11 @@ public class Product {
         this.name = name;
     }
 
-    public long getBarcode() {
+    public String getBarcode() {
         return barcode;
     }
 
-    public void setBarcode(long barcode) {
+    public void setBarcode(String barcode) {
         this.barcode = barcode;
     }
 
@@ -78,11 +99,11 @@ public class Product {
         this.description = description;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

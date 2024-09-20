@@ -9,7 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE products (
     product_id INT PRIMARY KEY NOT NULL auto_increment,
     name VARCHAR(255) NOT NULL,
-    barcode long NOT NULL,
+    barcode VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
     category VARCHAR(50),
@@ -24,14 +24,14 @@ CREATE TABLE customers (
     email VARCHAR(255),
     phone_number VARCHAR(20),
     address TEXT,
-    debt double
+    debt DECIMAL(10, 2)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 
 CREATE TABLE sales (
     sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     customer_id INT,
-    sale_timestamp VARCHAR(50),
+    sale_timestamp timestamp,
     sale_date DATETIME,
     total_amount DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
@@ -42,7 +42,7 @@ CREATE TABLE sale_items (
     sale_id INT ,
     product_id INT ,
     quantity INT,
-    price DOUBLE,
+    price DECIMAL(10, 2),
     FOREIGN KEY (sale_id) REFERENCES sales (sale_id),
     FOREIGN KEY (product_id) REFERENCES products (product_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;

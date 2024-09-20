@@ -1,6 +1,9 @@
 package com.eduribeiro8.LilMarket.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CurrentTimestamp;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,15 +20,21 @@ public class User {
     private Long id;
 
     @Column (name = "user_name")
+    @NotNull(message = "Username cannot be null.")
+    @Size(min = 3, message = "Username must have at least 3 characters.")
     private String userName;
 
     @Column (name = "password")
+    @NotNull(message = "Password cannot be null.")
+    @Size(min = 4, max = 20, message = "Password must have between 4 and 20 characters.")
     private String password;
 
     @Column (name = "first_name")
+    @NotNull(message = "Name cannot be null.")
     private String firstName;
 
     @Column (name = "role")
+    @NotNull(message = "Role cannot be null.")
     private String role;
 
     @Column (name = "active")

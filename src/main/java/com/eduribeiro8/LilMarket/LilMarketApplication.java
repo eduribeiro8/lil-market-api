@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +50,7 @@ public class LilMarketApplication {
 		sale.setCustomer(appDAO.findCustomerById(1));
 
 		Date date = new Date();
-		sale.setTimestamp(String.valueOf(date));
+		sale.setTimestamp(date);
 
 		// Fetch the products within the same transaction to ensure they are managed.
 		Product tempProduct1 = appDAO.findProductById(1);
@@ -69,10 +70,10 @@ public class LilMarketApplication {
 
 	private void createProducts(AppDAO appDAO) {
 		List<Product> productList = new ArrayList<>();
-		Product product1 = new Product("Product1", 000000000000, "", 5.23, ProductCategory.TESTE1, 23);
-		Product product2 = new Product("Product2", 0, "", 5.85, ProductCategory.TESTE2, 25);
-		Product product3 = new Product("Product3", 0, "", 9.65, ProductCategory.TESTE3, 43);
-		Product product4 = new Product("Product4", 0, "", 9.62, ProductCategory.TESTE1, 34);
+		Product product1 = new Product("Product1", "123456783123", "", 5.23, ProductCategory.TESTE1, 23);
+		Product product2 = new Product("Product2", "2341561156156", "", 5.85, ProductCategory.TESTE2, 25);
+		Product product3 = new Product("Product3", "1465124165651", "", 9.65, ProductCategory.TESTE3, 43);
+		Product product4 = new Product("Product4", "516165165165", "", 9.62, ProductCategory.TESTE1, 34);
 
 		productList.add(product1);
 		productList.add(product2);
@@ -88,7 +89,7 @@ public class LilMarketApplication {
 		customer.setLastName("Sei la");
 		customer.setEmail("asdf@gmail.com");
 		customer.setPhoneNumber("99999999999");
-		customer.setDebt(0);
+		customer.setDebt(BigDecimal.valueOf(0));
 		appDAO.save(customer);
 	}
 

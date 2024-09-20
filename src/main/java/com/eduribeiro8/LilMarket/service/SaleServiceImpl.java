@@ -2,6 +2,7 @@ package com.eduribeiro8.LilMarket.service;
 
 import com.eduribeiro8.LilMarket.dao.SaleDAO;
 import com.eduribeiro8.LilMarket.entity.Sale;
+import com.eduribeiro8.LilMarket.rest.exception.SaleNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class SaleServiceImpl implements SaleService{
         Sale theSale = saleDAO.findSaleById(id);
 
         if (theSale == null){
-            throw new RuntimeException("Sale id " + id + " not found!");
+            throw new SaleNotFoundException(String.valueOf(id));
         }
 
         return theSale;
