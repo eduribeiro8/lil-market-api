@@ -32,7 +32,6 @@ public class LoggingPreAuthFilter extends HttpFilter {
                 request.getRemoteAddr(),
                 response.getStatus(),
                 endTime - startTime);
-
     }
 
 }

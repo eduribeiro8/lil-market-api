@@ -35,7 +35,6 @@ public class ProductController {
 
     @GetMapping("/product/barcode/{productBarcode}")
     ResponseEntity<Product> getProductByBarcode(@PathVariable String productBarcode){
-        System.out.println("productBarcode: " + productBarcode);
         Product theProduct = productService.findProductByBarcode(productBarcode);
         if (theProduct == null){
             throw new ProductNotFoundException();
