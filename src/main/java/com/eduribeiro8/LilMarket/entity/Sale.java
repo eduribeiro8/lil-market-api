@@ -27,6 +27,7 @@ public class Sale {
 
     @Column(name = "sale_timestamp")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonIgnore
 //    @NotNull(message = "Sale's timestamp cannot be null.")
     private Date timestamp;
 
@@ -55,7 +56,11 @@ public class Sale {
     public Sale(Sale sale){
         this.customer = sale.getCustomer();
         if(sale.getTimestamp() != null){
-            this.timestamp = sale.getTimestamp();
+            try {
+                this.timestamp = sale.getTimestamp();
+            }catch (Exception e){
+                this.timestamp = new Date();
+            }
         }else{
             this.timestamp = new Date();
         }
@@ -63,7 +68,7 @@ public class Sale {
         this.total = BigDecimal.valueOf(0);
         for(SaleItem item : sale.getItems()){
             item.setSale(this);
-            this.total = this.total.add(item.getPrice().multiply(
+            this.total = this.total.add(item.getProduct().getPrice().multiply(
                     BigDecimal.valueOf(item.getQuantity()))
             );
         }

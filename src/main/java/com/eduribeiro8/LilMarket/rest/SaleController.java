@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 public class SaleController {
 
@@ -31,17 +34,20 @@ public class SaleController {
     }
 
     @PostMapping("/sale")
-    public ResponseEntity<String> saveSale(@Valid @RequestBody Sale sale){
+    public ResponseEntity<Map<String, String>> saveSale(@Valid @RequestBody Sale sale) {
         Sale filteredSale = new Sale(sale);
 
         try {
             saleService.save(filteredSale);
-        }catch (TransactionSystemException ex){
+        } catch (TransactionSystemException ex) {
             throw new InsufficientQuantityInSaleException();
         }
 
-        return ResponseEntity.ok("Sale successfully saved");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Sale successfully saved");
+        return ResponseEntity.ok(response);
     }
+
 
     @PutMapping("/sale")
     public ResponseEntity<String> updateSale(@Valid @RequestBody Sale sale){

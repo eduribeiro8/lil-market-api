@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ProductController {
@@ -33,6 +35,7 @@ public class ProductController {
 
     @GetMapping("/product/barcode/{productBarcode}")
     ResponseEntity<Product> getProductByBarcode(@PathVariable String productBarcode){
+        System.out.println("productBarcode: " + productBarcode);
         Product theProduct = productService.findProductByBarcode(productBarcode);
         if (theProduct == null){
             throw new ProductNotFoundException();
@@ -41,9 +44,12 @@ public class ProductController {
     }
 
     @PostMapping("/product")
-    ResponseEntity<String> saveProduct(@Valid @RequestBody Product theProduct){
+    ResponseEntity<Map<String, String>> saveProduct(@Valid @RequestBody Product theProduct){
+        //TODO: check if the product is already in db
         productService.save(theProduct);
-        return ResponseEntity.ok("Product was successfully saved!");
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Product saved");
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/product")

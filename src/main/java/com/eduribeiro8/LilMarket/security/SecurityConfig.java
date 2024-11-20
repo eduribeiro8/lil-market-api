@@ -68,6 +68,9 @@ public class SecurityConfig {
                 .anyRequest().hasRole("ADMIN") // ADMIN pode acessar qualquer coisa
         );
 
+//        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());// Permite tudo
+        http.addFilterAfter(loggingFilter, AuthorizationFilter.class);
+
         http.httpBasic(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
 
