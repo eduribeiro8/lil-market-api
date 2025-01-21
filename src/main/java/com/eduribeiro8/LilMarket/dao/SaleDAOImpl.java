@@ -53,7 +53,7 @@ public class SaleDAOImpl implements SaleDAO{
 
     @Override
     public List<Sale> findSalesByDate(Date startDate, Date endDate) {
-        TypedQuery<Sale> typedQuery = entityManager.createQuery("select new Sale(s.id, s.customer, s.timestamp, s.total) from Sale s where s.timestamp between :startDate and :endDate", Sale.class);
+        TypedQuery<Sale> typedQuery = entityManager.createQuery("select new Sale(s.id, s.customer, s.timestamp, s.total, s.amountPaid, s.paymentStatus) from Sale s where s.timestamp between :startDate and :endDate", Sale.class);
 
         typedQuery.setParameter("startDate", startDate);
         typedQuery.setParameter("endDate", endDate);

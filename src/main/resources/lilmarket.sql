@@ -31,9 +31,11 @@ CREATE TABLE customers (
 CREATE TABLE sales (
     sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     customer_id INT,
-    sale_timestamp timestamp,
+    sale_timestamp TIMESTAMP,
     sale_date DATETIME,
     total_amount DECIMAL(10, 2) NOT NULL,
+    amount_paid DECIMAL(10, 2) DEFAULT 0.00, -- Amount paid by the customer
+    payment_status ENUM('PAYMENT_PENDING', 'PAYMENT_PAID', 'PAYMENT_CANCELLED', 'PAYMENT_PARTLY_PAID', 'PAYMENT_REFUNDED', 'PAYMENT_DEBT') DEFAULT 'PAYMENT_PENDING',
     FOREIGN KEY (customer_id) REFERENCES customers (customer_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 
