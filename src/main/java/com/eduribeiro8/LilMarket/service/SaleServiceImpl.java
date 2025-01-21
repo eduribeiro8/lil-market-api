@@ -7,6 +7,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.List;
+
 @Service
 public class SaleServiceImpl implements SaleService{
 
@@ -32,5 +35,11 @@ public class SaleServiceImpl implements SaleService{
         }
 
         return theSale;
+    }
+
+    @Override
+    public List<Sale> getSalesByDate(Date start, Date end) {
+
+        return saleDAO.findSalesByDate(start, end);
     }
 }

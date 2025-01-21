@@ -47,6 +47,11 @@ public class Customer {
         this.debt = BigDecimal.valueOf(debt);
     }
 
+    public Customer(int id, String firstName) {
+        this.id = id;
+        this.firstName = firstName;
+    }
+
     public int getId() {
         return id;
     }

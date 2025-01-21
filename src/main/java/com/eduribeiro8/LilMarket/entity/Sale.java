@@ -1,10 +1,12 @@
 package com.eduribeiro8.LilMarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Fetch;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,14 +29,14 @@ public class Sale {
 
     @Column(name = "sale_timestamp")
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonIgnore
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 //    @NotNull(message = "Sale's timestamp cannot be null.")
     private Date timestamp;
 
     @OneToMany(mappedBy = "sale",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH, CascadeType.REMOVE},
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     @JsonManagedReference
     @NotNull(message = "A sale must have items.")
     private List<SaleItem> items;
@@ -51,6 +53,14 @@ public class Sale {
         this.timestamp = timestamp;
         this.items = items;
         this.total = total;
+    }
+
+    public Sale(int id, Customer customer, Date timestamp, BigDecimal total) {
+        this.id = id;
+        this.customer = customer != null ? new Customer(customer.getId(), customer.getFirstName()) : null;
+        this.timestamp = timestamp;
+        this.total = total;
+        this.items = new ArrayList<>();
     }
 
     public Sale(Sale sale){
