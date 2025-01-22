@@ -89,7 +89,7 @@ public class LilMarketApplication {
 		customer.setLastName("Sei la");
 		customer.setEmail("asdf@gmail.com");
 		customer.setPhoneNumber("99999999999");
-		customer.setDebt(BigDecimal.valueOf(0));
+		customer.setCredit(BigDecimal.valueOf(0));
 		appDAO.save(customer);
 	}
 

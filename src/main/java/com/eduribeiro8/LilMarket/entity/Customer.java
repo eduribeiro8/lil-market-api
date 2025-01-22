@@ -32,19 +32,19 @@ public class Customer {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "debt")
-    private BigDecimal debt;
+    @Column(name = "credit")
+    private BigDecimal credit;
 
     public Customer() {
     }
 
-    public Customer(String firstName, String lastName, String email, String phoneNumber, String address, double debt) {
+    public Customer(String firstName, String lastName, String email, String phoneNumber, String address, double credit) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.address = address;
-        this.debt = BigDecimal.valueOf(debt);
+        this.credit = BigDecimal.valueOf(credit);
     }
 
     public Customer(int id, String firstName) {
@@ -100,20 +100,24 @@ public class Customer {
         this.address = address;
     }
 
-    public BigDecimal getDebt() {
-        return debt;
+    public BigDecimal getCredit() {
+        return credit;
     }
 
-    public void setDebt(BigDecimal debt) {
-        this.debt = debt;
+    public void setCredit(BigDecimal credit) {
+        this.credit = credit;
     }
 
     public void addDebt(double increment){
-        this.debt = debt.add(BigDecimal.valueOf(increment));
+        this.credit = credit.add(BigDecimal.valueOf(increment));
     }
 
     public void addDebt(BigDecimal increment){
-        this.debt = debt.add(increment);
+        this.credit = credit.subtract(increment);
+    }
+
+    public void addCredit(BigDecimal increment){
+        this.credit = credit.add(increment);
     }
 
     @Override
@@ -125,7 +129,7 @@ public class Customer {
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", address='" + address + '\'' +
-                ", debt=" + debt +
+                ", debt=" + credit +
                 '}';
     }
 }

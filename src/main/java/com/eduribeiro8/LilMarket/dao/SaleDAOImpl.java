@@ -1,15 +1,13 @@
 package com.eduribeiro8.LilMarket.dao;
 
-import com.eduribeiro8.LilMarket.entity.Customer;
-import com.eduribeiro8.LilMarket.entity.Product;
-import com.eduribeiro8.LilMarket.entity.Sale;
-import com.eduribeiro8.LilMarket.entity.SaleItem;
+import com.eduribeiro8.LilMarket.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +25,16 @@ public class SaleDAOImpl implements SaleDAO{
     @Override
     public Sale save(Sale sale) {
         Customer customer = entityManager.find(Customer.class, sale.getCustomer().getId());
-        customer.addDebt(sale.getTotal());
+        if (sale.getPaymentStatus() == PaymentStatus.PAYMENT_DEBT
+                || sale.getPaymentStatus() == PaymentStatus.PAYMENT_PARTLY_PAID){
+            BigDecimal totalToBeAdded = sale.getTotal().subtract(sale.getAmountPaid());
+            customer.addDebt(totalToBeAdded);
+        }else if (sale.getPaymentStatus() == PaymentStatus.PAYMENT_PAID){
+            BigDecimal totalToBeAdded = sale.getAmountPaid().subtract(sale.getTotal());
+            if (totalToBeAdded.compareTo(BigDecimal.ZERO) > 0){
+                customer.addCredit(totalToBeAdded);
+            }
+        }
 
         for (SaleItem saleItem: sale.getItems()){
             Product product = entityManager.find(Product.class, saleItem.getProduct().getId());

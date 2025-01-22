@@ -24,7 +24,7 @@ CREATE TABLE customers (
     email VARCHAR(255),
     phone_number VARCHAR(20),
     address TEXT,
-    debt DECIMAL(10, 2)
+    credit DECIMAL(10, 2)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 

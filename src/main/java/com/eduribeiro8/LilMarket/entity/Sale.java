@@ -102,7 +102,6 @@ public class Sale {
         } else if(amountPaid.compareTo(this.total) < 0){
             if (sale.getPaymentStatus() == PaymentStatus.PAYMENT_DEBT){
                 this.paymentStatus = PaymentStatus.PAYMENT_DEBT;
-                //addDebtToClient
             } else {
                 this.paymentStatus = PaymentStatus.PAYMENT_PARTLY_PAID;
             }
