@@ -16,4 +16,6 @@ public interface SaleDAO {
     Sale findSaleById(int id);
 
     List<Sale> findSalesByDate(Date startDate, Date endDate);
+
+    Sale update(Sale sale);
 }

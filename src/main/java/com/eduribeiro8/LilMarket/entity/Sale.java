@@ -78,6 +78,7 @@ public class Sale {
     }
 
     public Sale(Sale sale){
+        this.id = sale.getId();
         this.customer = sale.getCustomer();
         if(sale.getTimestamp() != null){
             try {
@@ -186,12 +187,17 @@ public class Sale {
 
     @Override
     public String toString() {
-        return "Sale{" +
-                "id=" + id +
-                ", customer=" + customer.getFirstName() +
-                ", timestamp=" + timestamp +
-                ", items=" + items +
-                ", total=" + total +
-                '}';
+        return "Sale [id=" + id + ", customer=" + customer + ", timestamp=" + timestamp
+                + ", items=" + items + ", total=" + total + ", amountPaid=" + amountPaid
+                + ", paymentStatus=" + paymentStatus + "]";
+    }
+
+    public void updateSale(Sale sale){
+        this.setCustomer(sale.getCustomer());
+        this.setTimestamp(sale.getTimestamp());
+        this.setTotal(sale.getTotal());
+        this.setAmountPaid(sale.getAmountPaid());
+        this.setPaymentStatus(sale.getPaymentStatus());
+        this.setItems(sale.getItems());
     }
 }

@@ -68,12 +68,14 @@ public class SaleController {
 
 
     @PutMapping("/sale")
-    public ResponseEntity<String> updateSale(@Valid @RequestBody Sale sale){
+    public ResponseEntity<Map<String, String>> updateSale(@Valid @RequestBody Sale sale){
         Sale theSale = saleService.findSaleById(sale.getId());
         if (theSale == null){
             throw new SaleNotFoundException();
+        }else if(saleService.update(sale) == null){
+            return ResponseEntity.ok(Map.of("message", "Sale was not successfully updated"));
         }
 
-        return ResponseEntity.ok("Sale successfully saved");
+        return ResponseEntity.ok(Map.of("message", "Sale successfully updated"));
     }
 }

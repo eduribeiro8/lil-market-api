@@ -12,4 +12,6 @@ public interface SaleService {
     Sale findSaleById(int id);
 
     List<Sale> getSalesByDate(Date start, Date end);
+
+    Sale update(Sale sale);
 }

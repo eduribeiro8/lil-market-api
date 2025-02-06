@@ -4,6 +4,7 @@ import com.eduribeiro8.LilMarket.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -71,5 +72,15 @@ public class SaleDAOImpl implements SaleDAO{
             System.out.println("No sales in DB");
         }
         return null;
+    }
+
+    @Override
+    @Transactional
+    public Sale update(Sale sale) {
+        Sale theSale = entityManager.find(Sale.class, sale.getId());
+        if (theSale == null) return null;
+        theSale.updateSale(sale);
+        entityManager.merge(theSale);
+        return theSale;
     }
 }

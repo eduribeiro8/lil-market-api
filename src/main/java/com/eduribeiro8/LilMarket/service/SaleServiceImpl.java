@@ -42,4 +42,9 @@ public class SaleServiceImpl implements SaleService{
 
         return saleDAO.findSalesByDate(start, end);
     }
+
+    @Override
+    public Sale update(Sale sale) {
+        return saleDAO.update(sale);
+    }
 }
