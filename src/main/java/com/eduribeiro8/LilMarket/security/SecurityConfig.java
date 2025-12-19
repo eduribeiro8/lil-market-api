@@ -56,16 +56,18 @@ public class SecurityConfig {
         http    .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
                 .addFilterAfter(loggingFilter, AuthorizationFilter.class)
                 .authorizeHttpRequests(configurer -> configurer
+                .requestMatchers(requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
+                        "**"
+                ).hasRole("ADMIN") // ADMIN pode acessar qualquer coisa
                 .requestMatchers(
                         requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
                         "product/**"
-                ).hasAnyRole("USER", "ADMIN")
+                ).hasAnyRole("USER")
                 .requestMatchers(
                         requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
                         "sale/**"
-                ).hasAnyRole("USER", "ADMIN")
+                ).hasAnyRole("USER")
                 .requestMatchers(requisitionsAvailableToUsers(), "customer/**").hasRole("USER")
-                .anyRequest().hasRole("ADMIN") // ADMIN pode acessar qualquer coisa
         );
 
         http.httpBasic(Customizer.withDefaults());
