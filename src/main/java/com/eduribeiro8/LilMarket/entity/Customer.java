@@ -3,17 +3,27 @@ package com.eduribeiro8.LilMarket.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "customers")
+@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Customer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "first_name")
     @NotNull(message = "Name cannot be null.")
@@ -33,103 +43,18 @@ public class Customer {
     private String address;
 
     @Column(name = "credit")
-    private BigDecimal credit;
+    @Builder.Default
+    private BigDecimal credit = BigDecimal.ZERO;
 
-    public Customer() {
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private OffsetDateTime createdAt;
+
+    public void addDebt(BigDecimal amount) {
+        this.credit = this.credit.subtract(amount);
     }
 
-    public Customer(String firstName, String lastName, String email, String phoneNumber, String address, double credit) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.credit = BigDecimal.valueOf(credit);
-    }
-
-    public Customer(int id, String firstName) {
-        this.id = id;
-        this.firstName = firstName;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public BigDecimal getCredit() {
-        return credit;
-    }
-
-    public void setCredit(BigDecimal credit) {
-        this.credit = credit;
-    }
-
-    public void addDebt(double increment){
-        this.credit = credit.add(BigDecimal.valueOf(increment));
-    }
-
-    public void addDebt(BigDecimal increment){
-        this.credit = credit.subtract(increment);
-    }
-
-    public void addCredit(BigDecimal increment){
-        this.credit = credit.add(increment);
-    }
-
-    @Override
-    public String toString() {
-        return "Customers{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", debt=" + credit +
-                '}';
+    public void addCredit(BigDecimal amount) {
+        this.credit = this.credit.add(amount);
     }
 }

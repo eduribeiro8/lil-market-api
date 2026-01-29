@@ -1,81 +1,51 @@
 package com.eduribeiro8.LilMarket.rest;
 
+import com.eduribeiro8.LilMarket.dto.SaleRequestDTO;
+import com.eduribeiro8.LilMarket.dto.SaleResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Sale;
-import com.eduribeiro8.LilMarket.rest.exception.InsufficientQuantityInSaleException;
-import com.eduribeiro8.LilMarket.rest.exception.SaleNotFoundException;
 import com.eduribeiro8.LilMarket.service.SaleService;
-import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashMap;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class SaleController {
 
     private final SaleService saleService;
 
-    @Autowired
-    public SaleController(SaleService saleService) {
-        this.saleService = saleService;
-    }
 
     @GetMapping("/sale/{saleId}")
-    public ResponseEntity<Sale> getSaleById(@PathVariable int saleId){
-        Sale theSale = saleService.findSaleById(saleId);
-        if (theSale == null){
-            throw new SaleNotFoundException();
-        }
-        return ResponseEntity.ok(theSale);
+    public ResponseEntity<SaleResponseDTO> getSaleById(@PathVariable int saleId){
+        return ResponseEntity.ok(saleService.findSaleById(saleId));
     }
 
     @GetMapping("/sale/by-date")
-    public ResponseEntity<List<Sale>> getSalesByDate(@RequestParam String startDate, @RequestParam String endDate) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public ResponseEntity<List<SaleResponseDTO>> getSalesByDate(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
-        Date parsedStartDate = formatter.parse(startDate);
-        Date parsedEndDate = formatter.parse(endDate);
+        OffsetDateTime start = startDate.atStartOfDay().atOffset(ZoneOffset.UTC);
+        OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
 
-        List<Sale> sales = saleService.getSalesByDate(parsedStartDate, parsedEndDate);
-
-
-        return ResponseEntity.ok(sales);
+        return ResponseEntity.ok(saleService.getSalesByDate(start, end));
     }
 
     @PostMapping("/sale")
-    public ResponseEntity<Map<String, String>> saveSale(@Valid @RequestBody Sale sale) {
-        Sale filteredSale = new Sale(sale);
-
-        try {
-            saleService.save(filteredSale);
-        } catch (TransactionSystemException ex) {
-            throw new InsufficientQuantityInSaleException();
-        }
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Sale successfully saved");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<SaleResponseDTO> saveSale(@Valid @RequestBody SaleRequestDTO saleRequestDTO) {
+        SaleResponseDTO savedSale = saleService.save(saleRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedSale);
     }
 
 
-    @PutMapping("/sale")
-    public ResponseEntity<Map<String, String>> updateSale(@Valid @RequestBody Sale sale){
-        Sale theSale = saleService.findSaleById(sale.getId());
-        if (theSale == null){
-            throw new SaleNotFoundException();
-        }else if(saleService.update(sale) == null){
-            return ResponseEntity.ok(Map.of("message", "Sale was not successfully updated"));
-        }
-
-        return ResponseEntity.ok(Map.of("message", "Sale successfully updated"));
-    }
 }

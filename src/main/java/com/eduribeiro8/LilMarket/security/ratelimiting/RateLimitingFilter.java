@@ -46,7 +46,7 @@ public class RateLimitingFilter extends HttpFilter {
             User user = userDAO.findUserByUsername(name);
             if (user != null){
                 bucket.addTokens(1);
-                bucket = USER_BUCKET.computeIfAbsent(name, k -> newBucket(user.getRole()));
+                bucket = USER_BUCKET.computeIfAbsent(name, k -> newBucket(String.valueOf(user.getRole())));
                 if (bucket.tryConsume(1)) {
                     chain.doFilter(request, response);
                 } else {

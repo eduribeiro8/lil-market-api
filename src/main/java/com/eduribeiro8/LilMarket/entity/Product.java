@@ -1,18 +1,32 @@
 package com.eduribeiro8.LilMarket.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Table(name = "products")
+@EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private int id;
+    private Integer id;
 
     @NotNull(message = "Product name cannot be null.")
     @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters.")
@@ -33,118 +47,32 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "category")
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     @NotNull(message = "Product category cannot be null")
     private ProductCategory productCategory;
 
-    @NotNull
-    @Min(value = 0, message = "Product quantity must be greater than 0.")
-    @Column(name = "quantity_in_stock")
-    private int quantity;
+    @Column(name = "is_perishable")
+    @Builder.Default
+    private boolean isPerishable = false;
 
-    @OneToMany
-    private List<SaleItem> saleItemList;
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @Builder.Default
+    private List<Batch> batches = null;
 
-    public Product() {
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private OffsetDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
+
+    public int getTotalQuantity(){
+        return batches.stream()
+                .mapToInt(Batch::getQuantityInStock)
+                .sum();
     }
-
-    public Product(String name, String barcode, String description, BigDecimal price, ProductCategory productCategory, int quantity) {
-        this.name = name;
-        this.barcode = barcode;
-        this.description = description;
-        this.price = price;
-        this.productCategory = productCategory;
-        this.quantity = quantity;
-    }
-
-    public Product(String name, String barcode, String description, double v, ProductCategory productCategory, int quantity) {
-        this.name = name;
-        this.barcode = barcode;
-        this.description = description;
-        this.price = BigDecimal.valueOf(v);
-        this.productCategory = productCategory;
-        this.quantity = quantity;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public ProductCategory getProductCategory() {
-        return productCategory;
-    }
-
-    public void setProductCategory(ProductCategory productCategory) {
-        this.productCategory = productCategory;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public void decreaseQuantity(int quantity){
-        this.quantity -= quantity;
-    }
-
-    public void updateProduct(Product newProduct){
-        this.setName(newProduct.getName());
-        this.setBarcode(newProduct.getBarcode());
-        this.setQuantity(newProduct.getQuantity());
-        this.setPrice(newProduct.getPrice());
-        this.setProductCategory(newProduct.getProductCategory());
-    }
-
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", price=" + price +
-                ", productCategory=" + productCategory +
-                ", quantity=" + quantity +
-                '}';
-    }
-
 }

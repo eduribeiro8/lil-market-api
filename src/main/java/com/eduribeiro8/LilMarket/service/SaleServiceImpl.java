@@ -1,50 +1,128 @@
 package com.eduribeiro8.LilMarket.service;
 
-import com.eduribeiro8.LilMarket.dao.SaleDAO;
-import com.eduribeiro8.LilMarket.entity.Sale;
-import com.eduribeiro8.LilMarket.rest.exception.SaleNotFoundException;
+import com.eduribeiro8.LilMarket.dto.SaleRequestDTO;
+import com.eduribeiro8.LilMarket.dto.SaleItemRequestDTO;
+import com.eduribeiro8.LilMarket.dto.SaleResponseDTO;
+import com.eduribeiro8.LilMarket.entity.*;
+import com.eduribeiro8.LilMarket.mapper.SaleMapper;
+import com.eduribeiro8.LilMarket.repository.*;
+import com.eduribeiro8.LilMarket.rest.exception.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService{
 
-    private final SaleDAO saleDAO;
+    private final SaleRepository saleRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
+    private final CustomerPaymentRepository customerPaymentRepository;
+    private final BatchService batchService;
+    private final SaleMapper saleMapper;
 
-    @Autowired
-    public SaleServiceImpl(SaleDAO saleDAO) {
-        this.saleDAO = saleDAO;
+    @Override
+    @Transactional
+    public SaleResponseDTO save(SaleRequestDTO saleRequestDTO) {
+        Sale revisedSale = new Sale();
+
+        Customer customer = customerRepository.findById(saleRequestDTO.customerId())
+                .orElseThrow(() -> new CustomerNotFoundException("Customer(id = " + saleRequestDTO.customerId() + " not found"));
+        revisedSale.setCustomer(customer);
+
+        User user = userRepository.findById(saleRequestDTO.userId())
+                .orElseThrow(() -> new UserNotFoundException("User(id = " + saleRequestDTO.userId() + ") not found"));
+        revisedSale.setUser(user);
+
+        for (SaleItemRequestDTO saleItem: saleRequestDTO.items()){
+            Product product =
+                    productRepository.findById(saleItem.productId())
+                    .orElseThrow(() -> new ProductNotFoundException("Product(id = " + saleItem.productId() +  ") not found"));
+
+            List<Batch> batches = batchService.findBatchesInStock(product, saleItem.quantity());
+
+            int remainingToRecord = saleItem.quantity();
+
+            for (Batch batch: batches){
+                if (remainingToRecord <= 0) break;
+                SaleItem revisedSaleItem = new SaleItem();
+
+                revisedSaleItem.setProduct(product);
+                revisedSaleItem.setSale(revisedSale);
+                revisedSaleItem.setBatch(batch);
+
+                int quantityFromThisBatch = Math.min(remainingToRecord, batch.getQuantityInStock());
+
+                revisedSaleItem.setQuantity(quantityFromThisBatch);
+                revisedSaleItem.setUnitPrice(batch.getProduct().getPrice());
+                revisedSaleItem.setSubtotal(revisedSaleItem.getUnitPrice().multiply(BigDecimal.valueOf(revisedSaleItem.getQuantity())));
+
+
+                remainingToRecord -= quantityFromThisBatch;
+
+                revisedSale.addSaleItem(revisedSaleItem);
+            }
+
+            batches = batchService.decrementBatches(batches, product, saleItem.quantity());
+        }
+
+        revisedSale.setAmountPaid(saleRequestDTO.amountPaid());
+        revisedSale.setNotes(saleRequestDTO.notes());
+        revisedSale.resolvePaymentStatus();
+
+        if (!revisedSale.getPaymentStatus().equals(PaymentStatus.PAID)){
+            if (saleRequestDTO.isOnAccount()){
+                customer.addDebt(revisedSale.getTotal().subtract(revisedSale.getAmountPaid()));
+            }else{
+                throw new BusinessException("As it's not an OnAccount sale, sale can not be completed");
+            }
+        }
+
+        Sale savedSale = saleRepository.save(revisedSale);
+
+        if (revisedSale.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
+            CustomerPayment customerPayment = new CustomerPayment();
+            customerPayment.setCustomer(customer);
+            customerPayment.setAmountPaid(revisedSale.getAmountPaid());
+            customerPayment.setPaymentMethod(saleRequestDTO.paymentMethod());
+            customerPayment.setNotes(
+                    "Customer paid R$" + revisedSale.getAmountPaid() + " of a R$"
+                            + revisedSale.getTotal() + " sale (saleId = " + savedSale.getId() + ")");
+            customerPaymentRepository.save(customerPayment);
+        }
+
+        return saleMapper.toResponse(savedSale);
+    }
+
+    @Override
+    public SaleResponseDTO findSaleById(int id) {
+        Sale sale = saleRepository.findById(id)
+                .orElseThrow(() -> new SaleNotFoundException("Sale(id = " + id + ") not found"));
+
+        return saleMapper.toResponse(sale);
+    }
+
+    @Override
+    public List<SaleResponseDTO> getSalesByDate(OffsetDateTime start, OffsetDateTime end) {
+        List<Sale> sales = saleRepository.findByTimestampBetween(start, end);
+
+        return saleMapper.toResponseList(sales);
     }
 
     @Override
     @Transactional
-    public Sale save(Sale sale) {
-        return saleDAO.save(sale);
-    }
+    public SaleResponseDTO update(SaleRequestDTO saleRequestDTO) {
+        Sale saleToSave = saleMapper.toEntity(saleRequestDTO);
 
-    @Override
-    public Sale findSaleById(int id) {
-        Sale theSale = saleDAO.findSaleById(id);
+        Sale saleSaved = saleRepository.save(saleToSave);
 
-        if (theSale == null){
-            throw new SaleNotFoundException(String.valueOf(id));
-        }
-
-        return theSale;
-    }
-
-    @Override
-    public List<Sale> getSalesByDate(Date start, Date end) {
-
-        return saleDAO.findSalesByDate(start, end);
-    }
-
-    @Override
-    public Sale update(Sale sale) {
-        return saleDAO.update(sale);
+        return  saleMapper.toResponse(saleSaved);
     }
 }

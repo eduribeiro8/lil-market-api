@@ -2,6 +2,7 @@ package com.eduribeiro8.LilMarket.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -9,99 +10,38 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "sale_items")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SaleItem {
+
+    @Column(name = "sale_item_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "sale_id")
     @JsonBackReference
     private Sale sale;
 
-    @Id
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @ManyToOne
+    @JoinColumn(name = "batch_id")
+    private Batch batch;
 
     @Column(name = "quantity")
     private int quantity;
 
-    @Transient
-    private final DecimalFormat decimalFormat = new DecimalFormat("0.00");
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
 
-    public SaleItem() {
-    }
-
-    public SaleItem(Product product, int quantity) {
-        this.product = product;
-        this.price = product.getPrice().multiply(BigDecimal.valueOf(quantity));
-        this.price = getPrice();
-        this.quantity = quantity;
-    }
-
-
-    public Sale getSale() {
-        return sale;
-    }
-
-    public void setSale(Sale sale) {
-        this.sale = sale;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    @Override
-    public String toString() {
-        return "SaleItem{" +
-                "product=" + product.getName() +
-                ", price=" + decimalFormat.format(getPrice()) +
-                ", quantity=" + quantity +
-                '}';
-    }
-
-    public void updatePrice() {
-        this.price = this.price.multiply(BigDecimal.valueOf(this.quantity));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SaleItem saleItem = (SaleItem) o;
-
-        if (!Objects.equals(sale, saleItem.sale)) return false;
-        return Objects.equals(product, saleItem.product);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = sale != null ? sale.hashCode() : 0;
-        result = 31 * result + (product != null ? product.hashCode() : 0);
-        return result;
-    }
+    @Column(name = "subtotal")
+    private BigDecimal subtotal;
 
 }
