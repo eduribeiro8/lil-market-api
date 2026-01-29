@@ -1,10 +1,13 @@
 package com.eduribeiro8.LilMarket.rest;
 
+import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
+import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Customer;
 import com.eduribeiro8.LilMarket.rest.exception.CustomerNotFoundException;
 import com.eduribeiro8.LilMarket.service.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,49 +24,33 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{customerId}")
-    ResponseEntity<Customer> getCustomer(@PathVariable int customerId){
-        Customer customer = customerService.findById(customerId);
-
-        if (customer == null){
-            throw new CustomerNotFoundException();
-        }
+    ResponseEntity<CustomerResponseDTO> getCustomer(@PathVariable int customerId){
+        CustomerResponseDTO customer = customerService.findById(customerId);
 
         return ResponseEntity.ok(customer);
     }
 
     @GetMapping("/customer")
-    public List<Customer> getAllCustomers(){
+    public List<CustomerResponseDTO> getAllCustomers(){
         return customerService.findAll();
     }
 
     @PostMapping("/customer")
-    ResponseEntity<String> saveCustomer(@Valid @RequestBody Customer theCustomer){
-        return ResponseEntity.ok("Customer was successfully saved");
+    ResponseEntity<CustomerResponseDTO> saveCustomer(@Valid @RequestBody CustomerRequestDTO theCustomer){
+        return ResponseEntity.ok(customerService.save(theCustomer));
     }
 
-    @PutMapping("/customer")
-    public ResponseEntity<String> updateCustomer(@Valid @RequestBody Customer theCustomer){
-        Customer customer = customerService.findById(theCustomer.getId());
+    @PutMapping("/customer/{customerId}")
+    public ResponseEntity<CustomerResponseDTO> updateCustomer(@PathVariable int customerId, @Valid @RequestBody CustomerRequestDTO theCustomer){
 
-        if (customer == null){
-            throw new CustomerNotFoundException();
-        }
-
-        customerService.save(theCustomer);
-
-        return ResponseEntity.ok("Customer information was successfully updated!");
+        return ResponseEntity.ok(customerService.save(theCustomer));
     }
 
     @DeleteMapping("admin/customer/{customerId}")
     public ResponseEntity<String> deleteCustomerById(@PathVariable int customerId){
-        Customer customer = customerService.findById(customerId);
-
-        if (customer == null){
-            throw new CustomerNotFoundException();
-        }
-
         customerService.deleteById(customerId);
-        return ResponseEntity.ok("Customer " + customer.getFirstName() + " has been deleted!");
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
 
 

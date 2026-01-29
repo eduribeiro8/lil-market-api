@@ -6,6 +6,6 @@ public class SaleNotFoundException extends RuntimeException{
     }
 
     public SaleNotFoundException(String message){
-        super("Sale (ID = " + message + ") not found");
+        super(message);
     }
 }

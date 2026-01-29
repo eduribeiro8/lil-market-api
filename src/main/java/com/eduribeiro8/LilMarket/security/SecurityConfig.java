@@ -51,27 +51,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-
-        http    .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
                 .addFilterAfter(loggingFilter, AuthorizationFilter.class)
-                .authorizeHttpRequests(configurer -> configurer
-                .requestMatchers(requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
-                        "**"
-                ).hasRole("ADMIN") // ADMIN pode acessar qualquer coisa
-                .requestMatchers(
-                        requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
-                        "product/**"
-                ).hasAnyRole("USER")
-                .requestMatchers(
-                        requisitionsAvailableToUsers().concat(HttpMethod.DELETE.toString()),
-                        "sale/**"
-                ).hasAnyRole("USER")
-                .requestMatchers(requisitionsAvailableToUsers(), "customer/**").hasRole("USER")
-        );
+                .authorizeHttpRequests(auth -> auth
+                        // 1. Defina o que o USER (e o ADMIN por consequência) pode fazer
+                        .requestMatchers(requisitionsAvailableToUsers(),
+                                "/product/**", "/sale/**", "/customer/**", "/batch/**")
+                        .hasAnyRole("USER", "MANAGER","ADMIN")
 
-        http.httpBasic(Customizer.withDefaults());
-        http.csrf(AbstractHttpConfigurer::disable);
+                        // 2. Defina o que é EXCLUSIVO do ADMIN (ex: batch ou DELETEs específicos)
+                        .requestMatchers("/user/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+
+                        // 3. Qualquer outra coisa que sobrar, exige ADMIN
+                        .anyRequest().hasRole("ADMIN")
+                )
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
@@ -79,11 +76,6 @@ public class SecurityConfig {
 //    @Bean
 //    public JwtAuthenticationFilter
 
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     private String requisitionsAvailableToUsers() {
         return Arrays.toString(new HttpMethod[]{HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT});

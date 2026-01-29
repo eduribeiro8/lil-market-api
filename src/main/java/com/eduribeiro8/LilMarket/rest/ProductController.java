@@ -1,18 +1,16 @@
 package com.eduribeiro8.LilMarket.rest;
 
-import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
+import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.rest.exception.ProductNotFoundException;
 import com.eduribeiro8.LilMarket.service.ProductService;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.validation.Valid;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 public class ProductController {
@@ -25,8 +23,8 @@ public class ProductController {
     }
 
     @GetMapping("/product/id/{productId}")
-    ResponseEntity<Product> getProductById(@PathVariable int productId){
-        Product theProduct = productService.findProductById(productId);
+    ResponseEntity<ProductResponseDTO> findProductById(@PathVariable int productId){
+        ProductResponseDTO theProduct = productService.findProductByIdDTO(productId);
         if(theProduct == null){
             throw new ProductNotFoundException();
         }
@@ -34,25 +32,21 @@ public class ProductController {
     }
 
     @GetMapping("/product/barcode/{productBarcode}")
-    ResponseEntity<Product> getProductByBarcode(@PathVariable String productBarcode){
-        Product theProduct = productService.findProductByBarcode(productBarcode);
-        if (theProduct == null){
-            throw new ProductNotFoundException();
-        }
+    ResponseEntity<ProductResponseDTO> findProductByBarcode(@PathVariable String productBarcode){
+        ProductResponseDTO theProduct = productService.findProductByBarcode(productBarcode);
+
         return ResponseEntity.ok(theProduct);
     }
 
     @PostMapping("/product")
-    ResponseEntity<Map<String, String>> saveProduct(@Valid @RequestBody Product theProduct){
-        //TODO: check if the product is already in db
-        productService.save(theProduct);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Product saved");
-        return ResponseEntity.ok(response);
+    ResponseEntity<ProductResponseDTO> saveProduct(@Valid @RequestBody ProductRequestDTO theProduct){
+        ProductResponseDTO productResponseDTO = productService.save(theProduct);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(productResponseDTO);
     }
 
     @PutMapping("/product")
-    ResponseEntity<Product> updateProduct(@RequestBody Product theProduct){
+    ResponseEntity<ProductResponseDTO> updateProduct(@RequestBody ProductRequestDTO theProduct){
         if (theProduct == null){
             throw new ProductNotFoundException();
         }
@@ -60,7 +54,7 @@ public class ProductController {
     }
 
     @GetMapping("/product")
-    public List<Product> getAllProducts(){
+    public List<ProductResponseDTO> getAllProducts(){
         return productService.findAllProducts();
     }
 }

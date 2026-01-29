@@ -1,18 +1,22 @@
 package com.eduribeiro8.LilMarket.service;
 
+import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
+import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
 
 import java.util.List;
 
 public interface ProductService {
 
-    List<Product> findAllProducts();
+    List<ProductResponseDTO> findAllProducts();
+
+    ProductResponseDTO findProductByIdDTO(int productId);
 
     Product findProductById(int productId);
 
-    Product save(Product theProduct);
+    ProductResponseDTO save(ProductRequestDTO theProduct);
 
-    Product findProductByBarcode(String productBarcode);
+    ProductResponseDTO findProductByBarcode(String productBarcode);
 
-    Product updateProduct(Product theProduct);
+    ProductResponseDTO updateProduct(ProductRequestDTO theProduct);
 }

@@ -1,18 +1,18 @@
 package com.eduribeiro8.LilMarket.service;
 
+import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
+import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Customer;
 
 import java.util.List;
 
 public interface CustomerService {
 
-    List<Customer> findAll();
+    List<CustomerResponseDTO> findAll();
 
-    Customer findById(int id);
+    CustomerResponseDTO findById(int id);
 
-    Customer findByName(String name);
-
-    Customer save(Customer customer);
+    CustomerResponseDTO save(CustomerRequestDTO customer);
 
     void deleteById(int id);
 }
