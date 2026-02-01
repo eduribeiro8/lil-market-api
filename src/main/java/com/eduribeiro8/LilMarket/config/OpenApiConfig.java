@@ -18,4 +18,5 @@ public class OpenApiConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("basic")));
     }
+
 }

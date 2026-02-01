@@ -62,13 +62,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInsufficientQuantity(InsufficientQuantityInSaleException ex, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Stock Error",
                 ex.getMessage(),
                 request.getRequestURI(),
                 null
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
     @ExceptionHandler({SaleNotFoundException.class, ProductNotFoundException.class, CustomerNotFoundException.class,
