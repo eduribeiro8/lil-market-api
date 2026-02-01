@@ -89,4 +89,14 @@ public class ProductServiceImpl implements ProductService{
         Product savedProduct = productRepository.save(productToSave);
         return productMapper.toResponse(savedProduct);
     }
+
+    @Override
+    @Transactional
+    public void deleteById(int productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
+
+        productRepository.delete(product);
+    }
 }
