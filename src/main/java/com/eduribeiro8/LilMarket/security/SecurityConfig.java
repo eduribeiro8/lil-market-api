@@ -64,16 +64,19 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // 2. Define o que o USER pode fazer
+                        // 2. Permite o endpoint login para todos
+                        .requestMatchers("/login").permitAll()
+
+                        // 3. Define o que o USER pode fazer
                         .requestMatchers(requisitionsAvailableToUsers(),
                                 "/product/**", "/sale/**", "/customer/**", "/batch/**")
                         .hasAnyRole("USER", "MANAGER","ADMIN")
 
-                        // 3. Define o que é EXCLUSIVO do ADMIN
+                        // 4. Define o que é EXCLUSIVO do ADMIN
                         .requestMatchers("/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
-                        // 4. Qualquer outra coisa que sobrar, exige ADMIN
+                        // 5. Qualquer outra coisa que sobrar, exige ADMIN
                         .anyRequest().hasRole("ADMIN")
                 )
                 .httpBasic(Customizer.withDefaults());
