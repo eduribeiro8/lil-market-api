@@ -56,16 +56,24 @@ public class SecurityConfig {
                 .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
                 .addFilterAfter(loggingFilter, AuthorizationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Defina o que o USER (e o ADMIN por consequência) pode fazer
+                        // 1. Define endpoints para o Swagger
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // 2. Define o que o USER pode fazer
                         .requestMatchers(requisitionsAvailableToUsers(),
                                 "/product/**", "/sale/**", "/customer/**", "/batch/**")
                         .hasAnyRole("USER", "MANAGER","ADMIN")
 
-                        // 2. Defina o que é EXCLUSIVO do ADMIN (ex: batch ou DELETEs específicos)
+                        // 3. Define o que é EXCLUSIVO do ADMIN
                         .requestMatchers("/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
-                        // 3. Qualquer outra coisa que sobrar, exige ADMIN
+                        // 4. Qualquer outra coisa que sobrar, exige ADMIN
                         .anyRequest().hasRole("ADMIN")
                 )
                 .httpBasic(Customizer.withDefaults());

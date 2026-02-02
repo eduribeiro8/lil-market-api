@@ -7,14 +7,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({MethodArgumentNotValidException.class})
     public ResponseEntity<ErrorResponse> handleValidationError(MethodArgumentNotValidException ex, HttpServletRequest request){
         List<ErrorResponse.ValidationError> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -29,6 +27,19 @@ public class GlobalExceptionHandler {
                 "One or more fields are invalid",
                 request.getRequestURI(),
                 errors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidDateIntervalException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDate(InvalidDateIntervalException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Dates",
+                ex.getMessage(),
+                request.getRequestURI(),
+                null
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
@@ -51,13 +62,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInsufficientQuantity(InsufficientQuantityInSaleException ex, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.UNPROCESSABLE_ENTITY.value(),
                 "Stock Error",
                 ex.getMessage(),
                 request.getRequestURI(),
                 null
         );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(error);
     }
 
     @ExceptionHandler({SaleNotFoundException.class, ProductNotFoundException.class, CustomerNotFoundException.class,
