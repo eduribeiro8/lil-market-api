@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,13 +52,28 @@ public class BatchController {
         return batchService.save(batchRequestDTO);
     }
 
-    @Operation(summary = "Lista todos os lotes em estoque",
-            description = "Retorna a lista de todos os lotes que ainda têm quantidade em estoque.")
+    @Operation(summary = "Lista todos os lotes em estoque (Paginado)",
+            description = "Retorna uma página de lotes que ainda têm quantidade em estoque.")
     @ApiStandardErrors
-    @ApiResponse(responseCode = "200", description = "Lista de lotes retornada com sucesso")
+    @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso")
     @GetMapping("/batch")
-    public List<BatchResponseDTO> getAllBatchesInStock() {
-        return batchService.getAllBatchesInStock();
+    public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
+        return batchService.getAllBatchesInStock(pageable);
+    }
+
+
+    @Operation(summary = "Busca um lote por ID", description = "Retorna o lote que possui o ID informado")
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lote encontrado"),
+            @ApiResponse(responseCode = "404", description = "Lote não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/batch/{batchId}")
+    public BatchResponseDTO getBatch(
+            @Parameter(required = true, description = "ID do lote", example = "1")
+            @Valid @PathVariable int batchId){
+        return batchService.getBatchById(batchId);
     }
 
     @Operation(summary = "Busca lotes em estoque por produto e quantidade mínima",

@@ -16,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -47,11 +49,17 @@ public class BatchServiceImpl implements BatchService{
         return batchMapper.toResponse(batch);
     }
 
-    @Override
-    public List<BatchResponseDTO> getAllBatchesInStock() {
-        List<Batch> batches = batchRepository.findByQuantityInStockGreaterThanOrderByExpirationDateAsc(0);
+    public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
+        return batchRepository.findByQuantityInStockGreaterThan(0, pageable)
+                .map(batchMapper::toResponse);
+    }
 
-        return batchMapper.toResponseList(batches);
+    @Override
+    public BatchResponseDTO getBatchById(Integer batchId) {
+        Batch batch = batchRepository.findById(batchId)
+                .orElseThrow(() -> new BatchNotFoundException("Batch not found"));
+
+        return batchMapper.toResponse(batch);
     }
 
     @Override
