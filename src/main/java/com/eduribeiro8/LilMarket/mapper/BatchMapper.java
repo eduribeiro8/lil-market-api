@@ -13,6 +13,7 @@ public interface BatchMapper {
 
     @Mapping(source = "id", target="batchId")
     @Mapping(source = "product.id", target="productId")
+    @Mapping(source = "product.name", target="productName")
     BatchResponseDTO toResponse(Batch batch);
 
     @Mapping(source = "id", target="batchId")

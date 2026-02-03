@@ -11,6 +11,8 @@ public record BatchResponseDTO(
         Integer batchId,
         @Schema(description = "Identificador do produto", example = "10")
         Integer productId,
+        @Schema(description = "Nome do produto", example = "Coca-Cola 2L")
+        String productName,
         @Schema(description = "Código do lote", example = "LOTE-202601")
         String batchCode,
         @Schema(description = "Data de fabricação", example = "2026-01-01")
