@@ -21,11 +21,14 @@ public class LoggingFilter extends OncePerRequestFilter {
 
         Long startTime = System.currentTimeMillis();
 
+        String queryString = request.getQueryString();
+        String fullPath = request.getRequestURI() + (queryString != null ? "?" + queryString : "");
+
         logger.info("Incoming request from user={}({}): {} {}",
                 userName,
                 request.getRemoteAddr(),
                 request.getMethod(),
-                request.getRequestURI());
+                fullPath);
 
         filterChain.doFilter(request, response);
 
