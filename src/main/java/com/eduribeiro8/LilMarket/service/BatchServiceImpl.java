@@ -131,7 +131,7 @@ public class BatchServiceImpl implements BatchService{
 
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch(id = " + batchId + ") not found"));
-        batch.setQuantityLost(quantity);
+        batch.setQuantityLost(batch.getQuantityLost() + quantity);
         batch.setQuantityInStock(Math.max(0, batch.getQuantityInStock() - quantity));
         batchRepository.save(batch);
         logger.info("LOSS REPORT: Batch(id = {}) was reported with a loss of {} units with the reason of {}", batchId, quantity, reason);
