@@ -78,6 +78,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             return Bucket.builder()
                     .addLimit(Bandwidth.classic(100, Refill.greedy(10, Duration.ofMinutes(1))))
                     .build();
+        } else if ("ROLE_MANAGER".equals(type)) {
+            return Bucket.builder()
+                    .addLimit(Bandwidth.classic(1000, Refill.greedy(100, Duration.ofMinutes(1))))
+                    .build();
         } else if ("ROLE_ADMIN".equals(type)) {
             return Bucket.builder()
                     .addLimit(Bandwidth.classic(10000, Refill.greedy(100, Duration.ofMinutes(1))))
