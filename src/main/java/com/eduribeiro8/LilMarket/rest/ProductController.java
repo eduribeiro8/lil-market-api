@@ -16,11 +16,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,6 +48,7 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
+
     @GetMapping("/product/barcode/{productBarcode}")
     @Operation(summary = "Busca um produto por código de barras", description = "Retorna o produto que possui o código de barras informado")
     @ApiStandardErrors
@@ -67,13 +68,12 @@ public class ProductController {
     }
 
     @GetMapping("/product")
-    @Operation(summary = "Lista todos os produtos", description = "Retorna a lista de todos os produtos cadastrados")
+    @Operation(summary = "Lista todos os produtos cadastrados (Paginado)",
+            description = "Retorna uma página de produtos cadastrados.")
     @ApiStandardErrors
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso")
-    })
-    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
-        return ResponseEntity.ok(productService.findAllProducts());
+    @ApiResponse(responseCode = "200", description = "Página de produtos retornada com sucesso")
+    public Page<ProductResponseDTO> getAllProducts(Pageable pageable){
+        return  productService.getAllProducts(pageable);
     }
 
     @PostMapping("/product")

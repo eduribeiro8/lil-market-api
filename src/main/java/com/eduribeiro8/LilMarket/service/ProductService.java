@@ -3,12 +3,12 @@ package com.eduribeiro8.LilMarket.service;
 import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
 import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
 
-    List<ProductResponseDTO> findAllProducts();
+    Page<ProductResponseDTO> getAllProducts(Pageable pageable);
 
     ProductResponseDTO findProductByIdDTO(int productId);
 
