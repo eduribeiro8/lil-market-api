@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 public record ProductCategoryRequestDTO(
         @Schema(description = "Nome da categoria", example = "Laticínios", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotBlank String name,
-        @Schema(description = "Descrição da categoria", example = "Leites e derivados", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank String description
+        @Schema(description = "Descrição da categoria", example = "Leites e derivados")
+        String description
 ) {
 }

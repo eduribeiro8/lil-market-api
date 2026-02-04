@@ -44,7 +44,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler({DuplicateBarcodeException.class, DuplicateUsernameException.class, DuplicateBatchCodeException.class})
+    @ExceptionHandler({DuplicateBarcodeException.class, DuplicateUsernameException.class,
+            DuplicateBatchCodeException.class, DuplicateProductCategoryException.class})
     public ResponseEntity<ErrorResponse> handleDuplicate(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),

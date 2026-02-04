@@ -6,10 +6,14 @@ import com.eduribeiro8.LilMarket.entity.ProductCategory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "string")
+import java.util.List;
+
+@Mapper(componentModel = "spring")
 public interface ProductCategoryMapper {
 
     ProductCategoryResponseDTO toResponse(ProductCategory productCategory);
+
+    List<ProductCategoryResponseDTO> toResponseList(List<ProductCategory> productCategoryList);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
