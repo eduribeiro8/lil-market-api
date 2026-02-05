@@ -18,7 +18,7 @@ public interface ProductService {
 
     ProductResponseDTO findProductByBarcode(String productBarcode);
 
-    ProductResponseDTO updateProduct(ProductRequestDTO theProduct);
+    ProductResponseDTO updateProduct(int productId, ProductRequestDTO theProduct);
 
     void deleteById(int productId);
 }

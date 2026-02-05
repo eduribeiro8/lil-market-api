@@ -96,7 +96,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PutMapping("/product")
+    @PutMapping("/product/{productId}")
     @Operation(summary = "Atualiza um produto existente", description = "Atualiza os dados de um produto já cadastrado")
     @ApiStandardErrors
     @ApiResponses(value = {
@@ -107,6 +107,8 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<ProductResponseDTO> updateProduct(
+            @Parameter(required = true, description = "ID do produto a ser atualizado", example = "1")
+            @PathVariable int productId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados atualizados do produto",
                     required = true
@@ -115,7 +117,7 @@ public class ProductController {
         if (productRequestDTO == null) {
             throw new ProductNotFoundException();
         }
-        ProductResponseDTO updated = productService.updateProduct(productRequestDTO);
+        ProductResponseDTO updated = productService.updateProduct(productId, productRequestDTO);
         return ResponseEntity.ok(updated);
     }
 

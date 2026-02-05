@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -80,17 +81,22 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public ProductResponseDTO updateProduct(ProductRequestDTO theProduct) {
-        Product productToSave = productMapper.toEntity(theProduct);
+    public ProductResponseDTO updateProduct(int productId, ProductRequestDTO productRequestDTO) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product(id = " + productId + ") not found!"));
 
-        ProductCategory productCategory = productCategoryRepository
-                .findById(theProduct.categoryId())
-                .orElseThrow(ProductCategoryNotFoundException::new);
+        if (!Objects.equals(product.getProductCategory().getId(), productRequestDTO.categoryId())){
+            ProductCategory productCategory = productCategoryRepository
+                    .findById(productRequestDTO.categoryId())
+                    .orElseThrow(() -> new ProductCategoryNotFoundException(
+                            "Category(id = " + productRequestDTO.categoryId() + ") not found!"
+                    ));
+            product.setProductCategory(productCategory);
+        }
 
-        productToSave.setProductCategory(productCategory);
+        Product updatedProduct = productMapper.updateEntityFromDTO(productRequestDTO, product);
 
-        Product savedProduct = productRepository.save(productToSave);
-        return productMapper.toResponse(savedProduct);
+        return productMapper.toResponse(productRepository.save(updatedProduct));
     }
 
     @Override

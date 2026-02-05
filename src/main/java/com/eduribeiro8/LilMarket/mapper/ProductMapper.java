@@ -5,6 +5,7 @@ import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -18,10 +19,17 @@ public interface ProductMapper {
     @Mapping(source = "productCategory.name", target = "categoryName")
     List<ProductResponseDTO> toResponseList(List<Product> products);
 
-    @Mapping(target = "id", ignore = true)
+
     @Mapping(target = "productCategory", ignore = true)
     @Mapping(target = "batches", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Product toEntity(ProductRequestDTO request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productCategory", ignore = true)
+    @Mapping(target = "batches", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Product updateEntityFromDTO(ProductRequestDTO request, @MappingTarget Product product);
 }
