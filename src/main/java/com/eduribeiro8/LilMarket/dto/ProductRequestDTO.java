@@ -17,5 +17,6 @@ public record ProductRequestDTO(
         @Schema(description = "ID da categoria do produto", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull Integer categoryId,
         @Schema(description = "Se o produto é perecível", example = "true")
-        boolean isPerishable
+        @NotNull
+        Boolean isPerishable
 ) {}

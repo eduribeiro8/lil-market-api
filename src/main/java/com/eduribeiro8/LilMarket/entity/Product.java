@@ -54,7 +54,7 @@ public class Product {
 
     @Column(name = "is_perishable")
     @Builder.Default
-    private boolean isPerishable = false;
+    private Boolean isPerishable = false;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
