@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class BatchController {
     @ApiStandardErrors
     @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso")
     @GetMapping("/batch")
-    public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
+    public Page<BatchResponseDTO> getAllBatchesInStock(@ParameterObject Pageable pageable) {
         return batchService.getAllBatchesInStock(pageable);
     }
 
