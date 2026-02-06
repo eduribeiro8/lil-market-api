@@ -1,10 +1,9 @@
 package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
+import com.eduribeiro8.LilMarket.dto.CustomerPaymentResponseDTO;
 import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
 import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
-import com.eduribeiro8.LilMarket.entity.Customer;
-import com.eduribeiro8.LilMarket.rest.exception.CustomerNotFoundException;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,11 +16,15 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -112,5 +115,14 @@ public class CustomerController {
             @PathVariable int customerId) {
         customerService.deleteById(customerId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/customer/{customerId}/transactions")
+    public ResponseEntity<Page<CustomerPaymentResponseDTO>> customerTransactions(
+            @PathVariable int customerId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @ParameterObject Pageable pageable){
+        return ResponseEntity.ok(customerService.getCustomerTransactions(customerId, startDate, endDate, pageable));
     }
 }
