@@ -20,9 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -60,6 +62,21 @@ public class BatchController {
     @GetMapping("/batch")
     public Page<BatchResponseDTO> getAllBatchesInStock(@ParameterObject Pageable pageable) {
         return batchService.getAllBatchesInStock(pageable);
+    }
+
+    @Operation(summary = "Lista todos os lotes em estoque  entre um intarvalo (Paginado)",
+            description = "Retorna uma página de lotes que ainda têm quantidade em estoque no intervalo requisitado.")
+    @ApiStandardErrors
+    @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso")
+    @GetMapping("/batch/by-date")
+    public Page<BatchResponseDTO> getAllBatchesInStockByDate(
+            @Parameter(required = true, description = "Data inicial", example = "2026-01-01")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @Parameter(required = true, description = "Data final", example = "2026-01-31")
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @ParameterObject Pageable pageable
+    ) {
+        return batchService.getAllBatchesInStockByDate(startDate, endDate, pageable);
     }
 
 

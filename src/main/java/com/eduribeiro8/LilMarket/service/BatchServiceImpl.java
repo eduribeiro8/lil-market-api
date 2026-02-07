@@ -11,7 +11,7 @@ import com.eduribeiro8.LilMarket.repository.BatchRepository;
 import com.eduribeiro8.LilMarket.rest.exception.BatchNotFoundException;
 import com.eduribeiro8.LilMarket.rest.exception.DuplicateBatchCodeException;
 import com.eduribeiro8.LilMarket.rest.exception.InsufficientQuantityInSaleException;
-import com.eduribeiro8.LilMarket.security.logging.LoggingFilter;
+import com.eduribeiro8.LilMarket.rest.exception.InvalidDateIntervalException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,6 +21,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +50,24 @@ public class BatchServiceImpl implements BatchService{
         batch = batchRepository.save(batch);
 
         return batchMapper.toResponse(batch);
+    }
+
+    @Override
+    public Page<BatchResponseDTO> getAllBatchesInStockByDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        OffsetDateTime start = startDate.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
+        OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+
+        if (start.isAfter(end)){
+            throw new InvalidDateIntervalException("A data final não pode ser anterior à data inicial");
+        }
+
+        Page<Batch> batches = batchRepository.findByQuantityInStockGreaterThanAndExpirationDateBetween(1, startDate, endDate, pageable);
+
+        if (batches.isEmpty()){
+            throw new BatchNotFoundException("Não há lotes entre " + startDate + " e " + endDate + ".");
+        }
+
+        return batches.map(batchMapper::toResponse);
     }
 
     public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {

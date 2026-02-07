@@ -17,6 +17,10 @@ public interface BatchRepository extends JpaRepository<Batch, Integer> {
 
     List<Batch> findByQuantityInStockGreaterThanAndExpirationDateBeforeOrderByExpirationDate(int quantity, LocalDate date);
 
+    Page<Batch> findByQuantityInStockGreaterThanAndExpirationDateBetween(
+            int quantity, LocalDate startDate, LocalDate endDate, Pageable pageable
+    );
+
     List<Batch> findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(Product product, int quantity);
 
     boolean existsByBatchCode(String s);

@@ -9,6 +9,8 @@ import com.eduribeiro8.LilMarket.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface BatchService {
@@ -16,6 +18,8 @@ public interface BatchService {
     BatchResponseDTO save(BatchRequestDTO batch);
 
     Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable);
+
+    Page<BatchResponseDTO> getAllBatchesInStockByDate(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, int quantity);
 
