@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -60,7 +59,7 @@ public class BatchController {
     @ApiStandardErrors
     @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso")
     @GetMapping("/batch")
-    public Page<BatchResponseDTO> getAllBatchesInStock(@ParameterObject Pageable pageable) {
+    public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
         return batchService.getAllBatchesInStock(pageable);
     }
 
@@ -74,7 +73,7 @@ public class BatchController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(required = true, description = "Data final", example = "2026-01-31")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @ParameterObject Pageable pageable
+            Pageable pageable
     ) {
         return batchService.getAllBatchesInStockByDate(startDate, endDate, pageable);
     }

@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({DuplicateBarcodeException.class, DuplicateUsernameException.class,
-            DuplicateBatchCodeException.class, DuplicateProductCategoryException.class})
+            DuplicateBatchCodeException.class, DuplicateProductCategoryException.class, DuplicateSupplierException.class})
     public ResponseEntity<ErrorResponse> handleDuplicate(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
@@ -73,7 +73,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({SaleNotFoundException.class, ProductNotFoundException.class, CustomerNotFoundException.class,
-    UserNotFoundException.class, BatchNotFoundException.class, ProductCategoryNotFoundException.class})
+    UserNotFoundException.class, BatchNotFoundException.class, ProductCategoryNotFoundException.class,
+            RestockNotFoundException.class, SupplierNotFoundException.class})
     public ResponseEntity<ErrorResponse> handleNotFound(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),

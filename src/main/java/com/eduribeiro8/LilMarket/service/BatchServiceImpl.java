@@ -6,19 +6,21 @@ import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
 import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.entity.Restock;
+import com.eduribeiro8.LilMarket.entity.Supplier;
 import com.eduribeiro8.LilMarket.mapper.BatchMapper;
 import com.eduribeiro8.LilMarket.repository.BatchRepository;
 import com.eduribeiro8.LilMarket.rest.exception.BatchNotFoundException;
 import com.eduribeiro8.LilMarket.rest.exception.DuplicateBatchCodeException;
 import com.eduribeiro8.LilMarket.rest.exception.InsufficientQuantityInSaleException;
 import com.eduribeiro8.LilMarket.rest.exception.InvalidDateIntervalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,6 +36,7 @@ public class BatchServiceImpl implements BatchService{
     private final BatchRepository batchRepository;
     private final BatchMapper batchMapper;
     private final ProductService productService;
+    private final SupplierService supplierService;
     private static final Logger logger = LoggerFactory.getLogger(BatchService.class);
 
     @Override
@@ -44,12 +47,40 @@ public class BatchServiceImpl implements BatchService{
         }
 
         Batch batch = batchMapper.toEntity(batchRequest);
+
         Product product = productService.findProductById(batchRequest.productId());
+        Supplier supplier = supplierService.findById(batchRequest.supplierId());
+
         batch.setProduct(product);
+        batch.setSupplier(supplier);
+        batch.setRestock(null);
 
         batch = batchRepository.save(batch);
 
         return batchMapper.toResponse(batch);
+    }
+
+    @Override
+    @Transactional
+    public void saveFromRestock(Restock restock, List<BatchRequestDTO> batchRequestDTOList) {
+        Supplier supplier = restock.getSupplier();
+
+        List<Batch> batches = batchRequestDTOList.stream().map(batchRequest -> {
+            if(batchRepository.existsByBatchCode(batchRequest.batchCode())){
+                throw new DuplicateBatchCodeException("Batch (" + batchRequest.batchCode() + ") is already registered");
+            }
+
+            Batch batch = batchMapper.toEntity(batchRequest);
+            Product product = productService.findProductById(batchRequest.productId());
+
+            batch.setProduct(product);
+            batch.setSupplier(supplier);
+            batch.setRestock(restock);
+
+            return batch;
+        }).toList();
+
+        batchRepository.saveAll(batches);
     }
 
     @Override

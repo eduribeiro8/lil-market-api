@@ -15,7 +15,7 @@ public record CustomerPaymentRequestDTO(
         @Schema(description = "Valor pago", example = "50.00", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull @PositiveOrZero BigDecimal amountPaid,
         @Schema(description = "Método de pagamento", example = "DINHEIRO", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotBlank PaymentMethod paymentMethod,
+        @NotNull PaymentMethod paymentMethod,
         @Schema(description = "Observações", example = "Pago em dinheiro no caixa")
         String notes
 ) {

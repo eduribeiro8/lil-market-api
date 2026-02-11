@@ -6,6 +6,7 @@ import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
 import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.entity.Restock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,6 +17,8 @@ import java.util.List;
 public interface BatchService {
 
     BatchResponseDTO save(BatchRequestDTO batch);
+
+    void saveFromRestock(Restock restock, List<BatchRequestDTO> batchRequestDTOList);
 
     Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable);
 

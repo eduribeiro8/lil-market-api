@@ -47,6 +47,14 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
+    @DecimalMin(value = "0.00", message = "{product.min.profit.margin}")
+    @Column(name = "profit_margin")
+    private BigDecimal profitMargin;
+
+    @Min(value = 0, message = "{product.min.quantity.in.stock}")
+    @Column(name = "min_quantity_in_stock")
+    private Integer minQuantityInStock;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     @NotNull(message = "Product category cannot be null")
@@ -55,6 +63,10 @@ public class Product {
     @Column(name = "is_perishable")
     @Builder.Default
     private Boolean isPerishable = false;
+
+    @Builder.Default
+    @Column(name = "alert")
+    private Boolean alert = false;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference

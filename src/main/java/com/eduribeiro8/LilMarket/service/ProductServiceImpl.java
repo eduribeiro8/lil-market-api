@@ -5,22 +5,20 @@ import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.ProductCategory;
 import com.eduribeiro8.LilMarket.mapper.ProductMapper;
+import com.eduribeiro8.LilMarket.repository.BatchRepository;
 import com.eduribeiro8.LilMarket.repository.ProductCategoryRepository;
 import com.eduribeiro8.LilMarket.repository.ProductRepository;
 import com.eduribeiro8.LilMarket.rest.exception.DuplicateBarcodeException;
 import com.eduribeiro8.LilMarket.rest.exception.ProductCategoryNotFoundException;
 import com.eduribeiro8.LilMarket.rest.exception.ProductNotFoundException;
-import jakarta.transaction.Transactional;
-import jdk.jfr.Category;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 @Service
@@ -30,6 +28,8 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductMapper productMapper;
+
+    private final BatchRepository batchRepository;
 
     @Override
     @Transactional
@@ -107,5 +107,32 @@ public class ProductServiceImpl implements ProductService{
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
 
         productRepository.delete(product);
+    }
+
+    @Override
+    @Transactional
+    public void calculatePriceBasedOnStock(Integer productId) {
+        Product product = findProductById(productId);
+
+        BigDecimal averageCost = batchRepository.calculateAverageCostByProduct(productId);
+
+        if (averageCost == null){
+            //estoque vazio
+            return;
+        }
+
+        BigDecimal profitMargin = BigDecimal.ONE.add(
+                product.getProfitMargin().divide(
+                        new BigDecimal(100), 2, RoundingMode.HALF_UP
+                )
+        );
+
+        BigDecimal newPrice = averageCost.multiply(profitMargin);
+
+        BigDecimal finalPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+
+        product.setPrice(finalPrice);
+
+        productRepository.save(product);
     }
 }

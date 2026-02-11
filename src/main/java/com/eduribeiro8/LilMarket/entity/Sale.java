@@ -58,6 +58,10 @@ public class Sale {
     @Builder.Default
     private BigDecimal amountPaid = BigDecimal.ZERO;
 
+    @Column(name = "net_profit")
+    @Builder.Default
+    private BigDecimal netProfit = BigDecimal.ZERO;
+
     @Column(name = "payment_status")
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Payment status cannot be null")

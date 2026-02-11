@@ -34,6 +34,16 @@ public class Batch {
     @JsonBackReference
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "supplier_id")
+    @NotNull(message = "{supplier.required}")
+    private Supplier supplier;
+
+    @ManyToOne
+    @JoinColumn(name = "restock_id")
+    @NotNull(message = "{restock.required}")
+    private Restock restock;
+
     @Column(name = "batch_code", unique = true)
     @NotNull(message = "Batch code cannot be null")
     private String batchCode;

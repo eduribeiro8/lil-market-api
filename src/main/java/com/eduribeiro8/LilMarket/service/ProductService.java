@@ -21,4 +21,6 @@ public interface ProductService {
     ProductResponseDTO updateProduct(int productId, ProductRequestDTO theProduct);
 
     void deleteById(int productId);
+
+    void calculatePriceBasedOnStock(Integer productId);
 }

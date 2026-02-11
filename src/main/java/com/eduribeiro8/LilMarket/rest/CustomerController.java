@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -122,7 +121,7 @@ public class CustomerController {
             @PathVariable int customerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @ParameterObject Pageable pageable){
+            Pageable pageable){
         return ResponseEntity.ok(customerService.getCustomerTransactions(customerId, startDate, endDate, pageable));
     }
 }

@@ -31,6 +31,7 @@ public class SaleServiceImpl implements SaleService{
     @Transactional
     public SaleResponseDTO save(SaleRequestDTO saleRequestDTO) {
         Sale revisedSale = new Sale();
+        BigDecimal profit = BigDecimal.ZERO;
 
         Customer customer = customerRepository.findById(saleRequestDTO.customerId())
                 .orElseThrow(() -> new CustomerNotFoundException("Customer(id = " + saleRequestDTO.customerId() + " not found"));
@@ -62,7 +63,7 @@ public class SaleServiceImpl implements SaleService{
                 revisedSaleItem.setQuantity(quantityFromThisBatch);
                 revisedSaleItem.setUnitPrice(batch.getProduct().getPrice());
                 revisedSaleItem.setSubtotal(revisedSaleItem.getUnitPrice().multiply(BigDecimal.valueOf(revisedSaleItem.getQuantity())));
-
+                profit = profit.add(batch.getProduct().getPrice().subtract(batch.getPurchasePrice()));
 
                 remainingToRecord -= quantityFromThisBatch;
 
@@ -73,6 +74,7 @@ public class SaleServiceImpl implements SaleService{
         }
 
         revisedSale.setAmountPaid(saleRequestDTO.amountPaid());
+        revisedSale.setNetProfit(profit);
         revisedSale.setNotes(saleRequestDTO.notes());
         revisedSale.resolvePaymentStatus();
 
