@@ -114,6 +114,8 @@ public class ProductServiceImpl implements ProductService{
     public void calculatePriceBasedOnStock(Integer productId) {
         Product product = findProductById(productId);
 
+        if (!product.getAutoPricing()) return;
+
         BigDecimal averageCost = batchRepository.calculateAverageCostByProduct(productId);
 
         if (averageCost == null){

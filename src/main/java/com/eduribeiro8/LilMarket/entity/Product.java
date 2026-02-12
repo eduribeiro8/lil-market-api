@@ -47,6 +47,10 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
+    @Builder.Default
+    @Column(name = "auto_pricing")
+    private Boolean autoPricing = true;
+
     @DecimalMin(value = "0.00", message = "{product.min.profit.margin}")
     @Column(name = "profit_margin")
     private BigDecimal profitMargin;

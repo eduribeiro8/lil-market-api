@@ -15,6 +15,8 @@ public record ProductResponseDTO (
         String description,
         @Schema(description = "Preço unitário", example = "3.49")
         BigDecimal price,
+        @Schema(description = "Se o produto atualiza o preço automaticamente", example = "true")
+        Boolean autoPricing,
         @Schema(description = "Margem de lucro em porcentagem", example = "50.0")
         BigDecimal profitMargin,
         @Schema(description = "Quantidade mínima em estoque para alerta", example = "10")

@@ -57,6 +57,9 @@ public class BatchServiceImpl implements BatchService{
 
         batch = batchRepository.save(batch);
 
+        productService.calculatePriceBasedOnStock(product.getId());
+
+
         return batchMapper.toResponse(batch);
     }
 

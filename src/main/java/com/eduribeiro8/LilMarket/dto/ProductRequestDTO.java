@@ -14,6 +14,8 @@ public record ProductRequestDTO(
         String description,
         @Schema(description = "Preço unitário", example = "3.49", requiredMode = Schema.RequiredMode.REQUIRED)
         BigDecimal price,
+        @Schema(description = "Se o produto atualiza o preço automaticamente", example = "true")
+        Boolean autoPricing,
         @Schema(description = "Margem de lucro em porcentagem", example = "50.0", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull @PositiveOrZero BigDecimal profitMargin,
         @Schema(description = "Quantidade mínima em estoque para alerta", example = "10", requiredMode = Schema.RequiredMode.REQUIRED)
