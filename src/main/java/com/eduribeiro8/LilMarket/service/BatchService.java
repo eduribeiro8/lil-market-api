@@ -16,8 +16,6 @@ import java.util.List;
 
 public interface BatchService {
 
-    BatchResponseDTO save(BatchRequestDTO batch);
-
     void saveFromRestock(Restock restock, List<BatchRequestDTO> batchRequestDTOList);
 
     Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable);

@@ -22,10 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,29 +37,6 @@ public class BatchServiceImpl implements BatchService{
     private final SupplierService supplierService;
     private static final Logger logger = LoggerFactory.getLogger(BatchService.class);
 
-    @Override
-    @Transactional
-    public BatchResponseDTO save(BatchRequestDTO batchRequest) {
-        if(batchRepository.existsByBatchCode(batchRequest.batchCode())){
-            throw new DuplicateBatchCodeException("Batch (" + batchRequest.batchCode() + ") is already registered");
-        }
-
-        Batch batch = batchMapper.toEntity(batchRequest);
-
-        Product product = productService.findProductById(batchRequest.productId());
-        Supplier supplier = supplierService.findById(batchRequest.supplierId());
-
-        batch.setProduct(product);
-        batch.setSupplier(supplier);
-        batch.setRestock(null);
-
-        batch = batchRepository.save(batch);
-
-        productService.calculatePriceBasedOnStock(product.getId());
-
-
-        return batchMapper.toResponse(batch);
-    }
 
     @Override
     @Transactional
@@ -75,6 +50,12 @@ public class BatchServiceImpl implements BatchService{
 
             Batch batch = batchMapper.toEntity(batchRequest);
             Product product = productService.findProductById(batchRequest.productId());
+
+            batch.setBatchCode(
+                    batchRequest.batchCode() == null || batchRequest.batchCode().isBlank() ?
+                            generateAutomaticBatchCode(product.getId(), batchRequest.expirationDate()) :
+                            batch.getBatchCode()
+                    );
 
             batch.setProduct(product);
             batch.setSupplier(supplier);
@@ -209,5 +190,13 @@ public class BatchServiceImpl implements BatchService{
         batch.setQuantityInStock(0);
         batchRepository.save(batch);
         logger.info("INVALIDATING BATCH: Batch(id = {}) was invalidated with the reason of {}", batchId, batchInvalidation.reason());
+    }
+
+    private String generateAutomaticBatchCode(Integer productId, LocalDate expirationDate) {
+        String expiryPart = expirationDate.format(DateTimeFormatter.ofPattern("yyMMdd"));
+
+        int suffix = java.util.concurrent.ThreadLocalRandom.current().nextInt(100, 1000);
+
+        return String.format("P%d-%d-V%s", productId, suffix, expiryPart);
     }
 }

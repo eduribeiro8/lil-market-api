@@ -34,26 +34,6 @@ public class BatchController {
 
     private final BatchService batchService;
 
-    @Operation(summary = "Cria um novo lote",
-            description = "Registra um novo lote no sistema.")
-    @ApiStandardErrors
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Lote criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro de validação ou sintaxe",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Lote já existe",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping("/batch")
-    public BatchResponseDTO save(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Dados necessários para criar um lote.",
-                    required = true
-            )
-            @Valid @RequestBody BatchRequestDTO batchRequestDTO) {
-        return batchService.save(batchRequestDTO);
-    }
-
     @Operation(summary = "Lista todos os lotes em estoque (Paginado)",
             description = "Retorna uma página de lotes que ainda têm quantidade em estoque.")
     @ApiStandardErrors
