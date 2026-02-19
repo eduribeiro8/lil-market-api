@@ -23,6 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -73,6 +74,14 @@ public class BatchController {
         return batchService.getBatchById(batchId);
     }
 
+    @GetMapping("/batch/restock/{restockId}")
+    public Page<BatchResponseDTO> getAllBatchesByRestockId(
+            @Parameter(required = true, description = "ID do lote", example = "1")
+            @Valid @PathVariable int restockId,
+            Pageable pageable){
+        return batchService.getAllBatchesByRestockId(restockId, pageable);
+    }
+
     @Operation(summary = "Busca lotes em estoque por produto e quantidade mínima",
             description = "Retorna os lotes de um produto que têm quantidade em estoque maior ou igual ao valor informado, ordenados pelo prazo de validade mais próximo.")
     @ApiStandardErrors
@@ -82,7 +91,7 @@ public class BatchController {
             @Parameter(required = true, description = "ID do produto", example = "1")
             @RequestParam Integer productId,
             @Parameter(required = false, description = "Quantidade mínima em estoque", example = "10")
-            @RequestParam(defaultValue = "1") Integer quantity) {
+            @RequestParam(defaultValue = "1") BigDecimal quantity) {
         return batchService.getBatchesInStockDTO(productId, quantity);
     }
 

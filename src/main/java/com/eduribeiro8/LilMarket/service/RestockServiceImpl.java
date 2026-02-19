@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,10 @@ public class RestockServiceImpl implements RestockService{
 
         Supplier supplier = supplierService.findById(restockRequestDTO.supplierId());
         restockToSave.setSupplier(supplier);
-        restockToSave.setAmountPaid(restockRequestDTO.amountPaid());
+        restockToSave.setAmountPaid(
+                restockRequestDTO.batchRequestDTOS().stream()
+                        .map(a -> a.purchasePrice().multiply(a.quantityInStock()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
         restockToSave.setBoughtAt(restockRequestDTO.boughtAt());
 
         Restock savedRestock = restockRepository.save(restockToSave);
@@ -51,12 +55,14 @@ public class RestockServiceImpl implements RestockService{
     }
 
     @Override
-    public RestockResponseDTO findById(Integer restockId) {
-        Restock restock =
-                restockRepository.findById(restockId)
-                .orElseThrow(() -> new RestockNotFoundException("Compra (id = " + restockId + ") não encontrada."));
+    public RestockResponseDTO findByIdDTO(Integer restockId) {
+        return restockMapper.toResponse(findById(restockId));
+    }
 
-        return restockMapper.toResponse(restock);
+    @Override
+    public Restock findById(Integer restockId) {
+        return restockRepository.findById(restockId)
+                        .orElseThrow(() -> new RestockNotFoundException("Compra (id = " + restockId + ") não encontrada."));
     }
 
     @Override

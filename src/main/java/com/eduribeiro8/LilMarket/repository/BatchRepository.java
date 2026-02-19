@@ -16,19 +16,23 @@ import java.util.List;
 @Repository
 public interface BatchRepository extends JpaRepository<Batch, Integer> {
 
-    List<Batch> findByQuantityInStockGreaterThanOrderByExpirationDateAsc(int quantity);
+    List<Batch> findByQuantityInStockGreaterThanOrderByExpirationDateAsc(BigDecimal quantity);
 
-    List<Batch> findByQuantityInStockGreaterThanAndExpirationDateBeforeOrderByExpirationDate(int quantity, LocalDate date);
+    List<Batch> findByQuantityInStockGreaterThanAndExpirationDateBeforeOrderByExpirationDate(BigDecimal quantity, LocalDate date);
 
     Page<Batch> findByQuantityInStockGreaterThanAndExpirationDateBetween(
-            int quantity, LocalDate startDate, LocalDate endDate, Pageable pageable
+            BigDecimal quantity, LocalDate startDate, LocalDate endDate, Pageable pageable
     );
 
-    List<Batch> findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(Product product, int quantity);
+    List<Batch> findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(Product product, BigDecimal quantity);
+
+    List<Batch> findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(Product product, BigDecimal quantity);
 
     boolean existsByBatchCode(String s);
 
-    Page<Batch> findByQuantityInStockGreaterThan(int i, Pageable pageable);
+    Page<Batch> findByQuantityInStockGreaterThan(BigDecimal i, Pageable pageable);
+
+    Page<Batch> findByRestockId(Integer restockId, Pageable pageable);
 
     @Query("SELECT SUM(b.quantityInStock * b.purchasePrice) / SUM(b.quantityInStock) " +
             "FROM Batch b " +

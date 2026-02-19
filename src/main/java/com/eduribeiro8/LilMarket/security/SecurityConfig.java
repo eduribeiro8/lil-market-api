@@ -74,7 +74,8 @@ public class SecurityConfig {
                                 "/customer/**",
                                 "/batch/**",
                                 "/category/**",
-                                "/supplier/**")
+                                "/supplier/**",
+                                "/restock/**")
                         .hasAnyRole("USER", "MANAGER","ADMIN")
 
                         // 4. Define o que é EXCLUSIVO do ADMIN

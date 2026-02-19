@@ -39,7 +39,6 @@ public class Restock {
     @Column(name = "amount_paid")
     private BigDecimal amountPaid;
 
-
     @Setter
     @Column(name = "bought_at")
     private LocalDate boughtAt;

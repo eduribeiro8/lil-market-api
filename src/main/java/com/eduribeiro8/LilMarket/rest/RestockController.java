@@ -46,7 +46,7 @@ public class RestockController {
         return ResponseEntity.status(HttpStatus.CREATED).body(restockService.save(restockRequestDTO));
     }
 
-    @GetMapping("/restock/{restockId}")
+    @GetMapping("/restock/id/{restockId}")
     @Operation(summary = "Busca uma reposição por ID", description = "Retorna a reposição que possui o ID informado")
     @ApiStandardErrors
     @ApiResponses(value = {
@@ -57,7 +57,7 @@ public class RestockController {
     public ResponseEntity<RestockResponseDTO> getById(
             @Parameter(required = true, description = "ID da reposição", example = "1")
             @PathVariable Integer restockId){
-        return ResponseEntity.ok(restockService.findById(restockId));
+        return ResponseEntity.ok(restockService.findByIdDTO(restockId));
     }
 
     @GetMapping("/restock")
