@@ -26,5 +26,6 @@ public interface BatchMapper {
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "supplier", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "originalQuantity", source = "quantityInStock")
     Batch toEntity(BatchRequestDTO request);
 }

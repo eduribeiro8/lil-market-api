@@ -23,10 +23,12 @@ public record BatchResponseDTO(
         LocalDate manufactureDate,
         @Schema(description = "Data de validade", example = "2026-06-01")
         LocalDate expirationDate,
+        @Schema(description = "Quantidade inicial do lote", example = "100")
+        BigDecimal originalQuantity,
         @Schema(description = "Quantidade em estoque", example = "100")
-        Integer quantityInStock,
+        BigDecimal quantityInStock,
         @Schema(description = "Quantidade perdida", example = "2")
-        Integer quantityLost,
+        BigDecimal quantityLost,
         @Schema(description = "Preço de compra por unidade", example = "1.50")
         BigDecimal purchasePrice,
         @Schema(description = "Data/hora de criação", example = "2026-01-30T12:00:00Z")

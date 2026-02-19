@@ -48,24 +48,25 @@ public class SaleServiceImpl implements SaleService{
 
             List<Batch> batches = batchService.findBatchesInStock(product, saleItem.quantity());
 
-            int remainingToRecord = saleItem.quantity();
+            BigDecimal remainingToRecord = saleItem.quantity();
 
             for (Batch batch: batches){
-                if (remainingToRecord <= 0) break;
+                if (remainingToRecord.compareTo(BigDecimal.ZERO) <= 0) break;
                 SaleItem revisedSaleItem = new SaleItem();
 
                 revisedSaleItem.setProduct(product);
                 revisedSaleItem.setSale(revisedSale);
                 revisedSaleItem.setBatch(batch);
 
-                int quantityFromThisBatch = Math.min(remainingToRecord, batch.getQuantityInStock());
+                BigDecimal quantityFromThisBatch = remainingToRecord.min(batch.getQuantityInStock());
 
                 revisedSaleItem.setQuantity(quantityFromThisBatch);
                 revisedSaleItem.setUnitPrice(batch.getProduct().getPrice());
-                revisedSaleItem.setSubtotal(revisedSaleItem.getUnitPrice().multiply(BigDecimal.valueOf(revisedSaleItem.getQuantity())));
-                profit = profit.add(batch.getProduct().getPrice().subtract(batch.getPurchasePrice()));
+                revisedSaleItem.setSubtotal(revisedSaleItem.getUnitPrice().multiply(revisedSaleItem.getQuantity()));
+                BigDecimal diff = batch.getProduct().getPrice().subtract(batch.getPurchasePrice());
+                profit = profit.add(diff.multiply(quantityFromThisBatch));
 
-                remainingToRecord -= quantityFromThisBatch;
+                remainingToRecord = remainingToRecord.subtract(quantityFromThisBatch);
 
                 revisedSale.addSaleItem(revisedSaleItem);
             }
