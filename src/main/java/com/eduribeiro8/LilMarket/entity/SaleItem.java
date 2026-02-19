@@ -36,7 +36,7 @@ public class SaleItem {
     private Batch batch;
 
     @Column(name = "quantity")
-    private int quantity;
+    private BigDecimal quantity;
 
     @Column(name = "unit_price")
     private BigDecimal unitPrice;

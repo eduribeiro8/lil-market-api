@@ -1,6 +1,8 @@
 package com.eduribeiro8.LilMarket.dto;
 
 import java.math.BigDecimal;
+
+import com.eduribeiro8.LilMarket.entity.UnitType;
 import jakarta.validation.constraints.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -22,6 +24,8 @@ public record ProductRequestDTO(
         @NotNull @PositiveOrZero Integer minQuantityInStock,
         @Schema(description = "ID da categoria do produto", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull Integer categoryId,
+        @Schema(description = "Tipo de unidade", example = "WEIGHT")
+        @NotNull UnitType unitType,
         @Schema(description = "Se o produto é perecível", example = "true")
         @NotNull
         Boolean isPerishable,

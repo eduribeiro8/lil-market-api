@@ -77,7 +77,7 @@ public class Sale {
         items.add(item);
         item.setSale(this);
 
-        BigDecimal itemTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+        BigDecimal itemTotal = item.getUnitPrice().multiply(item.getQuantity());
         this.total = this.total.add(itemTotal);
     }
 

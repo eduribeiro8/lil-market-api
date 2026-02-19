@@ -10,7 +10,7 @@ public record SaleItemResponseDTO(
         @Schema(description = "Nome do produto", example = "Leite integral")
         String productName,
         @Schema(description = "Quantidade vendida", example = "2")
-        Integer quantity,
+        BigDecimal quantity,
         @Schema(description = "Preço unitário", example = "3.49")
         BigDecimal unitPrice,
         @Schema(description = "Subtotal deste item", example = "6.98")
