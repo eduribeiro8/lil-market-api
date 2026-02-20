@@ -1,9 +1,11 @@
 package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
+import com.eduribeiro8.LilMarket.dto.CustomerDepositRequestDTO;
 import com.eduribeiro8.LilMarket.dto.CustomerPaymentResponseDTO;
 import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
 import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
+import com.eduribeiro8.LilMarket.entity.CustomerPayment;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -123,5 +126,27 @@ public class CustomerController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable){
         return ResponseEntity.ok(customerService.getCustomerTransactions(customerId, startDate, endDate, pageable));
+    }
+
+    @PostMapping("/customer/{customerId}/deposit")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @Operation(summary = "Realiza um depósito na conta do cliente", description = "Adiciona crédito ao saldo do cliente informado")
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Depósito realizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação ou sintaxe",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<CustomerPaymentResponseDTO> addCredit(
+            @Parameter(required = true, description = "ID do cliente", example = "1")
+            @PathVariable int customerId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados do depósito",
+                    required = true
+            )
+            @RequestBody @Valid CustomerDepositRequestDTO customerDepositRequestDTO){
+        return ResponseEntity.ok(customerService.addCredit(customerId, customerDepositRequestDTO));
     }
 }
