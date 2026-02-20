@@ -31,6 +31,7 @@ public interface SaleMapper {
     @Mapping(target = "timestamp", ignore = true)
     @Mapping(target = "items", ignore = true)
     @Mapping(target = "total", ignore = true)
+    @Mapping(target = "netProfit", ignore = true)
     Sale toEntity(SaleRequestDTO request);
 
     default BigDecimal calculateChange(Sale sale) {

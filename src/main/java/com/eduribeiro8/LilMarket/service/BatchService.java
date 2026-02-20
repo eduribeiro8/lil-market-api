@@ -6,32 +6,36 @@ import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
 import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.entity.Restock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface BatchService {
 
-    BatchResponseDTO save(BatchRequestDTO batch);
+    void saveFromRestock(Restock restock, List<BatchRequestDTO> batchRequestDTOList);
 
     Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable);
 
+    Page<BatchResponseDTO> getAllBatchesByRestockId(int restockId, Pageable pageable);
+
     Page<BatchResponseDTO> getAllBatchesInStockByDate(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, int quantity);
+    List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, BigDecimal quantity);
 
     BatchResponseDTO getBatchById(Integer batchId);
 
-    List<Batch> findBatchesInStock(Product product, int quantity);
+    List<Batch> findBatchesInStock(Product product, BigDecimal quantity);
 
     List<BatchResponseDTO> findBatchesToExpireIn(int days);
 
-    void decrementStock(Product product, int quantity);
+    void decrementStock(Product product, BigDecimal quantity);
 
-    List<Batch> decrementBatches(List<Batch> batches,Product product, int quantity);
+    List<Batch> decrementBatches(List<Batch> batches,Product product, BigDecimal quantity);
 
     void reportLoss(BatchLossReportRequestDTO batchLossReport);
 

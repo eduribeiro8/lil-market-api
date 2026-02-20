@@ -17,13 +17,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,32 +35,12 @@ public class BatchController {
 
     private final BatchService batchService;
 
-    @Operation(summary = "Cria um novo lote",
-            description = "Registra um novo lote no sistema.")
-    @ApiStandardErrors
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Lote criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro de validação ou sintaxe",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "Lote já existe",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping("/batch")
-    public BatchResponseDTO save(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Dados necessários para criar um lote.",
-                    required = true
-            )
-            @Valid @RequestBody BatchRequestDTO batchRequestDTO) {
-        return batchService.save(batchRequestDTO);
-    }
-
     @Operation(summary = "Lista todos os lotes em estoque (Paginado)",
             description = "Retorna uma página de lotes que ainda têm quantidade em estoque.")
     @ApiStandardErrors
     @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso")
     @GetMapping("/batch")
-    public Page<BatchResponseDTO> getAllBatchesInStock(@ParameterObject Pageable pageable) {
+    public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
         return batchService.getAllBatchesInStock(pageable);
     }
 
@@ -74,7 +54,7 @@ public class BatchController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(required = true, description = "Data final", example = "2026-01-31")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @ParameterObject Pageable pageable
+            Pageable pageable
     ) {
         return batchService.getAllBatchesInStockByDate(startDate, endDate, pageable);
     }
@@ -94,6 +74,14 @@ public class BatchController {
         return batchService.getBatchById(batchId);
     }
 
+    @GetMapping("/batch/restock/{restockId}")
+    public Page<BatchResponseDTO> getAllBatchesByRestockId(
+            @Parameter(required = true, description = "ID do lote", example = "1")
+            @Valid @PathVariable int restockId,
+            Pageable pageable){
+        return batchService.getAllBatchesByRestockId(restockId, pageable);
+    }
+
     @Operation(summary = "Busca lotes em estoque por produto e quantidade mínima",
             description = "Retorna os lotes de um produto que têm quantidade em estoque maior ou igual ao valor informado, ordenados pelo prazo de validade mais próximo.")
     @ApiStandardErrors
@@ -103,7 +91,7 @@ public class BatchController {
             @Parameter(required = true, description = "ID do produto", example = "1")
             @RequestParam Integer productId,
             @Parameter(required = false, description = "Quantidade mínima em estoque", example = "10")
-            @RequestParam(defaultValue = "1") Integer quantity) {
+            @RequestParam(defaultValue = "1") BigDecimal quantity) {
         return batchService.getBatchesInStockDTO(productId, quantity);
     }
 

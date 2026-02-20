@@ -5,6 +5,35 @@ USE `lilmarket`;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================
+-- FORNECEDORES
+-- ============================================
+
+CREATE TABLE suppliers (
+    supplier_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    phone_number VARCHAR(100),
+    address VARCHAR(100),
+    district VARCHAR(100),
+    city VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================
+-- REABASTECIMENTO DE ESTOQUE
+-- ============================================
+
+CREATE TABLE restock (
+    restock_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    supplier_id INT NOT NULL,
+    amount_paid DECIMAL(10, 2) NOT NULL,
+    bought_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+    
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================
 -- CATEGORIAS
 -- ============================================
 CREATE TABLE categories (
@@ -15,7 +44,7 @@ CREATE TABLE categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================
+-- ============================================a
 -- PRODUTOS
 -- ============================================
 CREATE TABLE products (
@@ -24,8 +53,14 @@ CREATE TABLE products (
     barcode VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
+    total_quantity DECIMAL(10, 3) DEFAULT 0.000,
+    auto_pricing BOOLEAN DEFAULT FALSE,
+    profit_margin DECIMAL(10, 2) NOT NULL,
+    min_quantity_in_stock INT NOT NULL DEFAULT 0,
     category_id INT,
+    unit_type ENUM('COUNT', 'WEIGHT') DEFAULT 'COUNT',
     is_perishable BOOLEAN DEFAULT FALSE,
+    alert BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -43,15 +78,20 @@ CREATE TABLE products (
 CREATE TABLE batches (
     batch_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     product_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    restock_id INT NOT NULL,
     batch_code VARCHAR(50) NOT NULL,
     manufacture_date DATE,
     expiration_date DATE NOT NULL,
-    quantity_in_stock INT NOT NULL DEFAULT 0,
-    quantity_lost INT NOT NULL DEFAULT 0,
+    original_quantity DECIMAL(10, 3) NOT NULL DEFAULT 0.000,
+    quantity_in_stock DECIMAL(10, 3) NOT NULL DEFAULT 0.000,
+    quantity_lost DECIMAL(10, 3) NOT NULL DEFAULT 0.000,
     purchase_price DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id),
+    FOREIGN KEY (restock_id) REFERENCES restock(restock_id),
     UNIQUE KEY unique_product_batch (product_id, batch_code),
 
     INDEX idx_product_expiration (product_id, expiration_date),
@@ -105,6 +145,7 @@ CREATE TABLE sales (
     sale_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10, 2) NOT NULL,
     amount_paid DECIMAL(10, 2) DEFAULT 0.00,
+    net_profit DECIMAL(10, 2) DEFAULT 0.00,
     payment_status ENUM('PENDING', 'PAID', 'PARTIAL', 'CANCELLED') DEFAULT 'PENDING',
     notes TEXT,
 
@@ -125,7 +166,7 @@ CREATE TABLE sale_items (
     sale_id INT NOT NULL,
     product_id INT NOT NULL,
     batch_id INT,
-    quantity INT NOT NULL,
+    quantity DECIMAL(10, 3) NOT NULL,
     unit_price DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(10, 2) NOT NULL,
 
@@ -155,31 +196,10 @@ CREATE TABLE customer_payments (
     INDEX idx_customer_pay (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================
--- DADOS INICIAIS ATUALIZADOS
--- ============================================
 
-INSERT INTO categories (name) VALUES ('ALIMENTOS'), ('LATICÍNIOS'), ('BEBIDAS'), ('LIMPEZA');
 
-INSERT INTO products (name, barcode, description, price, category_id, is_perishable) VALUES
-('Arroz Tipo 1 5kg', '7891234567890', 'Arroz branco tipo 1', 25.90, 1, FALSE),
-('Feijão Preto 1kg', '7891234567891', 'Feijão preto', 8.50, 1, FALSE),
-('Leite Integral 1L', '7891234567892', 'Leite integral pasteurizado', 5.99, 2, TRUE),
-('Iogurte Natural 170g', '7891234567893', 'Iogurte natural', 3.50, 2, TRUE);
-
--- Lotes para produtos perecíveis
-INSERT INTO batches (product_id, batch_code, manufacture_date, expiration_date, quantity_in_stock, purchase_price) VALUES
-(3, 'LEITE-2024-001', '2024-01-10', '2024-02-10', 48, 4.50),
-(3, 'LEITE-2024-002', '2024-01-15', '2024-02-15', 36, 4.50),
-(4, 'IOG-2024-001', '2024-01-12', '2024-02-05', 60, 2.80);
-
--- Cliente de exemplo
-INSERT INTO customers (first_name, last_name, email, phone_number, credit) VALUES
-('João', 'Santos', 'joao.santos@email.com', '11987654321', 0.00),
-('Ana', 'Costa', 'ana.costa@email.com', '11912345678', 25.00);
-
-INSERT INTO lilmarket.users
-(user_id, user_name, password, first_name, `role`, active, created_at, last_login)
-VALUES(0, 'admin', '$2a$12$osiy5mvdV7RfOqs1wPgwbeYBrkCJ4C6XeL0/kZKwdsmBPmQVBYcOm', NULL, 'ROLE_ADMIN', 1, current_timestamp(), NULL);

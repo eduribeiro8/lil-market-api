@@ -21,6 +21,8 @@ public record SaleResponseDTO(
         BigDecimal totalAmount,
         @Schema(description = "Valor pago", example = "25.00")
         BigDecimal amountPaid,
+        @Schema(description = "Lucro líquido da venda", example = "5.50")
+        BigDecimal netProfit,
         @Schema(description = "Troco devolvido ao cliente", example = "0.00")
         BigDecimal change,
         @Schema(description = "Status do pagamento", example = "PAID")

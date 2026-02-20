@@ -11,6 +11,10 @@ public record BatchResponseDTO(
         Integer batchId,
         @Schema(description = "Identificador do produto", example = "10")
         Integer productId,
+        @Schema(description = "Identificador do fornecedor", example = "1")
+        Integer supplierId,
+        @Schema(description = "Nome do fornecedor", example = "Distribuidora de Bebidas LTDA")
+        String supplierName,
         @Schema(description = "Nome do produto", example = "Coca-Cola 2L")
         String productName,
         @Schema(description = "Código do lote", example = "LOTE-202601")
@@ -19,10 +23,12 @@ public record BatchResponseDTO(
         LocalDate manufactureDate,
         @Schema(description = "Data de validade", example = "2026-06-01")
         LocalDate expirationDate,
+        @Schema(description = "Quantidade inicial do lote", example = "100")
+        BigDecimal originalQuantity,
         @Schema(description = "Quantidade em estoque", example = "100")
-        Integer quantityInStock,
+        BigDecimal quantityInStock,
         @Schema(description = "Quantidade perdida", example = "2")
-        Integer quantityLost,
+        BigDecimal quantityLost,
         @Schema(description = "Preço de compra por unidade", example = "1.50")
         BigDecimal purchasePrice,
         @Schema(description = "Data/hora de criação", example = "2026-01-30T12:00:00Z")

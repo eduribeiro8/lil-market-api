@@ -69,7 +69,13 @@ public class SecurityConfig {
 
                         // 3. Define o que o USER pode fazer
                         .requestMatchers(requisitionsAvailableToUsers(),
-                                "/product/**", "/sale/**", "/customer/**", "/batch/**", "/category/**")
+                                "/product/**",
+                                "/sale/**",
+                                "/customer/**",
+                                "/batch/**",
+                                "/category/**",
+                                "/supplier/**",
+                                "/restock/**")
                         .hasAnyRole("USER", "MANAGER","ADMIN")
 
                         // 4. Define o que é EXCLUSIVO do ADMIN

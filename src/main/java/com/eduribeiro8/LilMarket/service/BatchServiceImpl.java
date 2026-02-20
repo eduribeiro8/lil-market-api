@@ -6,26 +6,29 @@ import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
 import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
+import com.eduribeiro8.LilMarket.entity.Restock;
+import com.eduribeiro8.LilMarket.entity.Supplier;
 import com.eduribeiro8.LilMarket.mapper.BatchMapper;
 import com.eduribeiro8.LilMarket.repository.BatchRepository;
 import com.eduribeiro8.LilMarket.rest.exception.BatchNotFoundException;
 import com.eduribeiro8.LilMarket.rest.exception.DuplicateBatchCodeException;
 import com.eduribeiro8.LilMarket.rest.exception.InsufficientQuantityInSaleException;
 import com.eduribeiro8.LilMarket.rest.exception.InvalidDateIntervalException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.math.BigDecimal;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -34,34 +37,55 @@ public class BatchServiceImpl implements BatchService{
     private final BatchRepository batchRepository;
     private final BatchMapper batchMapper;
     private final ProductService productService;
+    private final SupplierService supplierService;
     private static final Logger logger = LoggerFactory.getLogger(BatchService.class);
+
 
     @Override
     @Transactional
-    public BatchResponseDTO save(BatchRequestDTO batchRequest) {
-        if(batchRepository.existsByBatchCode(batchRequest.batchCode())){
-            throw new DuplicateBatchCodeException("Batch (" + batchRequest.batchCode() + ") is already registered");
-        }
+    public void saveFromRestock(Restock restock, List<BatchRequestDTO> batchRequestDTOList) {
+        Supplier supplier = restock.getSupplier();
+        Set<String> currentBatchCodes = new HashSet<>();
 
-        Batch batch = batchMapper.toEntity(batchRequest);
-        Product product = productService.findProductById(batchRequest.productId());
-        batch.setProduct(product);
+        List<Batch> batches = batchRequestDTOList.stream().map(batchRequest -> {
+            if (batchRequest.batchCode() != null && !batchRequest.batchCode().isBlank()) {
+                if (currentBatchCodes.contains(batchRequest.batchCode())){
+                    throw new DuplicateBatchCodeException("O código do lote (" + batchRequest.batchCode() + ") se repete para dois ou mais lotes nesta compra.");
+                }
+                else if (batchRepository.existsByBatchCode(batchRequest.batchCode())) {
+                    throw new DuplicateBatchCodeException("Batch (" + batchRequest.batchCode() + ") is already registered");
+                }
+            }
 
-        batch = batchRepository.save(batch);
+            Batch batch = batchMapper.toEntity(batchRequest);
+            Product product = productService.findProductById(batchRequest.productId());
 
-        return batchMapper.toResponse(batch);
+            batch.setBatchCode(batchRequest.batchCode() == null || batchRequest.batchCode().isBlank() ?
+                            generateAutomaticBatchCode(product.getId(), batchRequest.expirationDate(), currentBatchCodes) :
+                            batch.getBatchCode()
+                    );
+
+            currentBatchCodes.add(batch.getBatchCode());
+
+            batch.setProduct(product);
+            batch.setSupplier(supplier);
+            batch.setRestock(restock);
+
+            product.setTotalQuantity(product.getTotalQuantity().add(batchRequest.quantityInStock()));
+
+            return batch;
+        }).toList();
+
+        batchRepository.saveAll(batches);
     }
 
     @Override
     public Page<BatchResponseDTO> getAllBatchesInStockByDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        OffsetDateTime start = startDate.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
-        OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
-
-        if (start.isAfter(end)){
+        if (startDate.isAfter(endDate)){
             throw new InvalidDateIntervalException("A data final não pode ser anterior à data inicial");
         }
 
-        Page<Batch> batches = batchRepository.findByQuantityInStockGreaterThanAndExpirationDateBetween(1, startDate, endDate, pageable);
+        Page<Batch> batches = batchRepository.findByQuantityInStockGreaterThanAndExpirationDateBetween(BigDecimal.ZERO, startDate, endDate, pageable);
 
         if (batches.isEmpty()){
             throw new BatchNotFoundException("Não há lotes entre " + startDate + " e " + endDate + ".");
@@ -71,8 +95,20 @@ public class BatchServiceImpl implements BatchService{
     }
 
     public Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable) {
-        return batchRepository.findByQuantityInStockGreaterThan(0, pageable)
+        return batchRepository.findByQuantityInStockGreaterThan(BigDecimal.ZERO, pageable)
                 .map(batchMapper::toResponse);
+    }
+
+    @Override
+    public Page<BatchResponseDTO> getAllBatchesByRestockId(int restockId, Pageable pageable) {
+
+        Page<Batch> batches = batchRepository.findByRestockId(restockId, pageable);
+
+        if (batches.isEmpty()){
+            throw new BatchNotFoundException("Não há lotes para o Restock (id = " + restockId + ").");
+        }
+
+        return batches.map(batchMapper::toResponse);
     }
 
     @Override
@@ -84,9 +120,9 @@ public class BatchServiceImpl implements BatchService{
     }
 
     @Override
-    public List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, int quantity) {
+    public List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, BigDecimal quantity) {
         Product product = productService.findProductById(productId);
-        List<Batch> batches = batchRepository.findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(product, quantity);
+        List<Batch> batches = batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, quantity);
 
         if (batches.isEmpty()){
             throw new BatchNotFoundException("Batch from product(id = " + productId + ") with quantity greater than " + quantity + " not found");
@@ -96,17 +132,17 @@ public class BatchServiceImpl implements BatchService{
     }
 
     @Override
-    public List<Batch> findBatchesInStock(Product product, int quantity) {
-        List<Batch> batchList = batchRepository.findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(product, 0);
+    public List<Batch> findBatchesInStock(Product product, BigDecimal quantity) {
+        List<Batch> batchList = batchRepository.findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(product, BigDecimal.ZERO);
         List<Batch> priorityBatches = new ArrayList<>();
 
         for (Batch batch: batchList){
-            if (batch.getQuantityInStock() >= quantity){
+            if (batch.getQuantityInStock().compareTo(quantity) >= 0){
                 priorityBatches.add(batch);
                 break;
             }else{
                 priorityBatches.add(batch);
-                quantity -= batch.getQuantityInStock();
+                quantity = quantity.subtract(batch.getQuantityInStock());
             }
         }
 
@@ -117,35 +153,39 @@ public class BatchServiceImpl implements BatchService{
     public List<BatchResponseDTO> findBatchesToExpireIn(int days) {
         LocalDate limitDate = LocalDate.now().plusDays(days);
         List<Batch> batches =  batchRepository
-                .findByQuantityInStockGreaterThanAndExpirationDateBeforeOrderByExpirationDate(0, limitDate);
+                .findByQuantityInStockGreaterThanAndExpirationDateBeforeOrderByExpirationDate(BigDecimal.ZERO, limitDate);
 
         return batchMapper.toResponseList(batches);
     }
 
     @Override
     @Transactional
-    public void decrementStock(Product product, int quantity) {
-        List<Batch> batches = batchRepository.findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(product, 0);
+    public void decrementStock(Product product, BigDecimal quantity) {
+        List<Batch> batches = batchRepository.findByProductAndQuantityInStockGreaterThanOrderByExpirationDateAsc(product, BigDecimal.ZERO);
 
         decrementBatches(batches, product, quantity);
     }
 
-    public List<Batch> decrementBatches(List<Batch> batches, Product product, int quantity){
-        int remaining = quantity;
+    public List<Batch> decrementBatches(List<Batch> batches, Product product, BigDecimal quantity) {
+        BigDecimal remaining = quantity;
 
         for (Batch batch : batches) {
-            if (remaining <= 0) break;
+            if (remaining.compareTo(BigDecimal.ZERO) <= 0) break;
 
-            int inStock = batch.getQuantityInStock();
-            int toTake = Math.min(inStock, remaining);
+            BigDecimal inStock = batch.getQuantityInStock();
 
-            batch.setQuantityInStock(inStock - toTake);
-            remaining -= toTake;
+            BigDecimal toTake = inStock.min(remaining);
+
+            batch.setQuantityInStock(inStock.subtract(toTake));
+
+            remaining = remaining.subtract(toTake);
         }
 
-        if (remaining > 0) {
+        if (remaining.compareTo(BigDecimal.ZERO) > 0) {
             throw new InsufficientQuantityInSaleException("Insufficient stock for product: " + product.getName());
         }
+
+        product.setTotalQuantity(product.getTotalQuantity().subtract(quantity));
 
         return batches;
     }
@@ -155,13 +195,17 @@ public class BatchServiceImpl implements BatchService{
     @Transactional
     public void reportLoss(BatchLossReportRequestDTO batchLossReport) {
         Integer batchId = batchLossReport.batchId();
-        Integer quantity = batchLossReport.quantity();
+        BigDecimal quantity = batchLossReport.quantity();
         String reason = batchLossReport.reason();
 
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch(id = " + batchId + ") not found"));
-        batch.setQuantityLost(batch.getQuantityLost() + quantity);
-        batch.setQuantityInStock(Math.max(0, batch.getQuantityInStock() - quantity));
+        batch.setQuantityLost(batch.getQuantityLost().add(quantity));
+        batch.setQuantityInStock(batch.getQuantityInStock().subtract(quantity).max(BigDecimal.ZERO));
+
+        Product product = batch.getProduct();
+        product.setTotalQuantity(product.getTotalQuantity().subtract(quantity));
+
         batchRepository.save(batch);
         logger.info("LOSS REPORT: Batch(id = {}) was reported with a loss of {} units with the reason of {}", batchId, quantity, reason);
     }
@@ -171,9 +215,27 @@ public class BatchServiceImpl implements BatchService{
     public void invalidateBatch(Integer batchId, BatchInvalidationRequestDTO batchInvalidation) {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch(id = " + batchId + ") not found"));
-        batch.setQuantityLost(batch.getQuantityLost() + batch.getQuantityInStock());
-        batch.setQuantityInStock(0);
+        batch.setQuantityLost(batch.getQuantityLost().add(batch.getQuantityInStock()));
+        batch.setQuantityInStock(BigDecimal.ZERO);
+
+        Product product = batch.getProduct();
+        product.setTotalQuantity(product.getTotalQuantity().subtract(batch.getQuantityLost()));
+
         batchRepository.save(batch);
         logger.info("INVALIDATING BATCH: Batch(id = {}) was invalidated with the reason of {}", batchId, batchInvalidation.reason());
+    }
+
+    private String generateAutomaticBatchCode(Integer productId, LocalDate expirationDate, Set<String> currentBatchCodes) {
+        String expiryPart = expirationDate.format(DateTimeFormatter.ofPattern("yyMMdd"));
+
+        while(true){
+            int suffix = java.util.concurrent.ThreadLocalRandom.current().nextInt(100, 1000);
+
+            String barcode = String.format("P%d-%d-V%s", productId, suffix, expiryPart);
+
+            if (!currentBatchCodes.contains(barcode) && !batchRepository.existsByBatchCode(barcode)){
+                return barcode;
+            }
+        }
     }
 }

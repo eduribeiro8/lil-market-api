@@ -42,19 +42,44 @@ public class Product {
     private String description;
 
     @NotNull(message = "Product price cannot be null")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Product price must be greater than 0.00")
+    @DecimalMin(value = "0.0", message = "Product price must be equal or greater than 0.00")
     @Digits(integer = 10, fraction = 2, message = "Product price must have 2 decimal digits")
     @Column(name = "price")
     private BigDecimal price;
+
+    @Builder.Default
+    @Column(name = "total_quantity")
+    private BigDecimal totalQuantity = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(name = "auto_pricing")
+    private Boolean autoPricing = true;
+
+    @DecimalMin(value = "0.00", message = "{product.min.profit.margin}")
+    @Column(name = "profit_margin")
+    private BigDecimal profitMargin;
+
+    @Min(value = 0, message = "{product.min.quantity.in.stock}")
+    @Column(name = "min_quantity_in_stock")
+    private Integer minQuantityInStock;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     @NotNull(message = "Product category cannot be null")
     private ProductCategory productCategory;
 
+    @NotNull(message = "{product.unit.type.not.null}")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unit_type")
+    private UnitType unitType;
+
     @Column(name = "is_perishable")
     @Builder.Default
     private Boolean isPerishable = false;
+
+    @Builder.Default
+    @Column(name = "alert")
+    private Boolean alert = false;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     @JsonManagedReference
@@ -69,10 +94,4 @@ public class Product {
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
 
-
-    public int getTotalQuantity(){
-        return batches.stream()
-                .mapToInt(Batch::getQuantityInStock)
-                .sum();
-    }
 }
