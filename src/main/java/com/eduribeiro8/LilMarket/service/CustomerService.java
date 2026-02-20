@@ -1,9 +1,8 @@
 package com.eduribeiro8.LilMarket.service;
 
-import com.eduribeiro8.LilMarket.dto.CustomerPaymentResponseDTO;
-import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
-import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
+import com.eduribeiro8.LilMarket.dto.*;
 import com.eduribeiro8.LilMarket.entity.Customer;
+import com.eduribeiro8.LilMarket.entity.CustomerPayment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +23,6 @@ public interface CustomerService {
     Page<CustomerPaymentResponseDTO> getCustomerTransactions(
             int id, LocalDate startDate, LocalDate endDate, Pageable pageable
     );
+
+    CustomerPaymentResponseDTO addCredit(int id, CustomerDepositRequestDTO customerDepositRequestDTO);
 }

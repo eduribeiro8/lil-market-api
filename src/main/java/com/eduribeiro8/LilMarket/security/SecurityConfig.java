@@ -67,7 +67,10 @@ public class SecurityConfig {
                         // 2. Permite o endpoint login para todos
                         .requestMatchers("/login").permitAll()
 
-                        // 3. Define o que o USER pode fazer
+                        // 3. Permite depósito apenas para ‘MANAGER’ ou ADMIN
+                        .requestMatchers(HttpMethod.POST, "/customer/*/deposit").hasAnyRole("MANAGER", "ADMIN")
+
+                        // 4. Define o que o USER pode fazer
                         .requestMatchers(requisitionsAvailableToUsers(),
                                 "/product/**",
                                 "/sale/**",
@@ -78,11 +81,11 @@ public class SecurityConfig {
                                 "/restock/**")
                         .hasAnyRole("USER", "MANAGER","ADMIN")
 
-                        // 4. Define o que é EXCLUSIVO do ADMIN
+                        // 5. Define o que é EXCLUSIVO do ADMIN
                         .requestMatchers("/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
 
-                        // 5. Qualquer outra coisa que sobrar, exige ADMIN
+                        // 6. Qualquer outra coisa que sobrar, exige ADMIN
                         .anyRequest().hasRole("ADMIN")
                 )
                 .httpBasic(Customizer.withDefaults());
