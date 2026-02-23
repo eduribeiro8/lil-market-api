@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService{
         }
 
         ProductCategory productCategoryToSave = productCategoryMapper.toEntity(productCategoryRequestDTO);
+        productCategoryToSave.setName(productCategoryToSave.getName().toUpperCase(Locale.ROOT));
 
         ProductCategory productCategory = productCategoryRepository.save(productCategoryToSave);
 
