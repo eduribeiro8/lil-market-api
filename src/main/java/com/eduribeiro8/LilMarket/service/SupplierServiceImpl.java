@@ -27,7 +27,7 @@ public class SupplierServiceImpl implements SupplierService{
 
         if (supplierInDB != null
                 && supplierInDB.getName().equals(supplierRequestDTO.name())
-                && supplierInDB.getDistrict().equals(supplierRequestDTO.city())){
+                && supplierInDB.getDistrict().equals(supplierRequestDTO.district())){
             throw new DuplicateSupplierException("Fornecedor já cadastrado");
         }
 
