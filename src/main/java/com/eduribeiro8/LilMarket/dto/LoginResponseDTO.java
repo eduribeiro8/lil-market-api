@@ -10,6 +10,10 @@ public record LoginResponseDTO(
         @Schema(description = "Nome de usuário", example = "jdoe")
         String username,
         @Schema(description = "Papel do usuário", example = "ADMIN")
-        UserRole userRole
+        UserRole userRole,
+        @Schema(description = "Token JWT do usuário")
+        String token,
+        @Schema(description = "Tempo restante para o token expirar (em milissegundos)")
+        long expiresIn
 ) {
 }

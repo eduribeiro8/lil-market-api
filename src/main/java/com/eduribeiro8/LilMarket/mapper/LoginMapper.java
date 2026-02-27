@@ -7,6 +7,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface LoginMapper {
-    @Mapping(source = "role", target = "userRole")
-    LoginResponseDTO toResponse(User user);
+    @Mapping(source = "user.id", target = "id")
+    @Mapping(source = "user.username", target = "username")
+    @Mapping(source = "user.role", target = "userRole")
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "expiresIn", target = "expiresIn")
+    LoginResponseDTO toResponse(User user, String token, long expiresIn);
 }

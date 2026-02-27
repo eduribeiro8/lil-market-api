@@ -1,58 +1,51 @@
 package com.eduribeiro8.LilMarket.security;
 
+import com.eduribeiro8.LilMarket.repository.UserRepository;
+import com.eduribeiro8.LilMarket.rest.exception.UserNotFoundException;
 import com.eduribeiro8.LilMarket.security.logging.LoggingFilter;
 import com.eduribeiro8.LilMarket.security.logging.LoggingPreAuthFilter;
 import com.eduribeiro8.LilMarket.security.ratelimiting.RateLimitingFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final RateLimitingFilter rateLimitingFilter;
-    private final LoggingFilter loggingFilter;
-    private final LoggingPreAuthFilter loggingPreAuthFilter;
+    private final LoggingFilter loggingFilter = new LoggingFilter();
+    private final LoggingPreAuthFilter loggingPreAuthFilter = new LoggingPreAuthFilter();
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final PasswordEncoder passwordEncoder;
+    private final ApplicationConfig applicationConfig;
+    private final AuthenticationProvider authenticationProvider;
 
-    @Autowired
-    public SecurityConfig(RateLimitingFilter rateLimitingFilter) {
-        this.rateLimitingFilter = rateLimitingFilter;
-        this.loggingFilter = new LoggingFilter();
-        this.loggingPreAuthFilter = new LoggingPreAuthFilter();
-    }
 
-    @Bean
-    public UserDetailsManager userDetailsManager(DataSource dataSource) {
-        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
-
-        userDetailsManager.setUsersByUsernameQuery(
-                "select user_name, password, active from users where user_name=?"
-        );
-
-        userDetailsManager.setAuthoritiesByUsernameQuery(
-                "select user_name, role from users where user_name=?"
-        );
-
-        return userDetailsManager;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
                 .addFilterAfter(loggingFilter, AuthorizationFilter.class)
                 .authorizeHttpRequests(auth -> auth
@@ -65,21 +58,28 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 2. Permite o endpoint login para todos
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/auth/login").permitAll()
 
                         // 3. Permite depósito apenas para ‘MANAGER’ ou ADMIN
                         .requestMatchers(HttpMethod.POST, "/customer/*/deposit").hasAnyRole("MANAGER", "ADMIN")
 
-                        // 4. Define o que o USER pode fazer
-                        .requestMatchers(requisitionsAvailableToUsers(),
+                        // 4. Define o que cada role pode fazer
+                        .requestMatchers(HttpMethod.GET,
                                 "/product/**",
-                                "/sale/**",
-                                "/customer/**",
-                                "/batch/**",
-                                "/category/**",
-                                "/supplier/**",
-                                "/restock/**")
-                        .hasAnyRole("USER", "MANAGER","ADMIN")
+                                "/sale/**", "/customer/**",
+                                "/batch/**", "/category/**",
+                                "/supplier/**", "/restock/**")
+                        .hasAnyRole("USER", "MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/product/**",
+                                "/sale/**", "/customer/**",
+                                "/batch/**", "/category/**",
+                                "/supplier/**", "/restock/**")
+                        .hasAnyRole("USER", "MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/product/**",
+                                "/sale/**", "/customer/**",
+                                "/batch/**", "/category/**",
+                                "/supplier/**", "/restock/**")
+                        .hasAnyRole("USER", "MANAGER", "ADMIN")
 
                         // 5. Define o que é EXCLUSIVO do ADMIN
                         .requestMatchers("/user/**").hasRole("ADMIN")
@@ -87,17 +87,9 @@ public class SecurityConfig {
 
                         // 6. Qualquer outra coisa que sobrar, exige ADMIN
                         .anyRequest().hasRole("ADMIN")
-                )
-                .httpBasic(Customizer.withDefaults());
+                );
 
         return http.build();
     }
 
-//    @Bean
-//    public JwtAuthenticationFilter
-
-
-    private String requisitionsAvailableToUsers() {
-        return Arrays.toString(new HttpMethod[]{HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT});
-    }
 }
