@@ -30,7 +30,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Batches", description = "Endpoints para gestão de lotes")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class BatchController {
 
     private final BatchService batchService;

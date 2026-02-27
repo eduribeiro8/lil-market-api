@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Restocks", description = "Endpoints para gestão de reposições de estoque (compras)")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class RestockController {
 
     private final RestockService restockService;

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "Endpoints para gestão de usuários")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final UserService userService;

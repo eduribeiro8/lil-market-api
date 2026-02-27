@@ -32,7 +32,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Customers", description = "Endpoints para gestão de clientes")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class CustomerController {
 
     private final CustomerService customerService;

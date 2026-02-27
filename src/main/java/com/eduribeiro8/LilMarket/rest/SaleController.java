@@ -29,7 +29,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Sales", description = "Endpoints para gestão de vendas e baixa de estoque")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class SaleController {
 
     private final SaleService saleService;
