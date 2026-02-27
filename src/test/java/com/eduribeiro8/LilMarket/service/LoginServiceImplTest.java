@@ -7,6 +7,7 @@ import com.eduribeiro8.LilMarket.entity.UserRole;
 import com.eduribeiro8.LilMarket.mapper.LoginMapper;
 import com.eduribeiro8.LilMarket.repository.UserRepository;
 import com.eduribeiro8.LilMarket.rest.exception.InvalidCredentialsException;
+import com.eduribeiro8.LilMarket.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,11 +17,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("LoginService Unit Tests")
@@ -34,6 +39,12 @@ class LoginServiceImplTest {
 
     @Mock
     private LoginMapper loginMapper;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
+    @Mock
+    private JwtService jwtService;
 
     @InjectMocks
     private LoginServiceImpl loginService;
@@ -60,11 +71,14 @@ class LoginServiceImplTest {
         @DisplayName("Deve realizar login com sucesso quando as credenciais forem válidas")
         void login_Success() {
             // Arrange
-            LoginResponseDTO expectedResponse = new LoginResponseDTO(1, "joao", UserRole.ROLE_ADMIN);
+            String token = "jwt.token.here";
+            long expiresIn = 3600000L;
+            LoginResponseDTO expectedResponse = new LoginResponseDTO(1, "joao", UserRole.ROLE_ADMIN, token, expiresIn);
 
             Mockito.when(userRepository.findByUsername(loginRequestDTO.username())).thenReturn(Optional.of(user));
-            Mockito.when(passwordEncoder.matches(loginRequestDTO.password(), user.getPassword())).thenReturn(true);
-            Mockito.when(loginMapper.toResponse(user)).thenReturn(expectedResponse);
+            Mockito.when(jwtService.generateToken(user)).thenReturn(token);
+            Mockito.when(jwtService.getExpirationTime(token)).thenReturn(expiresIn);
+            Mockito.when(loginMapper.toResponse(user, token, expiresIn)).thenReturn(expectedResponse);
 
             // Act
             LoginResponseDTO response = loginService.login(loginRequestDTO);
@@ -74,15 +88,35 @@ class LoginServiceImplTest {
             assertEquals(expectedResponse.id(), response.id());
             assertEquals(expectedResponse.username(), response.username());
             assertEquals(expectedResponse.userRole(), response.userRole());
+            assertEquals(token, response.token());
+            assertEquals(expiresIn, response.expiresIn());
 
+            Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
             Mockito.verify(userRepository).findByUsername(loginRequestDTO.username());
-            Mockito.verify(passwordEncoder).matches(loginRequestDTO.password(), user.getPassword());
-            Mockito.verify(loginMapper).toResponse(user);
-            Mockito.verifyNoMoreInteractions(userRepository, passwordEncoder, loginMapper);
+            Mockito.verify(jwtService).generateToken(user);
+            Mockito.verify(jwtService).getExpirationTime(token);
+            Mockito.verify(loginMapper).toResponse(user, token, expiresIn);
+            Mockito.verifyNoMoreInteractions(userRepository, jwtService, loginMapper, authenticationManager);
         }
 
         @Test
-        @DisplayName("Deve lançar InvalidCredentialsException quando o usuário não for encontrado")
+        @DisplayName("Deve lançar exceção quando a autenticação falhar")
+        void login_Fail_AuthenticationException() {
+            // Arrange
+            Mockito.when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                    .thenThrow(new BadCredentialsException("Invalid credentials"));
+
+            // Act & Assert
+            assertThrows(BadCredentialsException.class, () -> {
+                loginService.login(loginRequestDTO);
+            });
+
+            Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+            Mockito.verifyNoInteractions(userRepository, jwtService, loginMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar InvalidCredentialsException quando o usuário não for encontrado após autenticação")
         void login_Fail_UserNotFound() {
             // Arrange
             Mockito.when(userRepository.findByUsername(loginRequestDTO.username())).thenReturn(Optional.empty());
@@ -94,29 +128,9 @@ class LoginServiceImplTest {
 
             assertEquals("Username or password is incorrect!", exception.getMessage());
 
+            Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
             Mockito.verify(userRepository).findByUsername(loginRequestDTO.username());
-            Mockito.verifyNoInteractions(passwordEncoder, loginMapper);
-            Mockito.verifyNoMoreInteractions(userRepository);
-        }
-
-        @Test
-        @DisplayName("Deve lançar InvalidCredentialsException quando a senha estiver incorreta")
-        void login_Fail_IncorrectPassword() {
-            // Arrange
-            Mockito.when(userRepository.findByUsername(loginRequestDTO.username())).thenReturn(Optional.of(user));
-            Mockito.when(passwordEncoder.matches(loginRequestDTO.password(), user.getPassword())).thenReturn(false);
-
-            // Act & Assert
-            InvalidCredentialsException exception = assertThrows(InvalidCredentialsException.class, () -> {
-                loginService.login(loginRequestDTO);
-            });
-
-            assertEquals("Username or password is incorrect!", exception.getMessage());
-
-            Mockito.verify(userRepository).findByUsername(loginRequestDTO.username());
-            Mockito.verify(passwordEncoder).matches(loginRequestDTO.password(), user.getPassword());
-            Mockito.verifyNoInteractions(loginMapper);
-            Mockito.verifyNoMoreInteractions(userRepository, passwordEncoder);
+            Mockito.verifyNoInteractions(jwtService, loginMapper);
         }
     }
 }

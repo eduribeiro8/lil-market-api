@@ -33,7 +33,7 @@ public class LoginController {
             @ApiResponse(responseCode = "500", description = "Erro interno no servidor",
                     content = @Content)
     })
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<LoginResponseDTO> login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Credenciais de login do usuário.",

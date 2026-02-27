@@ -24,7 +24,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Product Categories", description = "Endpoints para gestão de categorias de produtos")
-@SecurityRequirement(name = "basicScheme")
+@SecurityRequirement(name = "bearerAuth")
 public class ProductCategoryController {
 
     private final ProductCategoryService productCategoryService;
