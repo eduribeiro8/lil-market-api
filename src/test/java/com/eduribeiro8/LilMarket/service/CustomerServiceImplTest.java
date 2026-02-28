@@ -61,7 +61,7 @@ class CustomerServiceImplTest {
     @BeforeEach
     void setUp() {
         customer = Customer.builder()
-                .id(1)
+                .id(1L)
                 .firstName("Joao")
                 .lastName("Silva")
                 .email("joao@exemplo.com")
@@ -72,7 +72,7 @@ class CustomerServiceImplTest {
                 .build();
 
         customerResponseDTO = new CustomerResponseDTO(
-                1,
+                1L,
                 "Joao",
                 "Silva",
                 "joao@exemplo.com",
@@ -119,7 +119,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve retornar um cliente quando o ID existir")
         void findById_Success() {
             // Arrange
-            int id = 1;
+            Long id = 1L;
             when(customerRepository.findById(id)).thenReturn(Optional.of(customer));
             when(customerMapper.toResponse(customer)).thenReturn(customerResponseDTO);
 
@@ -139,7 +139,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve lançar CustomerNotFoundException quando o ID não existir")
         void findById_Fail_CustomerNotFound() {
             // Arrange
-            int id = 99;
+            Long id = 99L;
             when(customerRepository.findById(id)).thenReturn(Optional.empty());
 
             // Act & Assert
@@ -197,7 +197,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve deletar um cliente quando o ID existir")
         void deleteById_Success() {
             // Arrange
-            int id = 1;
+            Long id = 1L;
             when(customerRepository.findById(id)).thenReturn(Optional.of(customer));
 
             // Act
@@ -213,7 +213,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve lançar CustomerNotFoundException ao tentar deletar um cliente que não existe")
         void deleteById_Fail_CustomerNotFound() {
             // Arrange
-            int id = 99;
+            Long id = 99L;
             when(customerRepository.findById(id)).thenReturn(Optional.empty());
 
             // Act & Assert
@@ -233,13 +233,13 @@ class CustomerServiceImplTest {
         @DisplayName("Deve retornar uma página de transações do cliente no intervalo de datas")
         void getCustomerTransactions_Success() {
             // Arrange
-            int id = 1;
+            Long id = 1L;
             LocalDate startDate = LocalDate.now().minusDays(7);
             LocalDate endDate = LocalDate.now();
             Pageable pageable = PageRequest.of(0, 10);
 
             CustomerPayment payment = CustomerPayment.builder()
-                    .id(1)
+                    .id(1L)
                     .customer(customer)
                     .amountPaid(BigDecimal.valueOf(50.00))
                     .paymentMethod(PaymentMethod.CASH)
@@ -247,7 +247,7 @@ class CustomerServiceImplTest {
                     .build();
 
             CustomerPaymentResponseDTO paymentResponseDTO = new CustomerPaymentResponseDTO(
-                    1, 1, BigDecimal.valueOf(50.00), PaymentMethod.CASH.name(), OffsetDateTime.now(), "Notes"
+                    1L, 1L, BigDecimal.valueOf(50.00), PaymentMethod.CASH.name(), OffsetDateTime.now(), "Notes"
             );
 
             Page<CustomerPayment> paymentPage = new PageImpl<>(List.of(payment), pageable, 1);
@@ -283,7 +283,7 @@ class CustomerServiceImplTest {
         @BeforeEach
         void setUp() {
             paymentRequestDTO = new CustomerPaymentRequestDTO(
-                    1, BigDecimal.valueOf(50.00), PaymentMethod.CASH, "Depósito"
+                    1L, BigDecimal.valueOf(50.00), PaymentMethod.CASH, "Depósito"
             );
             depositRequestDTO = new CustomerDepositRequestDTO(1L, paymentRequestDTO);
             adminUser = User.builder()
@@ -297,14 +297,14 @@ class CustomerServiceImplTest {
         @DisplayName("Deve adicionar crédito ao cliente com sucesso quando o usuário for ADMIN ou MANAGER")
         void addCredit_Success() {
             // Arrange
-            int customerId = 1;
+            Long customerId = 1L;
             CustomerPayment customerPayment = CustomerPayment.builder()
                     .amountPaid(BigDecimal.valueOf(50.00))
                     .paymentMethod(PaymentMethod.CASH)
                     .build();
 
             CustomerPaymentResponseDTO expectedResponse = new CustomerPaymentResponseDTO(
-                    1, customerId, BigDecimal.valueOf(50.00), PaymentMethod.CASH.name(), OffsetDateTime.now(), "Notes"
+                    1L, customerId, BigDecimal.valueOf(50.00), PaymentMethod.CASH.name(), OffsetDateTime.now(), "Notes"
             );
 
             when(customerRepository.findById(customerId)).thenReturn(Optional.of(customer));
@@ -335,7 +335,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve lançar BusinessException quando o usuário tiver ROLE_USER")
         void addCredit_Fail_NoPermission() {
             // Arrange
-            int customerId = 1;
+            Long customerId = 1L;
             User regularUser = User.builder()
                     .id(2L)
                     .firstName("User")
@@ -360,7 +360,7 @@ class CustomerServiceImplTest {
         @DisplayName("Deve lançar CustomerNotFoundException quando o cliente não existir")
         void addCredit_Fail_CustomerNotFound() {
             // Arrange
-            int customerId = 99;
+            Long customerId = 99L;
             when(customerRepository.findById(customerId)).thenReturn(Optional.empty());
 
             // Act & Assert

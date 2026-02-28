@@ -45,7 +45,7 @@ public class RestockServiceImpl implements RestockService{
 
         batchService.saveFromRestock(savedRestock, restockRequestDTO.batchRequestDTOS());
 
-        Set<Integer> products = restockRequestDTO.batchRequestDTOS()
+        Set<Long> products = restockRequestDTO.batchRequestDTOS()
                 .stream().map(BatchRequestDTO::productId)
                 .collect(Collectors.toSet());
 
@@ -55,12 +55,12 @@ public class RestockServiceImpl implements RestockService{
     }
 
     @Override
-    public RestockResponseDTO findByIdDTO(Integer restockId) {
+    public RestockResponseDTO findByIdDTO(Long restockId) {
         return restockMapper.toResponse(findById(restockId));
     }
 
     @Override
-    public Restock findById(Integer restockId) {
+    public Restock findById(Long restockId) {
         return restockRepository.findById(restockId)
                         .orElseThrow(() -> new RestockNotFoundException("Compra (id = " + restockId + ") não encontrada."));
     }

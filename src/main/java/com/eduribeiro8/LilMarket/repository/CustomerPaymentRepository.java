@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.time.OffsetDateTime;
 
 @Repository
-public interface CustomerPaymentRepository extends JpaRepository<CustomerPayment, Integer> {
+public interface CustomerPaymentRepository extends JpaRepository<CustomerPayment, Long> {
     Page<CustomerPayment> findAllByCustomerIdAndPaymentDateBetween(
-            int customerId, OffsetDateTime start, OffsetDateTime end, Pageable pageable
+            Long customerId, OffsetDateTime start, OffsetDateTime end, Pageable pageable
     );
 }

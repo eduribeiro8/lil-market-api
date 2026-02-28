@@ -24,7 +24,7 @@ public class Restock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "restock_id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "supplier_id")

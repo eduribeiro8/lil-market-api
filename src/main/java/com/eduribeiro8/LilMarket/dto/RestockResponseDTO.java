@@ -8,9 +8,9 @@ import java.time.OffsetDateTime;
 @Schema(description = "Detalhes do reabastecimento retornados")
 public record RestockResponseDTO(
         @Schema(description = "Identificador do reabastecimento", example = "1")
-        Integer id,
+        Long id,
         @Schema(description = "Identificador do fornecedor", example = "1")
-        Integer supplierId,
+        Long supplierId,
         @Schema(description = "Nome do fornecedor", example = "Distribuidora de Bebidas LTDA")
         String supplierName,
         @Schema(description = "Valor total pago", example = "1500.50")

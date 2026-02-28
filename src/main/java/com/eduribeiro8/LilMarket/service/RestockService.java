@@ -10,9 +10,9 @@ public interface RestockService {
     
     RestockResponseDTO save(RestockRequestDTO restockRequestDTO);
     
-    Restock findById(Integer restockId);
+    Restock findById(Long restockId);
 
-    RestockResponseDTO findByIdDTO(Integer restockId);
+    RestockResponseDTO findByIdDTO(Long restockId);
     
     Page<RestockResponseDTO> getAll(Pageable pageable);
 }

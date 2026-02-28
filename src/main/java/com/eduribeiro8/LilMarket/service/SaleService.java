@@ -11,7 +11,7 @@ public interface SaleService {
 
     SaleResponseDTO save(SaleRequestDTO saleRequestDTO);
 
-    SaleResponseDTO findSaleById(int id);
+    SaleResponseDTO findSaleById(Long id);
 
     List<SaleResponseDTO> getSalesByDate(OffsetDateTime start, OffsetDateTime end);
 

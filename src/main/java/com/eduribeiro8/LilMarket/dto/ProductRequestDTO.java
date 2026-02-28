@@ -23,7 +23,7 @@ public record ProductRequestDTO(
         @Schema(description = "Quantidade mínima em estoque para alerta", example = "10", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull @PositiveOrZero Integer minQuantityInStock,
         @Schema(description = "ID da categoria do produto", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull Integer categoryId,
+        @NotNull Long categoryId,
         @Schema(description = "Tipo de unidade", example = "WEIGHT")
         @NotNull UnitType unitType,
         @Schema(description = "Se o produto é perecível", example = "true")

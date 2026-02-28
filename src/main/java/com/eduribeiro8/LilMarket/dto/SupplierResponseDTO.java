@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 @Schema(description = "Detalhes do fornecedor retornados")
 public record SupplierResponseDTO(
         @Schema(description = "Identificador do fornecedor", example = "1")
-        Integer id,
+        Long id,
         @Schema(description = "Nome do fornecedor", example = "Distribuidora de Bebidas LTDA")
         String name,
         @Schema(description = "Número de telefone", example = "(11) 98888-7777")

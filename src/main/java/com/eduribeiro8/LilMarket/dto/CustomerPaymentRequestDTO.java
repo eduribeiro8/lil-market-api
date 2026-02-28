@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Schema(description = "Requisição de pagamento do cliente")
 public record CustomerPaymentRequestDTO(
         @Schema(description = "Identificador do cliente", example = "5")
-        Integer customerId,
+        Long customerId,
         @Schema(description = "Valor pago", example = "50.00", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull @PositiveOrZero BigDecimal amountPaid,
         @Schema(description = "Método de pagamento", example = "DINHEIRO", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -8,11 +8,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Detalhes do lote retornados")
 public record BatchResponseDTO(
         @Schema(description = "Identificador do lote", example = "7")
-        Integer batchId,
+        Long batchId,
         @Schema(description = "Identificador do produto", example = "10")
-        Integer productId,
+        Long productId,
         @Schema(description = "Identificador do fornecedor", example = "1")
-        Integer supplierId,
+        Long supplierId,
         @Schema(description = "Nome do fornecedor", example = "Distribuidora de Bebidas LTDA")
         String supplierName,
         @Schema(description = "Nome do produto", example = "Coca-Cola 2L")

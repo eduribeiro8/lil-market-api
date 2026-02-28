@@ -70,14 +70,14 @@ public class BatchController {
     @GetMapping("/batch/{batchId}")
     public BatchResponseDTO getBatch(
             @Parameter(required = true, description = "ID do lote", example = "1")
-            @Valid @PathVariable int batchId){
+            @Valid @PathVariable Long batchId){
         return batchService.getBatchById(batchId);
     }
 
     @GetMapping("/batch/restock/{restockId}")
     public Page<BatchResponseDTO> getAllBatchesByRestockId(
             @Parameter(required = true, description = "ID do lote", example = "1")
-            @Valid @PathVariable int restockId,
+            @Valid @PathVariable Long restockId,
             Pageable pageable){
         return batchService.getAllBatchesByRestockId(restockId, pageable);
     }
@@ -89,7 +89,7 @@ public class BatchController {
     @GetMapping("/batch/in-stock")
     public List<BatchResponseDTO> getBatchesInStock(
             @Parameter(required = true, description = "ID do produto", example = "1")
-            @RequestParam Integer productId,
+            @RequestParam Long productId,
             @Parameter(required = false, description = "Quantidade mínima em estoque", example = "10")
             @RequestParam(defaultValue = "1") BigDecimal quantity) {
         return batchService.getBatchesInStockDTO(productId, quantity);
@@ -117,7 +117,7 @@ public class BatchController {
     @PostMapping("/batch/invalidate-stock")
     public ResponseEntity<Void> invalidateStock(
             @Parameter(required = true, description = "ID do lote a ser invalidado", example = "5")
-            @RequestParam Integer batchId,
+            @RequestParam Long batchId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados adicionais para a invalidação.",
                     required = true

@@ -10,9 +10,9 @@ public interface SupplierService {
 
     SupplierResponseDTO save(SupplierRequestDTO supplierRequestDTO);
 
-    SupplierResponseDTO findByIdDTO(Integer id);
+    SupplierResponseDTO findByIdDTO(Long id);
 
-    Supplier findById(Integer id);
+    Supplier findById(Long id);
 
     Page<SupplierResponseDTO> getAll(Pageable pageable);
 }

@@ -23,7 +23,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "first_name")
     @NotNull(message = "Name cannot be null.")

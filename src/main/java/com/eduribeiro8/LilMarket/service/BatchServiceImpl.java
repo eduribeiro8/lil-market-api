@@ -100,7 +100,7 @@ public class BatchServiceImpl implements BatchService{
     }
 
     @Override
-    public Page<BatchResponseDTO> getAllBatchesByRestockId(int restockId, Pageable pageable) {
+    public Page<BatchResponseDTO> getAllBatchesByRestockId(Long restockId, Pageable pageable) {
 
         Page<Batch> batches = batchRepository.findByRestockId(restockId, pageable);
 
@@ -112,7 +112,7 @@ public class BatchServiceImpl implements BatchService{
     }
 
     @Override
-    public BatchResponseDTO getBatchById(Integer batchId) {
+    public BatchResponseDTO getBatchById(Long batchId) {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch not found"));
 
@@ -120,7 +120,7 @@ public class BatchServiceImpl implements BatchService{
     }
 
     @Override
-    public List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, BigDecimal quantity) {
+    public List<BatchResponseDTO> getBatchesInStockDTO(Long productId, BigDecimal quantity) {
         Product product = productService.findProductById(productId);
         List<Batch> batches = batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, quantity);
 
@@ -194,7 +194,7 @@ public class BatchServiceImpl implements BatchService{
     @Override
     @Transactional
     public void reportLoss(BatchLossReportRequestDTO batchLossReport) {
-        Integer batchId = batchLossReport.batchId();
+        Long batchId = batchLossReport.batchId();
         BigDecimal quantity = batchLossReport.quantity();
         String reason = batchLossReport.reason();
 
@@ -212,7 +212,7 @@ public class BatchServiceImpl implements BatchService{
 
     @Override
     @Transactional
-    public void invalidateBatch(Integer batchId, BatchInvalidationRequestDTO batchInvalidation) {
+    public void invalidateBatch(Long batchId, BatchInvalidationRequestDTO batchInvalidation) {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch(id = " + batchId + ") not found"));
         batch.setQuantityLost(batch.getQuantityLost().add(batch.getQuantityInStock()));
@@ -225,7 +225,7 @@ public class BatchServiceImpl implements BatchService{
         logger.info("INVALIDATING BATCH: Batch(id = {}) was invalidated with the reason of {}", batchId, batchInvalidation.reason());
     }
 
-    private String generateAutomaticBatchCode(Integer productId, LocalDate expirationDate, Set<String> currentBatchCodes) {
+    private String generateAutomaticBatchCode(Long productId, LocalDate expirationDate, Set<String> currentBatchCodes) {
         String expiryPart = expirationDate.format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         while(true){

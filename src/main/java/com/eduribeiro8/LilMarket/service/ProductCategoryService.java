@@ -9,7 +9,7 @@ public interface ProductCategoryService {
 
     ProductCategoryResponseDTO save(ProductCategoryRequestDTO productCategoryRequestDTO);
 
-    ProductCategoryResponseDTO findById(int categoryId);
+    ProductCategoryResponseDTO findById(Long categoryId);
 
     ProductCategoryResponseDTO findByName(String categoryName);
 

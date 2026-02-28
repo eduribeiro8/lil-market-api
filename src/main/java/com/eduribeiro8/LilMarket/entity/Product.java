@@ -26,7 +26,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Integer id;
+    private Long id;
 
     @NotNull(message = "Product name cannot be null.")
     @Size(min = 2, max = 100, message = "Product name must be between 2 and 100 characters.")

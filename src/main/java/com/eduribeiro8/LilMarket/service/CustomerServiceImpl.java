@@ -41,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService{
     }
 
     @Override
-    public CustomerResponseDTO findById(int id) {
+    public CustomerResponseDTO findById(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(CustomerNotFoundException::new);
 
@@ -60,7 +60,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(CustomerNotFoundException::new);
         customerRepository.delete(customer);
@@ -68,7 +68,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     public Page<CustomerPaymentResponseDTO> getCustomerTransactions(
-            int id, LocalDate startDate, LocalDate endDate, Pageable pageable
+            Long id, LocalDate startDate, LocalDate endDate, Pageable pageable
     ) {
         OffsetDateTime start = startDate.atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
         OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
@@ -81,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService{
 
     @Override
     @org.springframework.transaction.annotation.Transactional
-    public CustomerPaymentResponseDTO addCredit(int id, CustomerDepositRequestDTO customerDepositRequestDTO) {
+    public CustomerPaymentResponseDTO addCredit(Long id, CustomerDepositRequestDTO customerDepositRequestDTO) {
         Customer customer = customerRepository.findById(id).orElseThrow(
                 () -> new CustomerNotFoundException("Cliente (id = " + id + ") não encontrado!")
         );

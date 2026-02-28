@@ -60,13 +60,13 @@ class ProductServiceImplTest {
     @BeforeEach
     void setUp() {
         category = ProductCategory.builder()
-                .id(1)
+                .id(1L)
                 .name("categoria1")
                 .description("abc123")
                 .build();
 
         product = Product.builder()
-                .id(1)
+                .id(1L)
                 .name("produto1")
                 .barcode("1234567890123")
                 .description("abc123")
@@ -89,14 +89,14 @@ class ProductServiceImplTest {
                 true,
                 new BigDecimal("50.00"),
                 5,
-                1,
+                1L,
                 UnitType.COUNT,
                 false,
                 true
         );
 
         responseDTO = new ProductResponseDTO(
-                1,
+                1L,
                 "produto1",
                 "1234567890123",
                 "abc123",
@@ -105,7 +105,7 @@ class ProductServiceImplTest {
                 true,
                 new BigDecimal("50.00"),
                 5,
-                "1",
+                1L,
                 UnitType.COUNT,
                 "categoria1",
                 false,
@@ -122,7 +122,7 @@ class ProductServiceImplTest {
         void save_Success() {
             //Arrange
             when(productRepository.existsByBarcode(anyString())).thenReturn(false);
-            when(productCategoryRepository.findById(anyInt())).thenReturn(Optional.of(category));
+            when(productCategoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
             when(productMapper.toEntity(any(ProductRequestDTO.class))).thenReturn(product);
             when(productRepository.save(any(Product.class))).thenReturn(product);
             when(productMapper.toResponse(any(Product.class))).thenReturn(responseDTO);
@@ -154,7 +154,7 @@ class ProductServiceImplTest {
         void save_Fail_CategoryNotFound() {
             //Arrange
             when(productRepository.existsByBarcode(anyString())).thenReturn(false);
-            when(productCategoryRepository.findById(anyInt())).thenReturn(Optional.empty());
+            when(productCategoryRepository.findById(anyLong())).thenReturn(Optional.empty());
 
             //Act & Assert
             assertThrows(ProductCategoryNotFoundException.class, () -> productService.save(requestDTO));
@@ -191,16 +191,16 @@ class ProductServiceImplTest {
         @DisplayName("Deve retornar ProductResponseDTO por ID")
         void findProductByIdDTO_Success() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
             when(productMapper.toResponse(product)).thenReturn(responseDTO);
 
             //Act
-            ProductResponseDTO result = productService.findProductByIdDTO(1);
+            ProductResponseDTO result = productService.findProductByIdDTO(1L);
 
             //Assert
             assertNotNull(result);
             assertEquals(1, result.id());
-            verify(productRepository).findById(1);
+            verify(productRepository).findById(1L);
             verifyNoMoreInteractions(productRepository, productMapper);
         }
 
@@ -208,11 +208,11 @@ class ProductServiceImplTest {
         @DisplayName("Deve lançar ProductNotFoundException ao buscar DTO por ID inexistente")
         void findProductByIdDTO_Fail_ProductNotFound() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
+            when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
             //Act & Assert
-            assertThrows(ProductNotFoundException.class, () -> productService.findProductByIdDTO(1));
-            verify(productRepository).findById(1);
+            assertThrows(ProductNotFoundException.class, () -> productService.findProductByIdDTO(1L));
+            verify(productRepository).findById(1L);
             verifyNoMoreInteractions(productRepository);
         }
 
@@ -220,15 +220,15 @@ class ProductServiceImplTest {
         @DisplayName("Deve retornar Entidade Product por ID")
         void findProductById_Success() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
 
             //Act
-            Product result = productService.findProductById(1);
+            Product result = productService.findProductById(1L);
 
             //Assert
             assertNotNull(result);
             assertEquals(1, result.getId());
-            verify(productRepository).findById(1);
+            verify(productRepository).findById(1L);
             verifyNoMoreInteractions(productRepository);
         }
 
@@ -265,11 +265,11 @@ class ProductServiceImplTest {
         @DisplayName("Deve lançar ProductNotFoundException ao buscar entidade por ID inexistente")
         void findProductById_Fail_ProductNotFound() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
+            when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
             //Act & Assert
-            assertThrows(ProductNotFoundException.class, () -> productService.findProductById(1));
-            verify(productRepository).findById(1);
+            assertThrows(ProductNotFoundException.class, () -> productService.findProductById(1L));
+            verify(productRepository).findById(1L);
             verifyNoMoreInteractions(productRepository);
         }
     }
@@ -282,17 +282,17 @@ class ProductServiceImplTest {
         @DisplayName("Deve atualizar um produto com sucesso sem mudar categoria")
         void updateProduct_Success() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
             when(productMapper.updateEntityFromDTO(any(ProductRequestDTO.class), any(Product.class))).thenReturn(product);
             when(productRepository.save(any(Product.class))).thenReturn(product);
             when(productMapper.toResponse(any(Product.class))).thenReturn(responseDTO);
 
             //Act
-            ProductResponseDTO result = productService.updateProduct(1, requestDTO);
+            ProductResponseDTO result = productService.updateProduct(1L, requestDTO);
 
             //Assert
             assertNotNull(result);
-            verify(productCategoryRepository, never()).findById(anyInt());
+            verify(productCategoryRepository, never()).findById(anyLong());
             verify(productRepository).save(any(Product.class));
             verifyNoMoreInteractions(productRepository, productCategoryRepository, productMapper);
         }
@@ -303,23 +303,23 @@ class ProductServiceImplTest {
             //Arrange
             ProductRequestDTO updatedRequest = new ProductRequestDTO(
                     "produto1", "1234567890123", "Desc", BigDecimal.TEN, true,
-                    BigDecimal.TEN, 5, 2, UnitType.COUNT, false, true
+                    BigDecimal.TEN, 5, 2L, UnitType.COUNT, false, true
             );
 
-            ProductCategory newCategory = ProductCategory.builder().id(2).name("New Category").build();
+            ProductCategory newCategory = ProductCategory.builder().id(2L).name("New Category").build();
 
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
-            when(productCategoryRepository.findById(2)).thenReturn(Optional.of(newCategory));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+            when(productCategoryRepository.findById(2L)).thenReturn(Optional.of(newCategory));
             when(productMapper.updateEntityFromDTO(any(ProductRequestDTO.class), any(Product.class))).thenReturn(product);
             when(productRepository.save(any(Product.class))).thenReturn(product);
             when(productMapper.toResponse(any(Product.class))).thenReturn(responseDTO);
 
             //Act
-            productService.updateProduct(1, updatedRequest);
+            productService.updateProduct(1L, updatedRequest);
 
             //Assert
             assertEquals(newCategory, product.getProductCategory());
-            verify(productCategoryRepository).findById(2);
+            verify(productCategoryRepository).findById(2L);
             verify(productRepository).save(any(Product.class));
             verifyNoMoreInteractions(productRepository, productCategoryRepository, productMapper);
         }
@@ -333,10 +333,10 @@ class ProductServiceImplTest {
         @DisplayName("Deve deletar um produto com sucesso")
         void deleteById_Success() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
 
             //Act
-            productService.deleteById(1);
+            productService.deleteById(1L);
 
             //Assert
             verify(productRepository).delete(product);
@@ -347,10 +347,10 @@ class ProductServiceImplTest {
         @DisplayName("Deve lançar ProductNotFoundException ao deletar produto inexistente")
         void deleteById_Fail_ProductNotFound() {
             //Arrange
-            when(productRepository.findById(anyInt())).thenReturn(Optional.empty());
+            when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
             //Act & Assert
-            assertThrows(ProductNotFoundException.class, () -> productService.deleteById(1));
+            assertThrows(ProductNotFoundException.class, () -> productService.deleteById(1L));
             verify(productRepository, never()).delete(any(Product.class));
             verifyNoMoreInteractions(productRepository);
         }
@@ -368,11 +368,11 @@ class ProductServiceImplTest {
             product.setProfitMargin(new BigDecimal("50.00")); // 50%
             BigDecimal averageCost = new BigDecimal("100.00");
 
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
-            when(batchRepository.calculateAverageCostByProduct(anyInt())).thenReturn(averageCost);
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+            when(batchRepository.calculateAverageCostByProduct(anyLong())).thenReturn(averageCost);
 
             //Act
-            productService.calculatePriceBasedOnStock(1);
+            productService.calculatePriceBasedOnStock(1L);
 
             //Assert
             // Cost 100 + 50% profit = 150
@@ -387,13 +387,13 @@ class ProductServiceImplTest {
             //Arrange
             product.setAutoPricing(false);
 
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
 
             //Act
-            productService.calculatePriceBasedOnStock(1);
+            productService.calculatePriceBasedOnStock(1L);
 
             //Assert
-            verify(batchRepository, never()).calculateAverageCostByProduct(anyInt());
+            verify(batchRepository, never()).calculateAverageCostByProduct(anyLong());
             verify(productRepository, never()).save(any(Product.class));
             verifyNoMoreInteractions(productRepository, batchRepository);
         }
@@ -404,11 +404,11 @@ class ProductServiceImplTest {
             //Arrange
             product.setAutoPricing(true);
 
-            when(productRepository.findById(anyInt())).thenReturn(Optional.of(product));
-            when(batchRepository.calculateAverageCostByProduct(anyInt())).thenReturn(null);
+            when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+            when(batchRepository.calculateAverageCostByProduct(anyLong())).thenReturn(null);
 
             //Act
-            productService.calculatePriceBasedOnStock(1);
+            productService.calculatePriceBasedOnStock(1L);
 
             //Assert
             verify(productRepository, never()).save(any(Product.class));

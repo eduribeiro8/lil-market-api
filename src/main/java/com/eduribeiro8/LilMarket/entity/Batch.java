@@ -25,7 +25,7 @@ public class Batch {
     @Id
     @Column(name = "batch_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Setter
     @ManyToOne

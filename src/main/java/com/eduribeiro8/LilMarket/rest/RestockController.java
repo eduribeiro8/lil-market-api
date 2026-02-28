@@ -56,7 +56,7 @@ public class RestockController {
     })
     public ResponseEntity<RestockResponseDTO> getById(
             @Parameter(required = true, description = "ID da reposição", example = "1")
-            @PathVariable Integer restockId){
+            @PathVariable Long restockId){
         return ResponseEntity.ok(restockService.findByIdDTO(restockId));
     }
 

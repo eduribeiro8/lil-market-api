@@ -73,7 +73,7 @@ class LoginServiceImplTest {
             // Arrange
             String token = "jwt.token.here";
             long expiresIn = 3600000L;
-            LoginResponseDTO expectedResponse = new LoginResponseDTO(1, "joao", UserRole.ROLE_ADMIN, token, expiresIn);
+            LoginResponseDTO expectedResponse = new LoginResponseDTO(1L, "joao", UserRole.ROLE_ADMIN, token, expiresIn);
 
             Mockito.when(userRepository.findByUsername(loginRequestDTO.username())).thenReturn(Optional.of(user));
             Mockito.when(jwtService.generateToken(user)).thenReturn(token);

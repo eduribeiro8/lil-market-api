@@ -70,7 +70,7 @@ public class ProductCategoryController {
     })
     public ResponseEntity<ProductCategoryResponseDTO> findById(
             @Parameter(required = true, description = "ID da categoria", example = "1")
-            @PathVariable int categoryId){
+            @PathVariable Long categoryId){
         return ResponseEntity.ok(productCategoryService.findById(categoryId));
     }
 

@@ -39,12 +39,12 @@ public class SupplierServiceImpl implements SupplierService{
     }
 
     @Override
-    public SupplierResponseDTO findByIdDTO(Integer id) {
+    public SupplierResponseDTO findByIdDTO(Long id) {
         return supplierMapper.toResponse(findById(id));
     }
 
     @Override
-    public Supplier findById(Integer id) {
+    public Supplier findById(Long id) {
         return supplierRepository.findById(id)
                 .orElseThrow(() -> new SupplierNotFoundException("Fornecedor não encontrado"));
     }

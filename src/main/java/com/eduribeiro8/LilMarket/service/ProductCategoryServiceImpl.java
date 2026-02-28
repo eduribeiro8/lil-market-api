@@ -37,7 +37,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService{
     }
 
     @Override
-    public ProductCategoryResponseDTO findById(int categoryId) {
+    public ProductCategoryResponseDTO findById(Long categoryId) {
         ProductCategory productCategory = productCategoryRepository
                 .findById(categoryId)
                 .orElseThrow(() -> new ProductCategoryNotFoundException("Category (id = " + categoryId + ") not found!"));

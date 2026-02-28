@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Detalhes da venda retornados")
 public record SaleResponseDTO(
         @Schema(description = "Identificador da venda", example = "42")
-        Integer id,
+        Long id,
         @Schema(description = "Data/hora da venda", example = "2026-01-30T12:00:00Z")
         OffsetDateTime timestamp,
         @Schema(description = "Nome do cliente", example = "Alice Silva")

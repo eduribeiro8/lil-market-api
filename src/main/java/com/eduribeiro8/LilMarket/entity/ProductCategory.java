@@ -23,7 +23,7 @@ public class ProductCategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
-    private Integer id;
+    private Long id;
 
     @Column(name = "name", unique = true)
     @NotNull(message = "Category name cannot be null")

@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 @Schema(description = "Resposta do usuário")
 public record UserResponseDTO(
         @Schema(description = "Identificador do usuário", example = "1")
-        Integer id,
+        Long id,
         @Schema(description = "Nome de usuário", example = "jdoe")
         String username,
         @Schema(description = "Primeiro nome", example = "João")

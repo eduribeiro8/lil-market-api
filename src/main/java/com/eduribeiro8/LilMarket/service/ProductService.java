@@ -10,17 +10,17 @@ public interface ProductService {
 
     Page<ProductResponseDTO> getAllProducts(Pageable pageable);
 
-    ProductResponseDTO findProductByIdDTO(int productId);
+    ProductResponseDTO findProductByIdDTO(Long productId);
 
-    Product findProductById(int productId);
+    Product findProductById(Long productId);
 
     ProductResponseDTO save(ProductRequestDTO theProduct);
 
     ProductResponseDTO findProductByBarcode(String productBarcode);
 
-    ProductResponseDTO updateProduct(int productId, ProductRequestDTO theProduct);
+    ProductResponseDTO updateProduct(Long productId, ProductRequestDTO theProduct);
 
-    void deleteById(int productId);
+    void deleteById(Long productId);
 
-    void calculatePriceBasedOnStock(Integer productId);
+    void calculatePriceBasedOnStock(Long productId);
 }
