@@ -58,7 +58,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // 2. Permite o endpoint login para todos
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/login", "/auth/refresh").permitAll()
 
                         // 3. Permite depósito apenas para ‘MANAGER’ ou ADMIN
                         .requestMatchers(HttpMethod.POST, "/customer/*/deposit").hasAnyRole("MANAGER", "ADMIN")

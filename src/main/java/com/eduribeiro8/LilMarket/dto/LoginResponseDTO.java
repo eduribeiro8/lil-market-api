@@ -14,6 +14,8 @@ public record LoginResponseDTO(
         @Schema(description = "Token JWT do usuário")
         String token,
         @Schema(description = "Tempo restante para o token expirar (em milissegundos)")
-        long expiresIn
+        long expiresIn,
+        @Schema(description = "Token de atualização (Refresh Token)")
+        String refreshToken
 ) {
 }
