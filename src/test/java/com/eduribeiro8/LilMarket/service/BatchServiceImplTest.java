@@ -350,6 +350,46 @@ class BatchServiceImplTest {
     }
 
     @Nested
+    @DisplayName("Testes para buscar lotes em estoque de um produto com quantidade mínima")
+    class GetBatchesInStockDTO {
+        @Test
+        @DisplayName("Deve retornar lista de DTOs com sucesso")
+        void getBatchesInStockDTO_Success() {
+            // Arrange
+            when(productService.findProductById(1L)).thenReturn(product);
+            when(batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN))
+                    .thenReturn(List.of(batch));
+            when(batchMapper.toResponseList(anyList())).thenReturn(List.of(responseDTO));
+
+            // Act
+            List<BatchResponseDTO> result = batchService.getBatchesInStockDTO(1L, BigDecimal.TEN);
+
+            // Assert
+            assertNotNull(result);
+            assertFalse(result.isEmpty());
+            verify(productService).findProductById(1L);
+            verify(batchRepository).findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN);
+            verify(batchMapper).toResponseList(anyList());
+            verifyNoMoreInteractions(productService, batchRepository, batchMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar BatchNotFoundException quando não houver lotes suficientes")
+        void getBatchesInStockDTO_Fail_NotFound() {
+            // Arrange
+            when(productService.findProductById(1L)).thenReturn(product);
+            when(batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(any(), any()))
+                    .thenReturn(Collections.emptyList());
+
+            // Act & Assert
+            assertThrows(BatchNotFoundException.class, () -> batchService.getBatchesInStockDTO(1L, BigDecimal.TEN));
+            verify(productService).findProductById(1L);
+            verify(batchRepository).findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN);
+            verifyNoMoreInteractions(productService, batchRepository, batchMapper);
+        }
+    }
+
+    @Nested
     @DisplayName("Testes para encontrar lotes para venda (FIFO)")
     class FindBatchesInStock {
         @Test
