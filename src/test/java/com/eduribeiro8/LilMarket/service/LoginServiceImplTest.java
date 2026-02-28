@@ -2,6 +2,8 @@ package com.eduribeiro8.LilMarket.service;
 
 import com.eduribeiro8.LilMarket.dto.LoginRequestDTO;
 import com.eduribeiro8.LilMarket.dto.LoginResponseDTO;
+import com.eduribeiro8.LilMarket.dto.RefreshTokenRequestDTO;
+import com.eduribeiro8.LilMarket.entity.RefreshToken;
 import com.eduribeiro8.LilMarket.entity.User;
 import com.eduribeiro8.LilMarket.entity.UserRole;
 import com.eduribeiro8.LilMarket.mapper.LoginMapper;
@@ -20,7 +22,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -35,9 +36,6 @@ class LoginServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
     private LoginMapper loginMapper;
 
     @Mock
@@ -45,6 +43,9 @@ class LoginServiceImplTest {
 
     @Mock
     private JwtService jwtService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @InjectMocks
     private LoginServiceImpl loginService;
@@ -72,13 +73,19 @@ class LoginServiceImplTest {
         void login_Success() {
             // Arrange
             String token = "jwt.token.here";
+            String refreshTokenStr = "refresh.token.here";
             long expiresIn = 3600000L;
-            LoginResponseDTO expectedResponse = new LoginResponseDTO(1L, "joao", UserRole.ROLE_ADMIN, token, expiresIn);
+            RefreshToken refreshToken = RefreshToken.builder()
+                    .token(refreshTokenStr)
+                    .user(user)
+                    .build();
+            LoginResponseDTO expectedResponse = new LoginResponseDTO(1L, "joao", UserRole.ROLE_ADMIN, token, expiresIn, refreshTokenStr);
 
             Mockito.when(userRepository.findByUsername(loginRequestDTO.username())).thenReturn(Optional.of(user));
             Mockito.when(jwtService.generateToken(user)).thenReturn(token);
             Mockito.when(jwtService.getExpirationTime(token)).thenReturn(expiresIn);
-            Mockito.when(loginMapper.toResponse(user, token, expiresIn)).thenReturn(expectedResponse);
+            Mockito.when(refreshTokenService.createNewToken(user)).thenReturn(refreshToken);
+            Mockito.when(loginMapper.toResponse(user, token, expiresIn, refreshTokenStr)).thenReturn(expectedResponse);
 
             // Act
             LoginResponseDTO response = loginService.login(loginRequestDTO);
@@ -90,13 +97,15 @@ class LoginServiceImplTest {
             assertEquals(expectedResponse.userRole(), response.userRole());
             assertEquals(token, response.token());
             assertEquals(expiresIn, response.expiresIn());
+            assertEquals(refreshTokenStr, response.refreshToken());
 
             Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
             Mockito.verify(userRepository).findByUsername(loginRequestDTO.username());
             Mockito.verify(jwtService).generateToken(user);
             Mockito.verify(jwtService).getExpirationTime(token);
-            Mockito.verify(loginMapper).toResponse(user, token, expiresIn);
-            Mockito.verifyNoMoreInteractions(userRepository, jwtService, loginMapper, authenticationManager);
+            Mockito.verify(refreshTokenService).createNewToken(user);
+            Mockito.verify(loginMapper).toResponse(user, token, expiresIn, refreshTokenStr);
+            Mockito.verifyNoMoreInteractions(userRepository, jwtService, loginMapper, authenticationManager, refreshTokenService);
         }
 
         @Test
@@ -112,7 +121,7 @@ class LoginServiceImplTest {
             });
 
             Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-            Mockito.verifyNoInteractions(userRepository, jwtService, loginMapper);
+            Mockito.verifyNoInteractions(userRepository, jwtService, loginMapper, refreshTokenService);
         }
 
         @Test
@@ -130,7 +139,48 @@ class LoginServiceImplTest {
 
             Mockito.verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
             Mockito.verify(userRepository).findByUsername(loginRequestDTO.username());
-            Mockito.verifyNoInteractions(jwtService, loginMapper);
+            Mockito.verifyNoInteractions(jwtService, loginMapper, refreshTokenService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Refresh Token Tests")
+    class RefreshTokenTests {
+
+        @Test
+        @DisplayName("Deve atualizar o token com sucesso")
+        void refreshToken_Success() {
+            // Arrange
+            String oldRefreshTokenStr = "old.refresh.token";
+            String newRefreshTokenStr = "new.refresh.token";
+            String newAccessToken = "new.access.token";
+            long expiresIn = 3600000L;
+
+            RefreshTokenRequestDTO requestDTO = new RefreshTokenRequestDTO(oldRefreshTokenStr);
+            RefreshToken newRefreshToken = RefreshToken.builder()
+                    .token(newRefreshTokenStr)
+                    .user(user)
+                    .build();
+            LoginResponseDTO expectedResponse = new LoginResponseDTO(1L, "joao", UserRole.ROLE_ADMIN, newAccessToken, expiresIn, newRefreshTokenStr);
+
+            Mockito.when(refreshTokenService.generateNewToken(requestDTO)).thenReturn(newRefreshToken);
+            Mockito.when(jwtService.generateToken(user)).thenReturn(newAccessToken);
+            Mockito.when(jwtService.getExpirationTime(newAccessToken)).thenReturn(expiresIn);
+            Mockito.when(loginMapper.toResponse(user, newAccessToken, expiresIn, newRefreshTokenStr)).thenReturn(expectedResponse);
+
+            // Act
+            LoginResponseDTO response = loginService.refreshToken(requestDTO);
+
+            // Assert
+            assertNotNull(response);
+            assertEquals(newAccessToken, response.token());
+            assertEquals(newRefreshTokenStr, response.refreshToken());
+
+            Mockito.verify(refreshTokenService).generateNewToken(requestDTO);
+            Mockito.verify(jwtService).generateToken(user);
+            Mockito.verify(jwtService).getExpirationTime(newAccessToken);
+            Mockito.verify(loginMapper).toResponse(user, newAccessToken, expiresIn, newRefreshTokenStr);
+            Mockito.verifyNoMoreInteractions(refreshTokenService, jwtService, loginMapper);
         }
     }
 }

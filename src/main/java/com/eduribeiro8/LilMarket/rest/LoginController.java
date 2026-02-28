@@ -2,6 +2,7 @@ package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.dto.LoginRequestDTO;
 import com.eduribeiro8.LilMarket.dto.LoginResponseDTO;
+import com.eduribeiro8.LilMarket.dto.RefreshTokenRequestDTO;
 import com.eduribeiro8.LilMarket.service.LoginService;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,5 +43,20 @@ public class LoginController {
             )
             @Valid @org.springframework.web.bind.annotation.RequestBody LoginRequestDTO loginRequestDTO) {
         return ResponseEntity.ok(loginService.login(loginRequestDTO));
+    }
+
+    @Operation(summary = "Atualizar Token", description = "Gera um novo token de acesso usando um refresh token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro de validação ou sintaxe",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Refresh token expirado ou inválido",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Erro interno no servidor",
+                    content = @Content)
+    })
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<LoginResponseDTO> refresh(@Valid @RequestBody RefreshTokenRequestDTO request) {
+        return ResponseEntity.ok(loginService.refreshToken(request));
     }
 }

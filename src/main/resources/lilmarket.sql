@@ -196,6 +196,19 @@ CREATE TABLE customer_payments (
     INDEX idx_customer_pay (customer_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================
+-- TOKEN DO JWT (SALVAR TOKEN PARA O REFRESH)
+-- ============================================
+CREATE TABLE refresh_token(
+    token_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    token_value TEXT NOT NULL,
+    token_expiration_date TIMESTAMP NOT NULL,
+    user_id BIGINT NOT NULL,
+    token_revoked BOOLEAN DEFAULT FALSE,
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    INDEX idx_token (token_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 

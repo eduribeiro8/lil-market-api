@@ -12,5 +12,6 @@ public interface LoginMapper {
     @Mapping(source = "user.role", target = "userRole")
     @Mapping(source = "token", target = "token")
     @Mapping(source = "expiresIn", target = "expiresIn")
-    LoginResponseDTO toResponse(User user, String token, long expiresIn);
+    @Mapping(source = "refreshToken", target = "refreshToken")
+    LoginResponseDTO toResponse(User user, String token, long expiresIn, String refreshToken);
 }
