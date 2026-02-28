@@ -58,7 +58,7 @@ public class SupplierController {
     })
     public ResponseEntity<SupplierResponseDTO> findById(
             @Parameter(required = true, description = "ID do fornecedor", example = "1")
-            @PathVariable Integer supplierId){
+            @PathVariable Long supplierId){
         return ResponseEntity.ok(supplierService.findByIdDTO(supplierId));
     }
 

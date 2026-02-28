@@ -47,7 +47,7 @@ public class CustomerController {
     })
     public ResponseEntity<CustomerResponseDTO> getCustomer(
             @Parameter(required = true, description = "ID do cliente", example = "1")
-            @PathVariable int customerId) {
+            @PathVariable Long customerId) {
         CustomerResponseDTO customer = customerService.findById(customerId);
         return ResponseEntity.ok(customer);
     }
@@ -94,7 +94,7 @@ public class CustomerController {
     })
     public ResponseEntity<CustomerResponseDTO> updateCustomer(
             @Parameter(required = true, description = "ID do cliente a ser atualizado", example = "1")
-            @PathVariable int customerId,
+            @PathVariable Long customerId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados atualizados do cliente",
                     required = true
@@ -114,14 +114,14 @@ public class CustomerController {
     })
     public ResponseEntity<Void> deleteCustomerById(
             @Parameter(required = true, description = "ID do cliente a ser excluído", example = "1")
-            @PathVariable int customerId) {
+            @PathVariable Long customerId) {
         customerService.deleteById(customerId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/customer/{customerId}/transactions")
     public ResponseEntity<Page<CustomerPaymentResponseDTO>> customerTransactions(
-            @PathVariable int customerId,
+            @PathVariable Long customerId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable){
@@ -141,7 +141,7 @@ public class CustomerController {
     })
     public ResponseEntity<CustomerPaymentResponseDTO> addCredit(
             @Parameter(required = true, description = "ID do cliente", example = "1")
-            @PathVariable int customerId,
+            @PathVariable Long customerId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados do depósito",
                     required = true

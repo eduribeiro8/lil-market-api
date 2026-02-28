@@ -104,7 +104,7 @@ public class SaleServiceImpl implements SaleService{
     }
 
     @Override
-    public SaleResponseDTO findSaleById(int id) {
+    public SaleResponseDTO findSaleById(Long id) {
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new SaleNotFoundException("Sale(id = " + id + ") not found"));
 

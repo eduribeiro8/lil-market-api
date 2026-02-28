@@ -60,13 +60,13 @@ class RestockServiceImplTest {
     @BeforeEach
     public void setUp(){
         supplier = Supplier.builder()
-                .id(1)
+                .id(1L)
                 .name("ABC")
                 .district("DEF")
                 .build();
 
         restockPersisted = Restock.builder()
-                .id(1)
+                .id(1L)
                 .supplier(supplier)
                 .boughtAt(LocalDate.now())
                 .createdAt(OffsetDateTime.now())
@@ -74,8 +74,8 @@ class RestockServiceImplTest {
                 .build();
 
         responseDTO = new RestockResponseDTO(
-                1,
-                1,
+                1L,
+                1L,
                 "ABC",
                 new BigDecimal("100.00"),
                 LocalDate.now(),
@@ -91,9 +91,9 @@ class RestockServiceImplTest {
         void save_Success() {
             //Arrange
             RestockRequestDTO requestDTO = new RestockRequestDTO(
-                    1,
+                    1L,
                     List.of(new BatchRequestDTO(
-                                    1,
+                                    1L,
                                     "",
                                     null,
                                     LocalDate.now().plusDays(100),
@@ -102,7 +102,7 @@ class RestockServiceImplTest {
                                     new BigDecimal("15.00")
                             ),
                             new BatchRequestDTO(
-                                    2,
+                                    2L,
                                     "",
                                     null,
                                     LocalDate.now().plusDays(200),
@@ -115,7 +115,7 @@ class RestockServiceImplTest {
                     LocalDate.now()
             );
 
-            when(supplierService.findById(1)).thenReturn(supplier);
+            when(supplierService.findById(1L)).thenReturn(supplier);
             when(restockRepository.save(Mockito.any(Restock.class))).thenReturn(restockPersisted);
             when(restockMapper.toResponse(restockPersisted)).thenReturn(responseDTO);
 
@@ -133,7 +133,7 @@ class RestockServiceImplTest {
             assertNotNull(serviceResponse.boughtAt());
 
             verify(batchService).saveFromRestock(any(Restock.class), anyList());
-            verify(productService, times(2)).calculatePriceBasedOnStock(anyInt());
+            verify(productService, times(2)).calculatePriceBasedOnStock(anyLong());
 
             verify(restockRepository, times(1)).save(any(Restock.class));
             verifyNoMoreInteractions(batchService, productService, supplierService, restockMapper);
@@ -149,10 +149,10 @@ class RestockServiceImplTest {
         void findById_Success() {
             //Arrange
 
-            when(restockRepository.findById(1)).thenReturn(Optional.of(restockPersisted));
+            when(restockRepository.findById(1L)).thenReturn(Optional.of(restockPersisted));
 
             //Act
-            Restock response = restockService.findById(1);
+            Restock response = restockService.findById(1L);
 
             //Assert
             assertNotNull(response);
@@ -162,7 +162,7 @@ class RestockServiceImplTest {
             assertEquals(supplier, response.getSupplier());
             assertNotNull(response.getCreatedAt());
 
-            verify(restockRepository, times(1)).findById(1);
+            verify(restockRepository, times(1)).findById(1L);
         }
 
         @Test
@@ -170,11 +170,11 @@ class RestockServiceImplTest {
         void findById_Fail_RestockNotFound() {
             //Arrange
 
-            when(restockRepository.findById(1)).thenReturn(Optional.empty());
+            when(restockRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
             RestockNotFoundException exception = assertThrows(RestockNotFoundException.class, () -> {
-                restockService.findById(1);
+                restockService.findById(1L);
             });
 
             //Assert
@@ -190,11 +190,11 @@ class RestockServiceImplTest {
         void findByIdDTO_Success() {
             //Arrange
 
-            when(restockRepository.findById(1)).thenReturn(Optional.of(restockPersisted));
+            when(restockRepository.findById(1L)).thenReturn(Optional.of(restockPersisted));
             when(restockMapper.toResponse(restockPersisted)).thenReturn(responseDTO);
 
             //Act
-            RestockResponseDTO response = restockService.findByIdDTO(1);
+            RestockResponseDTO response = restockService.findByIdDTO(1L);
 
             //Assert
             assertNotNull(response);
@@ -204,7 +204,7 @@ class RestockServiceImplTest {
             assertEquals(1, response.supplierId());
             assertNotNull(response.createdAt());
 
-            verify(restockRepository, times(1)).findById(1);
+            verify(restockRepository, times(1)).findById(1L);
         }
 
         @Test
@@ -212,11 +212,11 @@ class RestockServiceImplTest {
         void findByIdDTO_Fail_RestockNotFound() {
             //Arrange
 
-            when(restockRepository.findById(1)).thenReturn(Optional.empty());
+            when(restockRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
             RestockNotFoundException exception = assertThrows(RestockNotFoundException.class, () ->
-                restockService.findByIdDTO(1)
+                restockService.findByIdDTO(1L)
             );
 
             //Assert
@@ -247,10 +247,10 @@ class RestockServiceImplTest {
 
             assertEquals(1, result.getTotalElements());
             assertEquals(1, result.getContent().size());
-            assertEquals(1, result.getContent().get(0).id());
+            assertEquals(1L, result.getContent().get(0).id());
             assertEquals(0, result.getContent().get(0).amountPaid().compareTo(new BigDecimal("100.00")));
             assertNotNull(result.getContent().get(0).boughtAt());
-            assertEquals(1, result.getContent().get(0).supplierId());
+            assertEquals(1L, result.getContent().get(0).supplierId());
             assertNotNull(result.getContent().get(0).createdAt());
 
             verifyNoMoreInteractions(restockRepository);

@@ -60,14 +60,14 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductResponseDTO findProductByIdDTO(int productId) {
+    public ProductResponseDTO findProductByIdDTO(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
         return productMapper.toResponse(product);
     }
 
     @Override
-    public Product findProductById(int productId) {
+    public Product findProductById(Long productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
     }
@@ -81,7 +81,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public ProductResponseDTO updateProduct(int productId, ProductRequestDTO productRequestDTO) {
+    public ProductResponseDTO updateProduct(Long productId, ProductRequestDTO productRequestDTO) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product(id = " + productId + ") not found!"));
 
@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public void deleteById(int productId) {
+    public void deleteById(Long productId) {
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));
@@ -111,7 +111,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     @Transactional
-    public void calculatePriceBasedOnStock(Integer productId) {
+    public void calculatePriceBasedOnStock(Long productId) {
         Product product = findProductById(productId);
 
         if (!product.getAutoPricing()) return;

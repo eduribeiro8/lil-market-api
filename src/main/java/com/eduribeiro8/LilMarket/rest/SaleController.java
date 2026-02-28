@@ -41,7 +41,7 @@ public class SaleController {
     @GetMapping("/sale/{saleId}")
     public ResponseEntity<SaleResponseDTO> getSaleById(
             @Parameter(required = true, description = "Id da venda", example = "123")
-            @PathVariable int saleId){
+            @PathVariable Long saleId){
         return ResponseEntity.ok(saleService.findSaleById(saleId));
     }
 

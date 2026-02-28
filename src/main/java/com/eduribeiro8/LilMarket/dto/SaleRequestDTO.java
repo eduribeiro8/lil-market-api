@@ -11,7 +11,7 @@ import java.util.List;
 @Schema(description = "Requisição de venda")
 public record SaleRequestDTO(
         @Schema(description = "Identificador do cliente", example = "5", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull Integer customerId,
+        @NotNull Long customerId,
         @Schema(description = "Identificador do usuário (vendedor)", example = "2", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull Long userId,
         @Schema(description = "Itens da venda", example = "[]")

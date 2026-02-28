@@ -26,7 +26,7 @@ public class Sale {
     @Id
     @Column(name = "sale_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne()
     @JoinColumn(name = "customer_id")

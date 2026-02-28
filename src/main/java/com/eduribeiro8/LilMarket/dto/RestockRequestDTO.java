@@ -12,7 +12,7 @@ import java.util.List;
 @Schema(description = "Requisição para registrar reabastecimento de estoque")
 public record RestockRequestDTO(
         @Schema(description = "Identificador do fornecedor", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull Integer supplierId,
+        @NotNull Long supplierId,
         @Schema(description = "Lista de lotes recebidos no reabastecimento")
         @NotEmpty @Valid List<BatchRequestDTO> batchRequestDTOS,
         @Schema(description = "Valor total pago pelo reabastecimento", example = "1500.50", requiredMode = Schema.RequiredMode.REQUIRED)

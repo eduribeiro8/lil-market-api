@@ -74,7 +74,7 @@ class SupplierServiceImplTest {
                     .build();
 
             Supplier supplierPersisted = Supplier.builder()
-                    .id(1)
+                    .id(1L)
                     .name("abc")
                     .phoneNumber("123456789")
                     .address("rua abc")
@@ -83,7 +83,7 @@ class SupplierServiceImplTest {
                     .build();
 
             SupplierResponseDTO responseDTO = new SupplierResponseDTO(
-                    1,
+                    1L,
                     "abc",
                     "123456789",
                     "rua abc",
@@ -158,10 +158,10 @@ class SupplierServiceImplTest {
         @DisplayName("Deve retornar SupplierResponseDTO ao buscar por um id existente")
         void findByIdDTO_Success() {
             //Arrange
-            Integer id = 1;
+            Long id = 1L;
 
             SupplierResponseDTO responseDTO = new SupplierResponseDTO(
-                    1,
+                    1L,
                     "abc",
                     "123456789",
                     "rua abc",
@@ -182,7 +182,7 @@ class SupplierServiceImplTest {
             assertEquals(responseDTO.name(), responseDTO1.name());
             assertEquals(responseDTO.district(), responseDTO1.district());
 
-            Mockito.verify(supplierRepository, Mockito.times(1)).findById(Mockito.any(Integer.class));
+            Mockito.verify(supplierRepository, Mockito.times(1)).findById(Mockito.any(Long.class));
             Mockito.verifyNoMoreInteractions(supplierRepository, supplierMapper);
         }
 
@@ -190,7 +190,7 @@ class SupplierServiceImplTest {
         @DisplayName("Deve lançar SupplierNotFound ao buscar por um id não cadastrado")
         void findByIdDTO_Fail_SupplierNotFound(){
             //Arrange
-            Integer id = 1;
+            Long id = 1L;
 
             Mockito.when(supplierRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -211,7 +211,7 @@ class SupplierServiceImplTest {
         @DisplayName("Deve retornar Supplier ao buscar por um id existente")
         void findById_Success() {
             //Arrange
-            Integer id = 1;
+            Long id = 1L;
 
             Mockito.when(supplierRepository.findById(id)).thenReturn(Optional.of(supplierFound));
 
@@ -232,7 +232,7 @@ class SupplierServiceImplTest {
         @DisplayName("Deve lançar SupplierNotFound ao buscar por um id não cadastrado")
         void findById_Fail_SupplierNotFound(){
             //Arrange
-            Integer id = 1;
+            Long id = 1L;
 
             Mockito.when(supplierRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -256,7 +256,7 @@ class SupplierServiceImplTest {
             Page<Supplier> supplierPage = new PageImpl<>(suppliers, pageable, suppliers.size());
 
             SupplierResponseDTO responseDTO = new SupplierResponseDTO(
-                    1,
+                    1L,
                     "abc",
                     "123456789",
                     "rua abc",

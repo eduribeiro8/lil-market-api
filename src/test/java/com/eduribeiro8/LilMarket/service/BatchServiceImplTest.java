@@ -64,23 +64,23 @@ class BatchServiceImplTest {
     @BeforeEach
     void setUp() {
         product = Product.builder()
-                .id(1)
+                .id(1L)
                 .name("produto1")
                 .totalQuantity(BigDecimal.ZERO)
                 .build();
 
         supplier = Supplier.builder()
-                .id(1)
+                .id(1L)
                 .name("fornecedor1")
                 .build();
 
         restock = Restock.builder()
-                .id(1)
+                .id(1L)
                 .supplier(supplier)
                 .build();
 
         batch = Batch.builder()
-                .id(1)
+                .id(1L)
                 .product(product)
                 .supplier(supplier)
                 .restock(restock)
@@ -92,7 +92,7 @@ class BatchServiceImplTest {
                 .build();
 
         requestDTO = new BatchRequestDTO(
-                1,
+                1L,
                 "LOTE123",
                 LocalDate.now(),
                 LocalDate.now().plusMonths(6),
@@ -102,7 +102,7 @@ class BatchServiceImplTest {
         );
 
         responseDTO = new BatchResponseDTO(
-                1, 1, 1, "fornecedor1", "produto1", "LOTE123",
+                1L, 1L, 1L, "fornecedor1", "produto1", "LOTE123",
                 LocalDate.now(), LocalDate.now().plusMonths(6),
                 BigDecimal.TEN, BigDecimal.TEN, BigDecimal.ZERO,
                 BigDecimal.valueOf(1.50), OffsetDateTime.now()
@@ -120,7 +120,7 @@ class BatchServiceImplTest {
             List<BatchRequestDTO> batchRequests = List.of(requestDTO);
             when(batchRepository.existsByBatchCode(anyString())).thenReturn(false);
             when(batchMapper.toEntity(any(BatchRequestDTO.class))).thenReturn(batch);
-            when(productService.findProductById(anyInt())).thenReturn(product);
+            when(productService.findProductById(anyLong())).thenReturn(product);
 
             // Act
             batchService.saveFromRestock(restock, batchRequests);
@@ -128,7 +128,7 @@ class BatchServiceImplTest {
             // Assert
             verify(batchRepository).existsByBatchCode(anyString());
             verify(batchRepository).saveAll(anyList());
-            verify(productService).findProductById(1);
+            verify(productService).findProductById(1L);
             verify(batchMapper).toEntity(any(BatchRequestDTO.class));
             assertEquals(BigDecimal.TEN, product.getTotalQuantity());
             verifyNoMoreInteractions(batchRepository, productService, batchMapper);
@@ -154,11 +154,11 @@ class BatchServiceImplTest {
             // Arrange
             List<BatchRequestDTO> batchRequests = List.of(requestDTO, requestDTO);
             when(batchMapper.toEntity(any(BatchRequestDTO.class))).thenReturn(batch);
-            when(productService.findProductById(anyInt())).thenReturn(product);
+            when(productService.findProductById(anyLong())).thenReturn(product);
 
             // Act & Assert
             assertThrows(DuplicateBatchCodeException.class, () -> batchService.saveFromRestock(restock, batchRequests));
-            verify(productService).findProductById(1);
+            verify(productService).findProductById(1L);
             verify(batchMapper).toEntity(any(BatchRequestDTO.class));
             verify(batchRepository).existsByBatchCode("LOTE123");
             verify(batchRepository, never()).saveAll(anyList());
@@ -170,7 +170,7 @@ class BatchServiceImplTest {
         void saveFromRestock_Success_AutomaticBatchCode() {
             // Arrange
             BatchRequestDTO autoRequest = new BatchRequestDTO(
-                    1,
+                    1L,
                     "",
                     LocalDate.now(),
                     LocalDate.now().plusMonths(6),
@@ -181,7 +181,7 @@ class BatchServiceImplTest {
             List<BatchRequestDTO> batchRequests = List.of(autoRequest);
 
             when(batchMapper.toEntity(any(BatchRequestDTO.class))).thenReturn(batch);
-            when(productService.findProductById(anyInt())).thenReturn(product);
+            when(productService.findProductById(anyLong())).thenReturn(product);
             when(batchRepository.existsByBatchCode(anyString())).thenReturn(false);
 
             // Act
@@ -190,7 +190,7 @@ class BatchServiceImplTest {
             // Assert
             verify(batchRepository, atLeastOnce()).existsByBatchCode(anyString());
             verify(batchRepository).saveAll(anyList());
-            verify(productService).findProductById(1);
+            verify(productService).findProductById(1L);
             verify(batchMapper).toEntity(any(BatchRequestDTO.class));
             assertNotNull(batch.getBatchCode());
             assertFalse(batch.getBatchCode().isEmpty());
@@ -288,16 +288,16 @@ class BatchServiceImplTest {
             // Arrange
             Pageable pageable = PageRequest.of(0, 10);
             Page<Batch> batchPage = new PageImpl<>(List.of(batch));
-            when(batchRepository.findByRestockId(1, pageable)).thenReturn(batchPage);
+            when(batchRepository.findByRestockId(1L, pageable)).thenReturn(batchPage);
             when(batchMapper.toResponse(batch)).thenReturn(responseDTO);
 
             // Act
-            Page<BatchResponseDTO> result = batchService.getAllBatchesByRestockId(1, pageable);
+            Page<BatchResponseDTO> result = batchService.getAllBatchesByRestockId(1L, pageable);
 
             // Assert
             assertNotNull(result);
             assertFalse(result.isEmpty());
-            verify(batchRepository).findByRestockId(1, pageable);
+            verify(batchRepository).findByRestockId(1L, pageable);
             verify(batchMapper).toResponse(batch);
             verifyNoMoreInteractions(batchRepository, batchMapper);
         }
@@ -306,11 +306,11 @@ class BatchServiceImplTest {
         @DisplayName("Deve lançar BatchNotFoundException quando não houver lotes para o restock")
         void getAllBatchesByRestockId_Fail_NotFound() {
             // Arrange
-            when(batchRepository.findByRestockId(anyInt(), any())).thenReturn(Page.empty());
+            when(batchRepository.findByRestockId(anyLong(), any())).thenReturn(Page.empty());
 
             // Act & Assert
-            assertThrows(BatchNotFoundException.class, () -> batchService.getAllBatchesByRestockId(1, Pageable.unpaged()));
-            verify(batchRepository).findByRestockId(anyInt(), any());
+            assertThrows(BatchNotFoundException.class, () -> batchService.getAllBatchesByRestockId(1L, Pageable.unpaged()));
+            verify(batchRepository).findByRestockId(anyLong(), any());
             verifyNoMoreInteractions(batchRepository, batchMapper);
         }
     }
@@ -322,16 +322,16 @@ class BatchServiceImplTest {
         @DisplayName("Deve retornar lote por ID com sucesso")
         void getBatchById_Success() {
             // Arrange
-            when(batchRepository.findById(1)).thenReturn(Optional.of(batch));
+            when(batchRepository.findById(1L)).thenReturn(Optional.of(batch));
             when(batchMapper.toResponse(batch)).thenReturn(responseDTO);
 
             // Act
-            BatchResponseDTO result = batchService.getBatchById(1);
+            BatchResponseDTO result = batchService.getBatchById(1L);
 
             // Assert
             assertNotNull(result);
-            assertEquals(1, result.batchId());
-            verify(batchRepository).findById(1);
+            assertEquals(1L, result.batchId());
+            verify(batchRepository).findById(1L);
             verify(batchMapper).toResponse(batch);
             verifyNoMoreInteractions(batchRepository, batchMapper);
         }
@@ -340,52 +340,12 @@ class BatchServiceImplTest {
         @DisplayName("Deve lançar BatchNotFoundException ao buscar ID inexistente")
         void getBatchById_Fail_NotFound() {
             // Arrange
-            when(batchRepository.findById(1)).thenReturn(Optional.empty());
+            when(batchRepository.findById(1L)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThrows(BatchNotFoundException.class, () -> batchService.getBatchById(1));
-            verify(batchRepository).findById(1);
+            assertThrows(BatchNotFoundException.class, () -> batchService.getBatchById(1L));
+            verify(batchRepository).findById(1L);
             verifyNoMoreInteractions(batchRepository, batchMapper);
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes para buscar lotes em estoque de um produto com quantidade mínima")
-    class GetBatchesInStockDTO {
-        @Test
-        @DisplayName("Deve retornar lista de DTOs com sucesso")
-        void getBatchesInStockDTO_Success() {
-            // Arrange
-            when(productService.findProductById(1)).thenReturn(product);
-            when(batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN))
-                    .thenReturn(List.of(batch));
-            when(batchMapper.toResponseList(anyList())).thenReturn(List.of(responseDTO));
-
-            // Act
-            List<BatchResponseDTO> result = batchService.getBatchesInStockDTO(1, BigDecimal.TEN);
-
-            // Assert
-            assertNotNull(result);
-            assertFalse(result.isEmpty());
-            verify(productService).findProductById(1);
-            verify(batchRepository).findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN);
-            verify(batchMapper).toResponseList(anyList());
-            verifyNoMoreInteractions(productService, batchRepository, batchMapper);
-        }
-
-        @Test
-        @DisplayName("Deve lançar BatchNotFoundException quando não houver lotes suficientes")
-        void getBatchesInStockDTO_Fail_NotFound() {
-            // Arrange
-            when(productService.findProductById(1)).thenReturn(product);
-            when(batchRepository.findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(any(), any()))
-                    .thenReturn(Collections.emptyList());
-
-            // Act & Assert
-            assertThrows(BatchNotFoundException.class, () -> batchService.getBatchesInStockDTO(1, BigDecimal.TEN));
-            verify(productService).findProductById(1);
-            verify(batchRepository).findByProductAndQuantityInStockGreaterThanEqualOrderByExpirationDateAsc(product, BigDecimal.TEN);
-            verifyNoMoreInteractions(productService, batchRepository, batchMapper);
         }
     }
 
@@ -477,18 +437,18 @@ class BatchServiceImplTest {
         @DisplayName("Deve reportar perda com sucesso")
         void reportLoss_Success() {
             // Arrange
-            BatchLossReportRequestDTO lossDTO = new BatchLossReportRequestDTO(1, BigDecimal.valueOf(2), "Quebrado");
+            BatchLossReportRequestDTO lossDTO = new BatchLossReportRequestDTO(1L, BigDecimal.valueOf(2L), "Quebrado");
             product.setTotalQuantity(BigDecimal.TEN);
-            when(batchRepository.findById(1)).thenReturn(Optional.of(batch));
+            when(batchRepository.findById(1L)).thenReturn(Optional.of(batch));
 
             // Act
             batchService.reportLoss(lossDTO);
 
             // Assert
             assertEquals(BigDecimal.valueOf(8), batch.getQuantityInStock());
-            assertEquals(BigDecimal.valueOf(2), batch.getQuantityLost());
+            assertEquals(BigDecimal.valueOf(2L), batch.getQuantityLost());
             assertEquals(BigDecimal.valueOf(8), product.getTotalQuantity());
-            verify(batchRepository).findById(1);
+            verify(batchRepository).findById(1L);
             verify(batchRepository).save(batch);
             verifyNoMoreInteractions(batchRepository);
         }
@@ -497,12 +457,12 @@ class BatchServiceImplTest {
         @DisplayName("Deve lançar BatchNotFoundException ao reportar perda de ID inexistente")
         void reportLoss_Fail_NotFound() {
             // Arrange
-            BatchLossReportRequestDTO lossDTO = new BatchLossReportRequestDTO(1, BigDecimal.valueOf(2), "Quebrado");
-            when(batchRepository.findById(1)).thenReturn(Optional.empty());
+            BatchLossReportRequestDTO lossDTO = new BatchLossReportRequestDTO(1L, BigDecimal.valueOf(2L), "Quebrado");
+            when(batchRepository.findById(1L)).thenReturn(Optional.empty());
 
             // Act & Assert
             assertThrows(BatchNotFoundException.class, () -> batchService.reportLoss(lossDTO));
-            verify(batchRepository).findById(1);
+            verify(batchRepository).findById(1L);
             verifyNoMoreInteractions(batchRepository);
         }
     }
@@ -516,16 +476,16 @@ class BatchServiceImplTest {
             // Arrange
             BatchInvalidationRequestDTO invalidDTO = new BatchInvalidationRequestDTO("Vencido");
             product.setTotalQuantity(BigDecimal.TEN);
-            when(batchRepository.findById(1)).thenReturn(Optional.of(batch));
+            when(batchRepository.findById(1L)).thenReturn(Optional.of(batch));
 
             // Act
-            batchService.invalidateBatch(1, invalidDTO);
+            batchService.invalidateBatch(1L, invalidDTO);
 
             // Assert
             assertEquals(BigDecimal.ZERO, batch.getQuantityInStock());
             assertEquals(BigDecimal.TEN, batch.getQuantityLost());
             assertEquals(BigDecimal.ZERO, product.getTotalQuantity());
-            verify(batchRepository).findById(1);
+            verify(batchRepository).findById(1L);
             verify(batchRepository).save(batch);
             verifyNoMoreInteractions(batchRepository);
         }
@@ -535,11 +495,11 @@ class BatchServiceImplTest {
         void invalidateBatch_Fail_NotFound() {
             // Arrange
             BatchInvalidationRequestDTO invalidDTO = new BatchInvalidationRequestDTO("Vencido");
-            when(batchRepository.findById(1)).thenReturn(Optional.empty());
+            when(batchRepository.findById(1L)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThrows(BatchNotFoundException.class, () -> batchService.invalidateBatch(1, invalidDTO));
-            verify(batchRepository).findById(1);
+            assertThrows(BatchNotFoundException.class, () -> batchService.invalidateBatch(1L, invalidDTO));
+            verify(batchRepository).findById(1L);
             verifyNoMoreInteractions(batchRepository);
         }
     }

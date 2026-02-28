@@ -21,13 +21,13 @@ public interface BatchService {
 
     Page<BatchResponseDTO> getAllBatchesInStock(Pageable pageable);
 
-    Page<BatchResponseDTO> getAllBatchesByRestockId(int restockId, Pageable pageable);
+    Page<BatchResponseDTO> getAllBatchesByRestockId(Long restockId, Pageable pageable);
 
     Page<BatchResponseDTO> getAllBatchesInStockByDate(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    List<BatchResponseDTO> getBatchesInStockDTO(Integer productId, BigDecimal quantity);
+    List<BatchResponseDTO> getBatchesInStockDTO(Long productId, BigDecimal quantity);
 
-    BatchResponseDTO getBatchById(Integer batchId);
+    BatchResponseDTO getBatchById(Long batchId);
 
     List<Batch> findBatchesInStock(Product product, BigDecimal quantity);
 
@@ -39,5 +39,5 @@ public interface BatchService {
 
     void reportLoss(BatchLossReportRequestDTO batchLossReport);
 
-    void invalidateBatch(Integer batchId, BatchInvalidationRequestDTO batchInvalidation);
+    void invalidateBatch(Long batchId, BatchInvalidationRequestDTO batchInvalidation);
 }

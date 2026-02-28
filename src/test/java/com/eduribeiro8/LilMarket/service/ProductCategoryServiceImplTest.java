@@ -43,7 +43,7 @@ class ProductCategoryServiceImplTest {
     void setUp() {
         requestDTO = new ProductCategoryRequestDTO("Bebidas", "Sucos e refrigerantes");
         category = ProductCategory.builder()
-                .id(1)
+                .id(1L)
                 .name("BEBIDAS")
                 .description("Sucos e refrigerantes")
                 .createdAt(OffsetDateTime.now())
@@ -65,7 +65,7 @@ class ProductCategoryServiceImplTest {
                     .build();
 
             ProductCategoryResponseDTO responseDTO = new ProductCategoryResponseDTO(
-                    1, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
+                    1L, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
 
             Mockito.when(productCategoryRepository.existsByName(requestDTO.name())).thenReturn(false);
             Mockito.when(productCategoryMapper.toEntity(requestDTO)).thenReturn(productCategoryToSave);
@@ -114,9 +114,9 @@ class ProductCategoryServiceImplTest {
         @DisplayName("Deve retornar ProductCategoryResponseDTO ao buscar por um id existente")
         void findById_Success() {
             // Arrange
-            int id = 1;
+            Long id = 1L;
             ProductCategoryResponseDTO responseDTO = new ProductCategoryResponseDTO(
-                    1, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
+                    1L, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
 
             Mockito.when(productCategoryRepository.findById(id)).thenReturn(Optional.of(category));
             Mockito.when(productCategoryMapper.toResponse(category)).thenReturn(responseDTO);
@@ -138,7 +138,7 @@ class ProductCategoryServiceImplTest {
         @DisplayName("Deve lançar ProductCategoryNotFoundException ao buscar por um id não cadastrado")
         void findById_Fail_NotFound() {
             // Arrange
-            int id = 99;
+            Long id = 99L;
             Mockito.when(productCategoryRepository.findById(id)).thenReturn(Optional.empty());
 
             // Act & Assert
@@ -158,7 +158,7 @@ class ProductCategoryServiceImplTest {
             // Arrange
             String name = "BEBIDAS";
             ProductCategoryResponseDTO responseDTO = new ProductCategoryResponseDTO(
-                    1, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
+                    1L, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
 
             Mockito.when(productCategoryRepository.findByName(name)).thenReturn(Optional.of(category));
             Mockito.when(productCategoryMapper.toResponse(category)).thenReturn(responseDTO);
@@ -204,7 +204,7 @@ class ProductCategoryServiceImplTest {
             // Arrange
             List<ProductCategory> categoryList = List.of(category);
             ProductCategoryResponseDTO responseDTO = new ProductCategoryResponseDTO(
-                    1, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
+                    1L, "BEBIDAS", "Sucos e refrigerantes", OffsetDateTime.now(), OffsetDateTime.now());
             List<ProductCategoryResponseDTO> responseList = List.of(responseDTO);
 
             Mockito.when(productCategoryRepository.findAll()).thenReturn(categoryList);

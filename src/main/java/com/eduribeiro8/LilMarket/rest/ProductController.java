@@ -40,7 +40,7 @@ public class ProductController {
     })
     public ResponseEntity<ProductResponseDTO> findProductById(
             @Parameter(required = true, description = "ID do produto", example = "1")
-            @PathVariable int productId) {
+            @PathVariable Long productId) {
         ProductResponseDTO product = productService.findProductByIdDTO(productId);
         if (product == null) {
             throw new ProductNotFoundException();
@@ -108,7 +108,7 @@ public class ProductController {
     })
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @Parameter(required = true, description = "ID do produto a ser atualizado", example = "1")
-            @PathVariable int productId,
+            @PathVariable Long productId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Dados atualizados do produto",
                     required = true
@@ -131,7 +131,7 @@ public class ProductController {
     })
     public ResponseEntity<Void> deleteProductById(
             @Parameter(required = true, description = "ID do produto a ser excluído", example = "1")
-            @PathVariable int productId) {
+            @PathVariable Long productId) {
         productService.deleteById(productId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

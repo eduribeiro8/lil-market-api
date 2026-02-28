@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface BatchRepository extends JpaRepository<Batch, Integer> {
+public interface BatchRepository extends JpaRepository<Batch, Long> {
 
     List<Batch> findByQuantityInStockGreaterThanOrderByExpirationDateAsc(BigDecimal quantity);
 
@@ -32,10 +32,10 @@ public interface BatchRepository extends JpaRepository<Batch, Integer> {
 
     Page<Batch> findByQuantityInStockGreaterThan(BigDecimal i, Pageable pageable);
 
-    Page<Batch> findByRestockId(Integer restockId, Pageable pageable);
+    Page<Batch> findByRestockId(Long restockId, Pageable pageable);
 
     @Query("SELECT SUM(b.quantityInStock * b.purchasePrice) / SUM(b.quantityInStock) " +
             "FROM Batch b " +
             "WHERE b.product.id = :productId AND b.quantityInStock > 0")
-    BigDecimal calculateAverageCostByProduct(@Param("productId") Integer productId);
+    BigDecimal calculateAverageCostByProduct(@Param("productId") Long productId);
 }

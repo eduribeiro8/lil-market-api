@@ -69,18 +69,18 @@ class SaleServiceImplTest {
     @BeforeEach
     void setUp(){
         product = Product.builder()
-                .id(1)
+                .id(1L)
                 .name("Agua")
                 .price(new BigDecimal("20.00"))
                 .build();
 
         itemRequestDTOList = List.of(new SaleItemRequestDTO(
-                1,
+                1L,
                 new BigDecimal("2.00")
         ));
 
         requestDTO = new SaleRequestDTO(
-                1,
+                1L,
                 1L,
                 itemRequestDTOList,
                 new BigDecimal("40.00"),
@@ -91,25 +91,25 @@ class SaleServiceImplTest {
         );
 
         responseDTO = new SaleResponseDTO(
-                1,
+                1L,
                 OffsetDateTime.now(),
                 "João",
                 "Maria",
                 List.of(new SaleItemResponseDTO(
-                                1,
+                                1L,
                                 "Agua",
                                 new BigDecimal("1.00"),
                                 new BigDecimal("20.00"),
                                 new BigDecimal("20.00"),
-                                1
+                                1L
                         ),
                         new SaleItemResponseDTO(
-                                1,
+                                1L,
                                 "Agua",
                                 new BigDecimal("1.00"),
                                 new BigDecimal("20.00"),
                                 new BigDecimal("20.00"),
-                                2
+                                2L
                         )
                 ),
                 new BigDecimal("40.00"),
@@ -121,7 +121,7 @@ class SaleServiceImplTest {
         );
 
         customer = Customer.builder()
-                .id(1)
+                .id(1L)
                 .firstName("Joao")
                 .credit(new BigDecimal("0.00"))
                 .build();
@@ -131,7 +131,7 @@ class SaleServiceImplTest {
                 .username("Maria")
                 .build();
         Batch batch1 = Batch.builder()
-                .id(1)
+                .id(1L)
                 .product(product)
                 .batchCode("ABC-123")
                 .quantityInStock(new BigDecimal("1"))
@@ -139,7 +139,7 @@ class SaleServiceImplTest {
                 .build();
 
         Batch batch2 = Batch.builder()
-                .id(2)
+                .id(2L)
                 .product(product)
                 .batchCode("ABC-124")
                 .quantityInStock(new BigDecimal("1"))
@@ -190,9 +190,9 @@ class SaleServiceImplTest {
                             .amountPaid(new BigDecimal("40.00"))
                             .build();
 
-            when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(productRepository.findById(1)).thenReturn(Optional.of(product));
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
             when(batchService.findBatchesInStock(product, new BigDecimal("2.00"))).thenReturn(batches);
             when(batchService.decrementBatches(batches, product, new BigDecimal("2.00"))).thenReturn(batches);
             when(saleRepository.save(any(Sale.class))).thenReturn(salePersisted);
@@ -225,7 +225,7 @@ class SaleServiceImplTest {
         void save_Fail_CustomerNotFound(){
             //Arrange
 
-            when(customerRepository.findById(1)).thenReturn(Optional.empty());
+            when(customerRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
             CustomerNotFoundException exception = assertThrows(CustomerNotFoundException.class, () ->
@@ -247,7 +247,7 @@ class SaleServiceImplTest {
         void save_Fail_UserNotFound(){
             //Arrange
 
-            when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
             when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
@@ -270,9 +270,9 @@ class SaleServiceImplTest {
         void save_Fail_ProductNotFound(){
             //Arrange
 
-            when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(productRepository.findById(1)).thenReturn(Optional.empty());
+            when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
             ProductNotFoundException exception = assertThrows(ProductNotFoundException.class, () ->
@@ -294,20 +294,20 @@ class SaleServiceImplTest {
         void save_Fail_BusinessException(){
             //Arrange
 
-            requestDTO = new SaleRequestDTO(
-                    1,
-                    1L,
-                    itemRequestDTOList,
-                    new BigDecimal("39.00"),
-                    false,
-                    "",
-                    PaymentStatus.PAID, //bait
-                    PaymentMethod.PIX
-            );
+        requestDTO = new SaleRequestDTO(
+                1L,
+                1L,
+                itemRequestDTOList,
+                new BigDecimal("39.00"),
+                false,
+                "",
+                PaymentStatus.PAID, //bait
+                PaymentMethod.PIX
+        );
 
-            when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(productRepository.findById(1)).thenReturn(Optional.of(product));
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
             when(batchService.findBatchesInStock(product, new BigDecimal("2.00"))).thenReturn(batches);
             when(batchService.decrementBatches(batches, product, new BigDecimal("2.00"))).thenReturn(batches);
 
@@ -335,11 +335,11 @@ class SaleServiceImplTest {
         void findSaleById_Success() {
             //Arrange
 
-            when(saleRepository.findById(1)).thenReturn(Optional.of(salePersisted));
+            when(saleRepository.findById(1L)).thenReturn(Optional.of(salePersisted));
             when(saleMapper.toResponse(any(Sale.class))).thenReturn(responseDTO);
 
             //Act
-            SaleResponseDTO response = saleService.findSaleById(1);
+            SaleResponseDTO response = saleService.findSaleById(1L);
 
             //Assert
             assertNotNull(response);
@@ -349,7 +349,7 @@ class SaleServiceImplTest {
             assertEquals(0, salePersisted.getTotal().compareTo(response.totalAmount()));
             assertEquals(0, salePersisted.getNetProfit().compareTo(response.netProfit()));
 
-            verify(saleRepository, times(1)).findById(1);
+            verify(saleRepository, times(1)).findById(1L);
             verifyNoInteractions(batchService, userRepository, customerPaymentRepository,
                     customerRepository, productRepository);
             verifyNoMoreInteractions(saleRepository, saleMapper);
@@ -361,12 +361,12 @@ class SaleServiceImplTest {
         void findSaleById_Fail_SaleNotFound() {
             //Arrange
 
-            when(saleRepository.findById(1)).thenReturn(Optional.empty());
+            when(saleRepository.findById(1L)).thenReturn(Optional.empty());
 
             //Act
 
             SaleNotFoundException exception = assertThrows(SaleNotFoundException.class, () ->
-                saleService.findSaleById(1)
+                saleService.findSaleById(1L)
             );
 
             //Assert
@@ -381,8 +381,8 @@ class SaleServiceImplTest {
         @DisplayName("Deve retornar um List<SaleResponseDTO> que tem o timestamp entre o intervalo buscado")
         void getSalesByDate_Success() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1);
+            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
+            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
 
             when(saleRepository.findByTimestampBetween(startDate, endDate)).thenReturn(List.of(salePersisted));
             when(saleMapper.toResponseList(List.of(salePersisted))).thenReturn(List.of(responseDTO));
@@ -406,8 +406,8 @@ class SaleServiceImplTest {
         @DisplayName("Deve lançar um InvalidDateInterval ao buscar um intervalo impossível")
         void getSalesByDate_Fail_InvalidDateInterval() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().plusDays(2);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1);
+            OffsetDateTime startDate = OffsetDateTime.now().plusDays(2L);
+            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
 
             //Act
             InvalidDateIntervalException exception = assertThrows(InvalidDateIntervalException.class, () ->
@@ -425,8 +425,8 @@ class SaleServiceImplTest {
         @DisplayName("Deve lançar um SaleNotFound caso não encontre nenhuma venda no intervalo")
         void getSalesByDate_Fail_SaleNotFound() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1);
+            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
+            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
 
             when(saleRepository.findByTimestampBetween(startDate, endDate)).thenReturn(List.of());
 

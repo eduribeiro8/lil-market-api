@@ -9,7 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ============================================
 
 CREATE TABLE suppliers (
-    supplier_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    supplier_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL UNIQUE,
     phone_number VARCHAR(100),
     address VARCHAR(100),
@@ -24,8 +24,8 @@ CREATE TABLE suppliers (
 -- ============================================
 
 CREATE TABLE restock (
-    restock_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    supplier_id INT NOT NULL,
+    restock_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    supplier_id BIGINT NOT NULL,
     amount_paid DECIMAL(10, 2) NOT NULL,
     bought_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
@@ -37,7 +37,7 @@ CREATE TABLE restock (
 -- CATEGORIAS
 -- ============================================
 CREATE TABLE categories (
-    category_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    category_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,7 +48,7 @@ CREATE TABLE categories (
 -- PRODUTOS
 -- ============================================
 CREATE TABLE products (
-    product_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    product_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     barcode VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
@@ -57,7 +57,7 @@ CREATE TABLE products (
     auto_pricing BOOLEAN DEFAULT FALSE,
     profit_margin DECIMAL(10, 2) NOT NULL,
     min_quantity_in_stock INT NOT NULL DEFAULT 0,
-    category_id INT,
+    category_id BIGINT,
     unit_type ENUM('COUNT', 'WEIGHT') DEFAULT 'COUNT',
     is_perishable BOOLEAN DEFAULT FALSE,
     alert BOOLEAN DEFAULT FALSE,
@@ -76,10 +76,10 @@ CREATE TABLE products (
 -- LOTES (apenas para produtos perecíveis)
 -- ============================================
 CREATE TABLE batches (
-    batch_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    product_id INT NOT NULL,
-    supplier_id INT NOT NULL,
-    restock_id INT NOT NULL,
+    batch_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    product_id BIGINT NOT NULL,
+    supplier_id BIGINT NOT NULL,
+    restock_id BIGINT NOT NULL,
     batch_code VARCHAR(50) NOT NULL,
     manufacture_date DATE,
     expiration_date DATE NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE batches (
 -- CLIENTES
 -- ============================================
 CREATE TABLE customers (
-    customer_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    customer_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     email VARCHAR(255),
@@ -122,7 +122,7 @@ CREATE TABLE customers (
 -- USUÁRIOS
 -- ============================================
 CREATE TABLE users (
-    user_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    user_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     user_name VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
@@ -139,9 +139,9 @@ CREATE TABLE users (
 -- VENDAS
 -- ============================================
 CREATE TABLE sales (
-    sale_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    customer_id INT,
-    user_id INT NOT NULL,
+    sale_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    customer_id BIGINT,
+    user_id BIGINT NOT NULL,
     sale_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     total_amount DECIMAL(10, 2) NOT NULL,
     amount_paid DECIMAL(10, 2) DEFAULT 0.00,
@@ -162,10 +162,10 @@ CREATE TABLE sales (
 -- ITENS DE VENDA
 -- ============================================
 CREATE TABLE sale_items (
-    sale_item_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    sale_id INT NOT NULL,
-    product_id INT NOT NULL,
-    batch_id INT,
+    sale_item_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    sale_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    batch_id BIGINT,
     quantity DECIMAL(10, 3) NOT NULL,
     unit_price DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(10, 2) NOT NULL,
@@ -185,8 +185,8 @@ CREATE TABLE sale_items (
 -- PAGAMENTOS (Histórico de acertos de contas)
 -- ============================================
 CREATE TABLE customer_payments (
-    payment_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    customer_id INT NOT NULL,
+    payment_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    customer_id BIGINT NOT NULL,
     amount_paid DECIMAL(10, 2) NOT NULL,
     payment_method ENUM('CASH', 'DEBIT', 'CREDIT_CARD', 'PIX') NOT NULL,
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

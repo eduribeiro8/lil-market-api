@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Detalhes do produto retornados")
 public record ProductResponseDTO (
         @Schema(description = "Identificador do produto", example = "10")
-        Integer id,
+        Long id,
         @Schema(description = "Nome do produto", example = "Leite integral")
         String name,
         @Schema(description = "Código de barras do produto", example = "1234567890123")
@@ -26,7 +26,7 @@ public record ProductResponseDTO (
         @Schema(description = "Quantidade mínima em estoque para alerta", example = "10")
         Integer minQuantityInStock,
         @Schema(description = "Id da categoria", example = "1")
-        String categoryId,
+        Long categoryId,
         @Schema(description = "Tipo de unidade", example = "WEIGHT")
         UnitType unitType,
         @Schema(description = "Nome da categoria", example = "Laticínios")

@@ -81,7 +81,7 @@ class UserServiceImplTest {
                     .build();
 
             UserResponseDTO userResponseDTO = new UserResponseDTO(
-                    1,
+                    1L,
                     "joaozinho123",
                     "João",
                     UserRole.ROLE_ADMIN,
@@ -165,7 +165,7 @@ class UserServiceImplTest {
             String request = "joaozinho123";
 
             UserResponseDTO userResponseDTO = new UserResponseDTO(
-                    1,
+                    1L,
                     "joaozinho123",
                     "João",
                     UserRole.ROLE_ADMIN,

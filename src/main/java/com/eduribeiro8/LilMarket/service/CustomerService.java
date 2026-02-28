@@ -14,15 +14,15 @@ public interface CustomerService {
 
     List<CustomerResponseDTO> findAll();
 
-    CustomerResponseDTO findById(int id);
+    CustomerResponseDTO findById(Long id);
 
     CustomerResponseDTO save(CustomerRequestDTO customer);
 
-    void deleteById(int id);
+    void deleteById(Long id);
 
     Page<CustomerPaymentResponseDTO> getCustomerTransactions(
-            int id, LocalDate startDate, LocalDate endDate, Pageable pageable
+            Long id, LocalDate startDate, LocalDate endDate, Pageable pageable
     );
 
-    CustomerPaymentResponseDTO addCredit(int id, CustomerDepositRequestDTO customerDepositRequestDTO);
+    CustomerPaymentResponseDTO addCredit(Long id, CustomerDepositRequestDTO customerDepositRequestDTO);
 }

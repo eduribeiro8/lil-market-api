@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Requisição para criar/atualizar lote")
 public record BatchRequestDTO(
         @Schema(description = "Identificador do produto para este lote", example = "10")
-        @NotNull Integer productId,
+        @NotNull Long productId,
         @Schema(description = "Código do lote", example = "LOTE-202601")
         String batchCode,
         @Schema(description = "Data de fabricação", example = "2026-01-01")
