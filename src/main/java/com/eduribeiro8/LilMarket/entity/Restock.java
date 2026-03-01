@@ -3,6 +3,7 @@ package com.eduribeiro8.LilMarket.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +32,11 @@ public class Restock {
     @NotNull(message = "{supplier.required}")
     @Setter
     private Supplier supplier;
+
+    @Column(name = "restock_invoice")
+    @NotBlank(message = "{restock.invoice.required}")
+    @Setter
+    private String invoice;
 
     @NotNull(message = "{amount.paid.not.null}")
     @DecimalMin(value = "0.0", inclusive = false, message = "{amount.paid.min.value}")

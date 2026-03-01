@@ -11,6 +11,8 @@ public record RestockResponseDTO(
         Long id,
         @Schema(description = "Identificador do fornecedor", example = "1")
         Long supplierId,
+        @Schema(description = "Nota fiscal da compra", example = "55.001.12345")
+        String invoice,
         @Schema(description = "Nome do fornecedor", example = "Distribuidora de Bebidas LTDA")
         String supplierName,
         @Schema(description = "Valor total pago", example = "1500.50")
