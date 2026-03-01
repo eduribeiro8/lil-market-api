@@ -16,9 +16,9 @@ INSERT INTO suppliers (name, phone_number, city) VALUES
 ('Laticínios Pureza', '1144445555', 'Campinas');
 
 -- 3. Reabastecimentos (Simulando uma compra de estoque)
-INSERT INTO restock (supplier_id, amount_paid, bought_at) VALUES 
-(1, 500.00, '2024-01-10 10:00:00'),
-(2, 350.00, '2024-01-12 09:00:00');
+INSERT INTO restock (supplier_id, restock_invoice, amount_paid, bought_at) VALUES 
+(1, '55.001.12345', 500.00, '2024-01-10 10:00:00'),
+(2, '55.002.12345', 350.00, '2024-01-12 09:00:00');
 
 -- 4. Produtos
 -- Colunas: name, barcode, price, profit_margin, category_id, is_perishable, min_quantity_in_stock

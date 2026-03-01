@@ -68,6 +68,7 @@ class RestockServiceImplTest {
         restockPersisted = Restock.builder()
                 .id(1L)
                 .supplier(supplier)
+                .invoice("INV-123")
                 .boughtAt(LocalDate.now())
                 .createdAt(OffsetDateTime.now())
                 .amountPaid(new BigDecimal("100.00"))
@@ -76,6 +77,7 @@ class RestockServiceImplTest {
         responseDTO = new RestockResponseDTO(
                 1L,
                 1L,
+                "INV-123",
                 "ABC",
                 new BigDecimal("100.00"),
                 LocalDate.now(),
@@ -92,6 +94,7 @@ class RestockServiceImplTest {
             //Arrange
             RestockRequestDTO requestDTO = new RestockRequestDTO(
                     1L,
+                    "INV-123",
                     List.of(new BatchRequestDTO(
                                     1L,
                                     "",
@@ -128,6 +131,7 @@ class RestockServiceImplTest {
             assertEquals(serviceResponse.id(), restockPersisted.getId());
             assertEquals(serviceResponse.supplierId(), restockPersisted.getSupplier().getId());
             assertEquals(serviceResponse.supplierName(), restockPersisted.getSupplier().getName());
+            assertEquals(serviceResponse.invoice(), restockPersisted.getInvoice());
             assertEquals(0, serviceResponse.amountPaid().compareTo(restockPersisted.getAmountPaid()));
             assertNotNull(serviceResponse.createdAt());
             assertNotNull(serviceResponse.boughtAt());
@@ -157,6 +161,7 @@ class RestockServiceImplTest {
             //Assert
             assertNotNull(response);
             assertEquals(1, response.getId());
+            assertEquals("INV-123", response.getInvoice());
             assertEquals(0, response.getAmountPaid().compareTo(new BigDecimal("100.00")));
             assertNotNull(response.getBoughtAt());
             assertEquals(supplier, response.getSupplier());
@@ -199,6 +204,7 @@ class RestockServiceImplTest {
             //Assert
             assertNotNull(response);
             assertEquals(1, response.id());
+            assertEquals("INV-123", response.invoice());
             assertEquals(0, response.amountPaid().compareTo(new BigDecimal("100.00")));
             assertNotNull(response.boughtAt());
             assertEquals(1, response.supplierId());
@@ -248,6 +254,7 @@ class RestockServiceImplTest {
             assertEquals(1, result.getTotalElements());
             assertEquals(1, result.getContent().size());
             assertEquals(1L, result.getContent().get(0).id());
+            assertEquals("INV-123", result.getContent().get(0).invoice());
             assertEquals(0, result.getContent().get(0).amountPaid().compareTo(new BigDecimal("100.00")));
             assertNotNull(result.getContent().get(0).boughtAt());
             assertEquals(1L, result.getContent().get(0).supplierId());

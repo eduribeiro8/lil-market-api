@@ -35,6 +35,7 @@ public class RestockServiceImpl implements RestockService{
 
         Supplier supplier = supplierService.findById(restockRequestDTO.supplierId());
         restockToSave.setSupplier(supplier);
+        restockToSave.setInvoice(restockRequestDTO.invoice());
         restockToSave.setAmountPaid(
                 restockRequestDTO.batchRequestDTOS().stream()
                         .map(a -> a.purchasePrice().multiply(a.quantityInStock()))

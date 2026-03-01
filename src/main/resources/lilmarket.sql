@@ -26,6 +26,7 @@ CREATE TABLE suppliers (
 CREATE TABLE restock (
     restock_id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     supplier_id BIGINT NOT NULL,
+    restock_invoice TEXT NOT NULL,
     amount_paid DECIMAL(10, 2) NOT NULL,
     bought_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
