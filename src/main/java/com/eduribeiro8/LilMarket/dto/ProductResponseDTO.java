@@ -17,6 +17,8 @@ public record ProductResponseDTO (
         String description,
         @Schema(description = "Preço unitário", example = "3.49")
         BigDecimal price,
+        @Schema(description = "Preço médio", example = "3.49")
+        BigDecimal averagePrice,
         @Schema(description = "Quantidade total do produto em estoque", example = "100")
         BigDecimal totalQuantity,
         @Schema(description = "Se o produto atualiza o preço automaticamente", example = "true")

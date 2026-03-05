@@ -114,8 +114,6 @@ public class ProductServiceImpl implements ProductService{
     public void calculatePriceBasedOnStock(Long productId) {
         Product product = findProductById(productId);
 
-        if (!product.getAutoPricing()) return;
-
         BigDecimal averageCost = batchRepository.calculateAverageCostByProduct(productId);
 
         if (averageCost == null){
@@ -123,17 +121,21 @@ public class ProductServiceImpl implements ProductService{
             return;
         }
 
-        BigDecimal profitMargin = BigDecimal.ONE.add(
-                product.getProfitMargin().divide(
-                        new BigDecimal(100), 2, RoundingMode.HALF_UP
-                )
-        );
+        product.setAveragePrice(averageCost.setScale(2, RoundingMode.HALF_UP));
 
-        BigDecimal newPrice = averageCost.multiply(profitMargin);
+        if (product.getAutoPricing()){
+            BigDecimal profitMargin = BigDecimal.ONE.add(
+                    product.getProfitMargin().divide(
+                            new BigDecimal(100), 2, RoundingMode.HALF_UP
+                    )
+            );
 
-        BigDecimal finalPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+            BigDecimal newPrice = averageCost.multiply(profitMargin);
 
-        product.setPrice(finalPrice);
+            BigDecimal finalPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+
+            product.setPrice(finalPrice);
+        }
 
         productRepository.save(product);
     }

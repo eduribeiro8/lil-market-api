@@ -47,6 +47,9 @@ public class Product {
     @Column(name = "price")
     private BigDecimal price;
 
+    @Column(name = "avg_price")
+    private BigDecimal averagePrice;
+
     @Builder.Default
     @Column(name = "total_quantity")
     private BigDecimal totalQuantity = BigDecimal.ZERO;

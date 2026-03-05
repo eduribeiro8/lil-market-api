@@ -71,6 +71,7 @@ class ProductServiceImplTest {
                 .barcode("1234567890123")
                 .description("abc123")
                 .price(new BigDecimal("10.00"))
+                .averagePrice(BigDecimal.ZERO)
                 .profitMargin(new BigDecimal("50.00"))
                 .autoPricing(true)
                 .minQuantityInStock(5)
@@ -101,6 +102,7 @@ class ProductServiceImplTest {
                 "1234567890123",
                 "abc123",
                 new BigDecimal("10.00"),
+                BigDecimal.ZERO,
                 BigDecimal.TEN,
                 true,
                 new BigDecimal("50.00"),
@@ -377,6 +379,7 @@ class ProductServiceImplTest {
             //Assert
             // Cost 100 + 50% profit = 150
             assertEquals(0, new BigDecimal("150.00").compareTo(product.getPrice()));
+            assertEquals(0, new BigDecimal("100.00").compareTo(product.getAveragePrice()));
             verify(productRepository).save(product);
             verifyNoMoreInteractions(productRepository, batchRepository);
         }
@@ -386,15 +389,18 @@ class ProductServiceImplTest {
         void calculatePriceBasedOnStock_AutoPricingDisabled() {
             //Arrange
             product.setAutoPricing(false);
+            BigDecimal averageCost = new BigDecimal("100.00");
 
             when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+            when(batchRepository.calculateAverageCostByProduct(anyLong())).thenReturn(averageCost);
 
             //Act
             productService.calculatePriceBasedOnStock(1L);
 
             //Assert
-            verify(batchRepository, never()).calculateAverageCostByProduct(anyLong());
-            verify(productRepository, never()).save(any(Product.class));
+            assertEquals(0, new BigDecimal("100.00").compareTo(product.getAveragePrice()));
+            verify(batchRepository).calculateAverageCostByProduct(anyLong());
+            verify(productRepository).save(any(Product.class));
             verifyNoMoreInteractions(productRepository, batchRepository);
         }
 
