@@ -54,6 +54,7 @@ CREATE TABLE products (
     barcode VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
+    avg_price DECIMAL(10,2) DEFAULT 0.00,
     total_quantity DECIMAL(10, 3) DEFAULT 0.000,
     auto_pricing BOOLEAN DEFAULT FALSE,
     profit_margin DECIMAL(10, 2) NOT NULL,

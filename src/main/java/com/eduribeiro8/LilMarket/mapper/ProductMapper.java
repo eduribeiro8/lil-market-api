@@ -24,6 +24,9 @@ public interface ProductMapper {
     @Mapping(target = "batches", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "averagePrice", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "totalQuantity", ignore = true)
     Product toEntity(ProductRequestDTO request);
 
     @Mapping(target = "id", ignore = true)
@@ -31,5 +34,7 @@ public interface ProductMapper {
     @Mapping(target = "batches", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "averagePrice", ignore = true)
+    @Mapping(target = "totalQuantity", ignore = true)
     Product updateEntityFromDTO(ProductRequestDTO request, @MappingTarget Product product);
 }
