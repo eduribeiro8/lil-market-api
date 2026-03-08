@@ -98,7 +98,8 @@ class BatchServiceImplTest {
                 LocalDate.now().plusMonths(6),
                 BigDecimal.TEN,
                 BigDecimal.ZERO,
-                BigDecimal.valueOf(1.50)
+                BigDecimal.valueOf(1.50),
+                null
         );
 
         responseDTO = new BatchResponseDTO(
@@ -176,7 +177,8 @@ class BatchServiceImplTest {
                     LocalDate.now().plusMonths(6),
                     BigDecimal.TEN,
                     BigDecimal.ZERO,
-                    BigDecimal.valueOf(1.50)
+                    BigDecimal.valueOf(1.50),
+                    null
             );
             List<BatchRequestDTO> batchRequests = List.of(autoRequest);
 
@@ -541,6 +543,20 @@ class BatchServiceImplTest {
             assertThrows(BatchNotFoundException.class, () -> batchService.invalidateBatch(1L, invalidDTO));
             verify(batchRepository).findById(1L);
             verifyNoMoreInteractions(batchRepository);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes para simulação de lote")
+    class SimulateBatch {
+        @Test
+        @DisplayName("Deve chamar simulação no productService")
+        void simulate_Success() {
+            // Act
+            batchService.simulate(requestDTO);
+
+            // Assert
+            verify(productService).simulatePricing(requestDTO.productId(), requestDTO.quantityInStock(), requestDTO.purchasePrice());
         }
     }
 }

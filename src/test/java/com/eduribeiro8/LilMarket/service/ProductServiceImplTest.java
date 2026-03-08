@@ -421,4 +421,51 @@ class ProductServiceImplTest {
             verifyNoMoreInteractions(productRepository, batchRepository);
         }
     }
+
+    @Nested
+    @DisplayName("Testes para simulação e preço manual")
+    class SimulationAndManualPrice {
+
+        @Test
+        @DisplayName("Deve simular preço e custo com sucesso")
+        void simulatePricing_Success() {
+            // Arrange
+            product.setTotalQuantity(new BigDecimal("10.00"));
+            product.setAveragePrice(new BigDecimal("5.00"));
+            product.setPrice(new BigDecimal("10.00"));
+            product.setAutoPricing(true);
+            product.setProfitMargin(new BigDecimal("100.00")); // 100% lucro
+
+            BigDecimal newQuantity = new BigDecimal("10.00");
+            BigDecimal newPurchasePrice = new BigDecimal("15.00");
+
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+            // Act
+            var result = productService.simulatePricing(1L, newQuantity, newPurchasePrice);
+
+            // Assert
+            // (10 * 5 + 10 * 15) / 20 = (50 + 150) / 20 = 200 / 20 = 10.00 (Novo Custo Médio)
+            // 10.00 cost + 100% margin = 20.00 (Novo Preço de Venda)
+            assertEquals(0, new BigDecimal("10.00").compareTo(result.simulatedAverageCost()));
+            assertEquals(0, new BigDecimal("20.00").compareTo(result.simulatedSellingPrice()));
+            assertEquals(0, new BigDecimal("5.00").compareTo(result.currentAverageCost()));
+            assertEquals(0, new BigDecimal("10.00").compareTo(result.currentSellingPrice()));
+        }
+
+        @Test
+        @DisplayName("Deve atualizar preço manual do produto")
+        void updatePrice_Success() {
+            // Arrange
+            BigDecimal newPrice = new BigDecimal("25.00");
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+            // Act
+            productService.updatePrice(1L, newPrice);
+
+            // Assert
+            assertEquals(0, new BigDecimal("25.00").compareTo(product.getPrice()));
+            verify(productRepository).save(product);
+        }
+    }
 }

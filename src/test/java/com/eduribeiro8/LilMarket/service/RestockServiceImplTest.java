@@ -102,7 +102,8 @@ class RestockServiceImplTest {
                                     LocalDate.now().plusDays(100),
                                     new BigDecimal("4"),
                                     BigDecimal.ZERO,
-                                    new BigDecimal("15.00")
+                                    new BigDecimal("15.00"),
+                                    null
                             ),
                             new BatchRequestDTO(
                                     2L,
@@ -111,7 +112,8 @@ class RestockServiceImplTest {
                                     LocalDate.now().plusDays(200),
                                     new BigDecimal("2"),
                                     BigDecimal.ZERO,
-                                    new BigDecimal("20.00")
+                                    new BigDecimal("20.00"),
+                                    null
                             )
                     ),
                     new BigDecimal("100.00"),
@@ -141,6 +143,33 @@ class RestockServiceImplTest {
 
             verify(restockRepository, times(1)).save(any(Restock.class));
             verifyNoMoreInteractions(batchService, productService, supplierService, restockMapper);
+        }
+
+        @Test
+        @DisplayName("Deve atualizar preço manual se fornecido no lote")
+        void save_WithManualPrice() {
+            // Arrange
+            BigDecimal manualPrice = new BigDecimal("50.00");
+            BatchRequestDTO manualBatch = new BatchRequestDTO(
+                    1L, "", null, LocalDate.now().plusDays(100),
+                    new BigDecimal("10"), BigDecimal.ZERO, new BigDecimal("20.00"), manualPrice
+            );
+
+            RestockRequestDTO requestDTO = new RestockRequestDTO(
+                    1L, "INV-MANUAL", List.of(manualBatch),
+                    new BigDecimal("200.00"), LocalDate.now()
+            );
+
+            when(supplierService.findById(1L)).thenReturn(supplier);
+            when(restockRepository.save(any(Restock.class))).thenReturn(restockPersisted);
+            when(restockMapper.toResponse(restockPersisted)).thenReturn(responseDTO);
+
+            // Act
+            restockService.save(requestDTO);
+
+            // Assert
+            verify(productService).updatePrice(1L, manualPrice);
+            verify(productService).calculatePriceBasedOnStock(1L);
         }
     }
 

@@ -1,9 +1,6 @@
 package com.eduribeiro8.LilMarket.service;
 
-import com.eduribeiro8.LilMarket.dto.BatchInvalidationRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchLossReportRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
+import com.eduribeiro8.LilMarket.dto.*;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.Restock;
@@ -223,6 +220,11 @@ public class BatchServiceImpl implements BatchService{
 
         batchRepository.save(batch);
         logger.info("INVALIDATING BATCH: Batch(id = {}) was invalidated with the reason of {}", batchId, batchInvalidation.reason());
+    }
+
+    @Override
+    public BatchSimulationResponseDTO simulate(BatchRequestDTO request) {
+        return productService.simulatePricing(request.productId(), request.quantityInStock(), request.purchasePrice());
     }
 
     private String generateAutomaticBatchCode(Long productId, LocalDate expirationDate, Set<String> currentBatchCodes) {

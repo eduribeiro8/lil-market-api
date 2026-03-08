@@ -23,6 +23,8 @@ public record BatchRequestDTO(
         @Schema(description = "Quantidade perdida", example = "0")
         @PositiveOrZero BigDecimal quantityLost,
         @Schema(description = "Preço de compra por unidade", example = "1.50", requiredMode = Schema.RequiredMode.REQUIRED)
-        @NotNull @Positive BigDecimal purchasePrice
+        @NotNull @Positive BigDecimal purchasePrice,
+        @Schema(description = "Preço de venda sugerido para o produto (opcional)", example = "5.00")
+        @Positive BigDecimal sellingPrice
         ) {
 }

@@ -1,5 +1,6 @@
 package com.eduribeiro8.LilMarket.service;
 
+import com.eduribeiro8.LilMarket.dto.BatchSimulationResponseDTO;
 import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
 import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
@@ -137,6 +138,55 @@ public class ProductServiceImpl implements ProductService{
             product.setPrice(finalPrice);
         }
 
+        productRepository.save(product);
+    }
+
+    @Override
+    public BatchSimulationResponseDTO simulatePricing(Long productId, BigDecimal newQuantity, BigDecimal newPurchasePrice) {
+        Product product = findProductById(productId);
+
+        BigDecimal currentQuantity = product.getTotalQuantity() != null ? product.getTotalQuantity() : BigDecimal.ZERO;
+        BigDecimal currentAvgPrice = product.getAveragePrice() != null ? product.getAveragePrice() : BigDecimal.ZERO;
+
+        BigDecimal currentTotalValue = currentQuantity.multiply(currentAvgPrice);
+        BigDecimal newBatchValue = newQuantity.multiply(newPurchasePrice);
+
+        BigDecimal totalQuantity = currentQuantity.add(newQuantity);
+        
+        // Evitar divisão por zero se alguém simular com 0 quantidade e estoque já estiver 0
+        if (totalQuantity.compareTo(BigDecimal.ZERO) == 0) {
+            return new BatchSimulationResponseDTO(
+                    product.getPrice(),
+                    product.getPrice(),
+                    currentAvgPrice,
+                    BigDecimal.ZERO
+            );
+        }
+
+        BigDecimal totalValue = currentTotalValue.add(newBatchValue);
+        BigDecimal simulatedAvgCost = totalValue.divide(totalQuantity, 2, RoundingMode.HALF_UP);
+
+        BigDecimal simulatedSellingPrice = product.getPrice();
+        if (product.getAutoPricing()) {
+            BigDecimal profitMargin = BigDecimal.ONE.add(
+                    product.getProfitMargin().divide(new BigDecimal(100), 2, RoundingMode.HALF_UP)
+            );
+            simulatedSellingPrice = simulatedAvgCost.multiply(profitMargin).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return new BatchSimulationResponseDTO(
+                product.getPrice(),
+                simulatedSellingPrice,
+                currentAvgPrice,
+                simulatedAvgCost
+        );
+    }
+
+    @Override
+    @Transactional
+    public void updatePrice(Long productId, BigDecimal newPrice) {
+        Product product = findProductById(productId);
+        product.setPrice(newPrice.setScale(2, RoundingMode.HALF_UP));
         productRepository.save(product);
     }
 }

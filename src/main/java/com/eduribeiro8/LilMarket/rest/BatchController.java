@@ -1,10 +1,7 @@
 package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
-import com.eduribeiro8.LilMarket.dto.BatchInvalidationRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchLossReportRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
+import com.eduribeiro8.LilMarket.dto.*;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.service.BatchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -125,5 +122,15 @@ public class BatchController {
             @Valid @RequestBody BatchInvalidationRequestDTO request) {
         batchService.invalidateBatch(batchId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Simula preço e custo antes do restock",
+            description = "Retorna uma simulação de como ficarão o custo médio e o preço de venda do produto após a entrada do lote.")
+    @ApiStandardErrors
+    @ApiResponse(responseCode = "200", description = "Simulação realizada com sucesso")
+    @PostMapping("/batch/simulate")
+    public ResponseEntity<BatchSimulationResponseDTO> simulate(
+            @Valid @RequestBody BatchRequestDTO request) {
+        return ResponseEntity.ok(batchService.simulate(request));
     }
 }
