@@ -3,28 +3,44 @@ services:
     image: mysql:8.0
     container_name: lilmarket-db
     restart: always
+    # Low-memory optimization for MySQL
+    command: [
+      "--performance_schema=OFF",
+      "--max_connections=50",
+      "--innodb_buffer_pool_size=256M"
+    ]
     environment:
-      MYSQL_DATABASE: lilmarket_db
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./src/main/resources/lilmarket.sql:/docker-entrypoint-initdb.d/init.sql
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   api:
-    image: lilmarket-api:v0.5.0
+    build: .
+    image: lilmarket-api:latest
     container_name: lilmarket-api
+    restart: always
     depends_on:
       - db
     ports:
       - "8080:8080"
     environment:
-      # Padronizando tudo para lilmarket_db e usuário root
-      - DB_URL=jdbc:mysql://db:3306/lilmarket_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - DB_USER=root
-      - DB_PASS=root
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/lilmarket_db
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - BASIC_AUTH_USER=test
-      - BASIC_AUTH_PASS=test123
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_URL=${DB_URL}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - BASIC_AUTH_USER=${BASIC_AUTH_USER}
+      - BASIC_AUTH_PASS=${BASIC_AUTH_PASS}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
       - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQLDialect
+      # Spring Boot memory optimization
+      - JAVA_OPTS=-Xmx400m -Xms200m -XX:+UseSerialGC
+    deploy:
+      resources:
+        limits:
+          memory: 600M
