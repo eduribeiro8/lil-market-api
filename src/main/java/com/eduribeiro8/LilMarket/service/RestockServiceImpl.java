@@ -52,6 +52,12 @@ public class RestockServiceImpl implements RestockService{
 
         products.forEach(productService::calculatePriceBasedOnStock);
 
+        restockRequestDTO.batchRequestDTOS().forEach(batchRequest -> {
+            if (batchRequest.sellingPrice() != null) {
+                productService.updatePrice(batchRequest.productId(), batchRequest.sellingPrice());
+            }
+        });
+
         return restockMapper.toResponse(savedRestock);
     }
 

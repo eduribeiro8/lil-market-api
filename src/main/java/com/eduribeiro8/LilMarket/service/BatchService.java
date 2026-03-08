@@ -1,9 +1,6 @@
 package com.eduribeiro8.LilMarket.service;
 
-import com.eduribeiro8.LilMarket.dto.BatchInvalidationRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchLossReportRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchRequestDTO;
-import com.eduribeiro8.LilMarket.dto.BatchResponseDTO;
+import com.eduribeiro8.LilMarket.dto.*;
 import com.eduribeiro8.LilMarket.entity.Batch;
 import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.Restock;
@@ -40,4 +37,6 @@ public interface BatchService {
     void reportLoss(BatchLossReportRequestDTO batchLossReport);
 
     void invalidateBatch(Long batchId, BatchInvalidationRequestDTO batchInvalidation);
+
+    BatchSimulationResponseDTO simulate(BatchRequestDTO request);
 }
