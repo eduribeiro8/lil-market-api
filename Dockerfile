@@ -21,6 +21,6 @@ COPY --from=build --chown=spring:spring /app/target/*.jar app.jar
 EXPOSE 8080
 
 # Environment variable to tune Java memory for the 1GB RAM server
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
+ENV JAVA_OPTS="-Xmx300m -Xms150m -XX:+UseSerialGC"
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
