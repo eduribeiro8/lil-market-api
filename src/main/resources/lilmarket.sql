@@ -28,7 +28,7 @@ CREATE TABLE restock (
     supplier_id BIGINT NOT NULL,
     restock_invoice TEXT NOT NULL,
     amount_paid DECIMAL(10, 2) NOT NULL,
-    bought_at TIMESTAMP NOT NULL,
+    bought_at DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
     
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
@@ -217,4 +217,7 @@ CREATE TABLE refresh_token(
 SET FOREIGN_KEY_CHECKS = 1;
 
 
+-- Insere o primeiro user
+INSERT INTO users (user_name, password, first_name, role, active) 
+VALUES ('admin', '$2a$12$vr7ll1URxPrHmLRPKJ2f4e5m/EccBXK86BlmURX30A6faZ1G70hvu', 'Admin', 'ROLE_ADMIN', TRUE);
 
