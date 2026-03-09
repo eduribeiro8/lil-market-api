@@ -54,7 +54,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/error"
                         ).permitAll()
 
                         // 2. Permite o endpoint login para todos
