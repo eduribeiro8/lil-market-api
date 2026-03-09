@@ -95,8 +95,8 @@ public class SaleServiceImpl implements SaleService{
             customerPayment.setAmountPaid(revisedSale.getAmountPaid());
             customerPayment.setPaymentMethod(saleRequestDTO.paymentMethod());
             customerPayment.setNotes(
-                    "Customer paid R$" + revisedSale.getAmountPaid() + " of a R$"
-                            + revisedSale.getTotal() + " sale (saleId = " + savedSale.getId() + ")");
+                    "Cliente pagou R$" + revisedSale.getAmountPaid() + " de uma compra de R$"
+                            + revisedSale.getTotal() + " (saleId = " + savedSale.getId() + ")");
             customerPaymentRepository.save(customerPayment);
         }
 
