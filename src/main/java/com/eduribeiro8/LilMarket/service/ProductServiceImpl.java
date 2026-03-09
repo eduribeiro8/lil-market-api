@@ -133,7 +133,7 @@ public class ProductServiceImpl implements ProductService{
 
             BigDecimal newPrice = averageCost.multiply(profitMargin);
 
-            BigDecimal finalPrice = newPrice.setScale(2, RoundingMode.HALF_UP);
+            BigDecimal finalPrice = roundPrice(newPrice);
 
             product.setPrice(finalPrice);
         }
@@ -172,6 +172,7 @@ public class ProductServiceImpl implements ProductService{
                     product.getProfitMargin().divide(new BigDecimal(100), 2, RoundingMode.HALF_UP)
             );
             simulatedSellingPrice = simulatedAvgCost.multiply(profitMargin).setScale(2, RoundingMode.HALF_UP);
+            simulatedSellingPrice = roundPrice(simulatedSellingPrice);
         }
 
         return new BatchSimulationResponseDTO(
@@ -186,7 +187,16 @@ public class ProductServiceImpl implements ProductService{
     @Transactional
     public void updatePrice(Long productId, BigDecimal newPrice) {
         Product product = findProductById(productId);
-        product.setPrice(newPrice.setScale(2, RoundingMode.HALF_UP));
+        product.setPrice(roundPrice(newPrice));
         productRepository.save(product);
+    }
+
+    private BigDecimal roundPrice(BigDecimal price){
+        if (price == null) return BigDecimal.ZERO;
+
+        BigDecimal increment = new BigDecimal("0.05");
+        return price.divide(increment, 0, RoundingMode.CEILING)
+                .multiply(increment)
+                .setScale(2, RoundingMode.UNNECESSARY);
     }
 }
