@@ -92,7 +92,7 @@ class SupplierServiceImplTest {
                     OffsetDateTime.now()
             );
 
-            Mockito.when(supplierRepository.findByName("abc")).thenReturn(null);
+            Mockito.when(supplierRepository.findByNameAndDistrict("abc", "def")).thenReturn(null);
             Mockito.when(supplierMapper.toEntity(requestDTO)).thenReturn(supplierToSave);
             Mockito.when(supplierRepository.save(supplierToSave)).thenReturn(supplierPersisted);
             Mockito.when(supplierMapper.toResponse(supplierPersisted)).thenReturn(responseDTO);
@@ -107,7 +107,7 @@ class SupplierServiceImplTest {
             assertEquals(response.city(), responseDTO.city());
             assertNotNull(response.createdAt());
 
-            Mockito.verify(supplierRepository).findByName(requestDTO.name());
+            Mockito.verify(supplierRepository).findByNameAndDistrict(requestDTO.name(), responseDTO.district());
             Mockito.verify(supplierRepository, Mockito.times(1)).save(Mockito.any(Supplier.class));
             Mockito.verifyNoMoreInteractions(supplierRepository, supplierMapper);
         }
@@ -124,7 +124,7 @@ class SupplierServiceImplTest {
                     .city("sao paulo")
                     .build();
 
-            Mockito.when(supplierRepository.findByName(requestDTO.name())).thenReturn(supplierExisting);
+            Mockito.when(supplierRepository.findByNameAndDistrict(requestDTO.name(), requestDTO.district())).thenReturn(supplierExisting);
 
             //Act & Assert
             DuplicateSupplierException exception = assertThrows(DuplicateSupplierException.class, () ->

@@ -23,11 +23,9 @@ public class SupplierServiceImpl implements SupplierService{
     @Override
     @Transactional
     public SupplierResponseDTO save(SupplierRequestDTO supplierRequestDTO) {
-        Supplier supplierInDB = supplierRepository.findByName(supplierRequestDTO.name());
+        Supplier supplierInDB = supplierRepository.findByNameAndDistrict(supplierRequestDTO.name(), supplierRequestDTO.district());
 
-        if (supplierInDB != null
-                && supplierInDB.getName().equals(supplierRequestDTO.name())
-                && supplierInDB.getDistrict().equals(supplierRequestDTO.district())){
+        if (supplierInDB != null){
             throw new DuplicateSupplierException("Fornecedor já cadastrado");
         }
 

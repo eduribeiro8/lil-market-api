@@ -30,7 +30,7 @@ public class Supplier {
     private String name;
 
     @Column(name = "phone_number")
-    @Pattern(regexp = "\\d{10,11}", message = "{supplier.phone.invalid}")
+    @Pattern(regexp = "^$|\\d{10,11}", message = "{supplier.phone.invalid}")
     @Setter
     private String phoneNumber;
 
