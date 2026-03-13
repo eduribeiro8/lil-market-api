@@ -11,6 +11,8 @@ public interface ProductService {
 
     Page<ProductResponseDTO> getAllProducts(Pageable pageable);
 
+    Page<ProductResponseDTO> getAllProductsStartsWith(String startsWith, Pageable pageable);
+
     ProductResponseDTO findProductByIdDTO(Long productId);
 
     Product findProductById(Long productId);
