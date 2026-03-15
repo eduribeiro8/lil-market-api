@@ -147,7 +147,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.UNPROCESSABLE_CONTENT.value(),
-                "Refresh Token Expired",
+                "Validation Error",
                 ex.getMessage(),
                 request.getRequestURI(),
                 null
