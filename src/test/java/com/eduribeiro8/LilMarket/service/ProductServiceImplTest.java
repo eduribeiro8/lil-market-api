@@ -102,6 +102,7 @@ class ProductServiceImplTest {
                 "1234567890123",
                 "abc123",
                 new BigDecimal("10.00"),
+                new BigDecimal("50.00"),
                 BigDecimal.ZERO,
                 BigDecimal.TEN,
                 true,
