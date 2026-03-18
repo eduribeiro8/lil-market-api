@@ -34,7 +34,7 @@ public class Product {
     private String name;
 
     @NotNull(message = "Product barcode cannot be null.")
-    @Size(min = 10, message = "Product barcode must be at least 10 digits.")
+    @Size(min = 2, message = "Product barcode must be at least 2 digits.")
     @Column(name = "barcode")
     private String barcode;
 
