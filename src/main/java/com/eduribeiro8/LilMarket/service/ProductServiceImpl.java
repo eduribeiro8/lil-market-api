@@ -67,6 +67,12 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
+    public Page<ProductResponseDTO> getAllProductsContains(String contains, Pageable pageable) {
+        return productRepository.findByNameContains(contains, pageable)
+                .map(productMapper::toResponse);
+    }
+
+    @Override
     public ProductResponseDTO findProductByIdDTO(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product with id " + productId + " not found"));

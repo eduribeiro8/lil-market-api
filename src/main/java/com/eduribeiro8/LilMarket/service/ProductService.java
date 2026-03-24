@@ -13,6 +13,8 @@ public interface ProductService {
 
     Page<ProductResponseDTO> getAllProductsStartsWith(String startsWith, Pageable pageable);
 
+    Page<ProductResponseDTO> getAllProductsContains(String text, Pageable pageable);
+
     ProductResponseDTO findProductByIdDTO(Long productId);
 
     Product findProductById(Long productId);

@@ -87,6 +87,17 @@ public class ProductController {
         return  productService.getAllProductsStartsWith(startsWith, pageable);
     }
 
+    @GetMapping("/product/contains/")
+    @Operation(summary = "Lista todos os produtos cadastrados que contém a String requisitada (Paginado)",
+            description = "Retorna uma página de produtos cadastrados que contém a String requisitada.")
+    @ApiStandardErrors
+    @ApiResponse(responseCode = "200", description = "Página de produtos retornada com sucesso")
+    public Page<ProductResponseDTO> getAllProductsContains(
+            @RequestParam String contains,
+            Pageable pageable){
+        return  productService.getAllProductsContains(contains, pageable);
+    }
+
     @PostMapping("/product")
     @Operation(summary = "Cria um novo produto", description = "Registra um novo produto no sistema")
     @ApiStandardErrors

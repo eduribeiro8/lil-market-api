@@ -15,5 +15,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByNameStartsWith(String startsWith, Pageable pageable);
 
+    Page<Product> findByNameContains(String contains, Pageable pageable);
+
     boolean existsByBarcode(String barcode);
 }
