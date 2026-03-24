@@ -50,6 +50,10 @@ public class Sale {
     @JsonManagedReference
     private List<SaleItem> items;
 
+    @Column(name = "discount")
+    @Builder.Default
+    private BigDecimal discount = BigDecimal.ZERO;
+
     @Column(name = "total_amount")
     @Builder.Default
     private BigDecimal total = BigDecimal.ZERO;
@@ -77,8 +81,7 @@ public class Sale {
         items.add(item);
         item.setSale(this);
 
-        BigDecimal itemTotal = item.getUnitPrice().multiply(item.getQuantity());
-        this.total = this.total.add(itemTotal);
+        this.total = this.total.add(item.getSubtotal());
     }
 
     public void resolvePaymentStatus() {

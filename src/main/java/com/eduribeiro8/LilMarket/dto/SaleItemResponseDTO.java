@@ -15,6 +15,8 @@ public record SaleItemResponseDTO(
         BigDecimal unitPrice,
         @Schema(description = "Subtotal deste item", example = "6.98")
         BigDecimal subtotal,
+        @Schema(description = "Desconto unitário aplicado ao produto", example = "1.50")
+        BigDecimal unitDiscount,
         @Schema(description = "Identificador do lote associado, quando aplicável", example = "7")
         Long batchId
 ) {}

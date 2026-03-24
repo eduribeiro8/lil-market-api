@@ -145,6 +145,7 @@ CREATE TABLE sales (
     customer_id BIGINT,
     user_id BIGINT NOT NULL,
     sale_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    discount DECIMAL(10, 2) DEFAULT 0.00,
     total_amount DECIMAL(10, 2) NOT NULL,
     amount_paid DECIMAL(10, 2) DEFAULT 0.00,
     net_profit DECIMAL(10, 2) DEFAULT 0.00,
@@ -170,6 +171,7 @@ CREATE TABLE sale_items (
     batch_id BIGINT,
     quantity DECIMAL(10, 3) NOT NULL,
     unit_price DECIMAL(10, 2) NOT NULL,
+    discount DECIMAL(10, 2) DEFAULT 0.00,
     subtotal DECIMAL(10, 2) NOT NULL,
 
     FOREIGN KEY (sale_id) REFERENCES sales(sale_id) ON DELETE CASCADE,

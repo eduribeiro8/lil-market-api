@@ -57,13 +57,19 @@ public class SaleServiceImpl implements SaleService{
                 revisedSaleItem.setProduct(product);
                 revisedSaleItem.setSale(revisedSale);
                 revisedSaleItem.setBatch(batch);
+                revisedSaleItem.setUnitDiscount(saleItem.unitDiscount());
 
                 BigDecimal quantityFromThisBatch = remainingToRecord.min(batch.getQuantityInStock());
 
                 revisedSaleItem.setQuantity(quantityFromThisBatch);
                 revisedSaleItem.setUnitPrice(batch.getProduct().getPrice());
                 revisedSaleItem.setSubtotal(revisedSaleItem.getUnitPrice().multiply(revisedSaleItem.getQuantity()));
+
+                revisedSaleItem.setSubtotal(revisedSaleItem.getSubtotal().subtract(saleItem.unitDiscount().multiply(revisedSaleItem.getQuantity())));
+
                 BigDecimal diff = batch.getProduct().getPrice().subtract(batch.getPurchasePrice());
+                diff = diff.subtract(saleItem.unitDiscount());
+
                 profit = profit.add(diff.multiply(quantityFromThisBatch));
 
                 remainingToRecord = remainingToRecord.subtract(quantityFromThisBatch);
@@ -74,6 +80,12 @@ public class SaleServiceImpl implements SaleService{
             batches = batchService.decrementBatches(batches, product, saleItem.quantity());
         }
 
+        if (saleRequestDTO.discount().compareTo(BigDecimal.ZERO) > 0){
+            revisedSale.setTotal(revisedSale.getTotal().subtract(saleRequestDTO.discount()));
+            profit = profit.subtract(saleRequestDTO.discount());
+        }
+
+        revisedSale.setDiscount(saleRequestDTO.discount());
         revisedSale.setAmountPaid(saleRequestDTO.amountPaid());
         revisedSale.setNetProfit(profit);
         revisedSale.setNotes(saleRequestDTO.notes());
@@ -83,7 +95,7 @@ public class SaleServiceImpl implements SaleService{
             if (saleRequestDTO.isOnAccount()){
                 customer.addDebt(revisedSale.getTotal().subtract(revisedSale.getAmountPaid()));
             }else{
-                throw new BusinessException("As it's not an OnAccount sale, sale can not be completed");
+                throw new BusinessException("Venda não pode ser completada por não ser uma venda fiada.");
             }
         }
 

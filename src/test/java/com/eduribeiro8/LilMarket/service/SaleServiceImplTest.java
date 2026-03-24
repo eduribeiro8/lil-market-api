@@ -76,7 +76,8 @@ class SaleServiceImplTest {
 
         itemRequestDTOList = List.of(new SaleItemRequestDTO(
                 1L,
-                new BigDecimal("2.00")
+                new BigDecimal("2.00"),
+                new BigDecimal("0.00")
         ));
 
         requestDTO = new SaleRequestDTO(
@@ -84,6 +85,7 @@ class SaleServiceImplTest {
                 1L,
                 itemRequestDTOList,
                 new BigDecimal("40.00"),
+                new BigDecimal("0.00"),
                 false,
                 "",
                 PaymentStatus.PAID,
@@ -101,6 +103,7 @@ class SaleServiceImplTest {
                                 new BigDecimal("1.00"),
                                 new BigDecimal("20.00"),
                                 new BigDecimal("20.00"),
+                                new BigDecimal("0.00"),
                                 1L
                         ),
                         new SaleItemResponseDTO(
@@ -109,10 +112,12 @@ class SaleServiceImplTest {
                                 new BigDecimal("1.00"),
                                 new BigDecimal("20.00"),
                                 new BigDecimal("20.00"),
+                                new BigDecimal("0.00"),
                                 2L
                         )
                 ),
                 new BigDecimal("40.00"),
+                new BigDecimal("0.00"),
                 new BigDecimal("40.00"),
                 new BigDecimal("9.00"),
                 new BigDecimal("0.00"),
@@ -299,6 +304,7 @@ class SaleServiceImplTest {
                 1L,
                 itemRequestDTOList,
                 new BigDecimal("39.00"),
+                new BigDecimal("0.00"),
                 false,
                 "",
                 PaymentStatus.PAID, //bait
@@ -317,7 +323,7 @@ class SaleServiceImplTest {
             });
 
             //Assert
-            assertTrue(exception.getMessage().contains("can not be completed"));
+            assertTrue(exception.getMessage().contains("Venda não pode ser completada"));
 
             verify(saleRepository, never()).save(any());
             verifyNoInteractions(saleMapper, customerPaymentRepository);
@@ -441,6 +447,310 @@ class SaleServiceImplTest {
             verifyNoInteractions(batchService, userRepository, customerPaymentRepository,
                     customerRepository, productRepository, saleMapper);
             verifyNoMoreInteractions(saleRepository);
+        }
+    }
+    @Nested
+    @DisplayName("Testes para simulação de descontos")
+    class DiscountSimulation {
+
+        @Test
+        @DisplayName("Deve calcular corretamente os subtotais, totais e lucros quando ha descontos no item e na venda global")
+        void save_WithDiscounts_CalculatesValuesCorrectly() {
+            // Arrange
+            List<SaleItemRequestDTO> discountItemRequestDTOList = List.of(new SaleItemRequestDTO(
+                    1L,
+                    new BigDecimal("2.00"), // quantity
+                    new BigDecimal("5.00") // unitDiscount
+            ));
+
+            SaleRequestDTO discountRequestDTO = new SaleRequestDTO(
+                    1L,
+                    1L,
+                    discountItemRequestDTOList,
+                    new BigDecimal("20.00"), // amountPaid
+                    new BigDecimal("10.00"), // discount (Global)
+                    false,
+                    "",
+                    PaymentStatus.PAID,
+                    PaymentMethod.PIX
+            );
+
+            Batch discountBatch = Batch.builder()
+                    .id(1L)
+                    .product(product)
+                    .batchCode("ABC-123")
+                    .quantityInStock(new BigDecimal("2.00"))
+                    .purchasePrice(new BigDecimal("10.00"))
+                    .build();
+
+            List<Batch> discountBatches = List.of(discountBatch);
+
+            Sale discountSalePersisted = Sale.builder()
+                    .user(user)
+                    .customer(customer)
+                    .total(new BigDecimal("20.00")) // 30 - 10 global
+                    .discount(new BigDecimal("10.00"))
+                    .netProfit(new BigDecimal("0.00"))
+                    .amountPaid(new BigDecimal("20.00"))
+                    .items(List.of(
+                            SaleItem.builder()
+                                    .product(product)
+                                    .batch(discountBatch)
+                                    .unitPrice(new BigDecimal("20.00"))
+                                    .unitDiscount(new BigDecimal("5.00"))
+                                    .subtotal(new BigDecimal("30.00")) // (20-5)*2
+                                    .build()
+                    ))
+                    .timestamp(OffsetDateTime.now())
+                    .build();
+
+            SaleResponseDTO discountResponseDTO = new SaleResponseDTO(
+                    1L,
+                    OffsetDateTime.now(),
+                    "João",
+                    "Maria",
+                    List.of(new SaleItemResponseDTO(
+                            1L,
+                            "Agua",
+                            new BigDecimal("2.00"),
+                            new BigDecimal("20.00"),
+                            new BigDecimal("30.00"),
+                            new BigDecimal("5.00"),
+                            1L
+                    )),
+                    new BigDecimal("20.00"), // totalAmount
+                    new BigDecimal("10.00"), // discount
+                    new BigDecimal("20.00"), // amountPaid
+                    new BigDecimal("0.00"),  // netProfit
+                    new BigDecimal("0.00"),  // change
+                    "PAID",
+                    ""
+            );
+
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            when(batchService.findBatchesInStock(product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(batchService.decrementBatches(discountBatches, product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(saleRepository.save(any(Sale.class))).thenReturn(discountSalePersisted);
+            when(saleMapper.toResponse(any(Sale.class))).thenReturn(discountResponseDTO);
+
+            // Act
+            SaleResponseDTO response = saleService.save(discountRequestDTO);
+
+            // Assert
+            verify(saleRepository).save(saleCaptor.capture());
+            Sale capturedSale = saleCaptor.getValue();
+
+            assertNotNull(response);
+
+            assertEquals(0, capturedSale.getDiscount().compareTo(new BigDecimal("10.00")), "Desconto global deve ser 10");
+            assertEquals(0, capturedSale.getTotal().compareTo(new BigDecimal("20.00")), "Total final da venda deve ser 20");
+            assertEquals(0, capturedSale.getNetProfit().compareTo(new BigDecimal("0.00")), "Lucro liquido deve ser 0");
+
+            SaleItem capturedItem = capturedSale.getItems().get(0);
+            assertEquals(0, capturedItem.getUnitDiscount().compareTo(new BigDecimal("5.00")), "Desconto unitario deve ser 5");
+            assertEquals(0, capturedItem.getSubtotal().compareTo(new BigDecimal("30.00")), "Subtotal do item deve ser 30");
+        }
+
+        @Test
+        @DisplayName("Deve calcular corretamente os totais e lucros quando ha apenas desconto unitario no item")
+        void save_WithOnlyItemDiscount_CalculatesValuesCorrectly() {
+            // Arrange
+            List<SaleItemRequestDTO> discountItemRequestDTOList = List.of(new SaleItemRequestDTO(
+                    1L,
+                    new BigDecimal("2.00"), // quantity
+                    new BigDecimal("5.00") // unitDiscount
+            ));
+
+            SaleRequestDTO discountRequestDTO = new SaleRequestDTO(
+                    1L,
+                    1L,
+                    discountItemRequestDTOList,
+                    new BigDecimal("30.00"), // amountPaid
+                    new BigDecimal("0.00"), // discount (Global)
+                    false,
+                    "",
+                    PaymentStatus.PAID,
+                    PaymentMethod.PIX
+            );
+
+            Batch discountBatch = Batch.builder()
+                    .id(1L)
+                    .product(product)
+                    .batchCode("ABC-123")
+                    .quantityInStock(new BigDecimal("2.00"))
+                    .purchasePrice(new BigDecimal("10.00"))
+                    .build();
+
+            List<Batch> discountBatches = List.of(discountBatch);
+
+            Sale discountSalePersisted = Sale.builder()
+                    .user(user)
+                    .customer(customer)
+                    .total(new BigDecimal("30.00"))
+                    .discount(new BigDecimal("0.00"))
+                    .netProfit(new BigDecimal("10.00"))
+                    .amountPaid(new BigDecimal("30.00"))
+                    .items(List.of(
+                            SaleItem.builder()
+                                    .product(product)
+                                    .batch(discountBatch)
+                                    .unitPrice(new BigDecimal("20.00"))
+                                    .unitDiscount(new BigDecimal("5.00"))
+                                    .subtotal(new BigDecimal("30.00"))
+                                    .build()
+                    ))
+                    .timestamp(OffsetDateTime.now())
+                    .build();
+
+            SaleResponseDTO discountResponseDTO = new SaleResponseDTO(
+                    1L,
+                    OffsetDateTime.now(),
+                    "João",
+                    "Maria",
+                    List.of(new SaleItemResponseDTO(
+                            1L,
+                            "Agua",
+                            new BigDecimal("2.00"),
+                            new BigDecimal("20.00"),
+                            new BigDecimal("30.00"),
+                            new BigDecimal("5.00"),
+                            1L
+                    )),
+                    new BigDecimal("30.00"), // totalAmount
+                    new BigDecimal("0.00"), // discount
+                    new BigDecimal("30.00"), // amountPaid
+                    new BigDecimal("10.00"),  // netProfit
+                    new BigDecimal("0.00"),  // change
+                    "PAID",
+                    ""
+            );
+
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            when(batchService.findBatchesInStock(product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(batchService.decrementBatches(discountBatches, product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(saleRepository.save(any(Sale.class))).thenReturn(discountSalePersisted);
+            when(saleMapper.toResponse(any(Sale.class))).thenReturn(discountResponseDTO);
+
+            // Act
+            SaleResponseDTO response = saleService.save(discountRequestDTO);
+
+            // Assert
+            verify(saleRepository, times(1)).save(saleCaptor.capture());
+            Sale capturedSale = saleCaptor.getValue();
+
+            assertNotNull(response);
+
+            assertEquals(0, capturedSale.getDiscount().compareTo(new BigDecimal("0.00")), "Desconto global deve ser 0");
+            assertEquals(0, capturedSale.getTotal().compareTo(new BigDecimal("30.00")), "Total final da venda deve ser 30");
+            assertEquals(0, capturedSale.getNetProfit().compareTo(new BigDecimal("10.00")), "Lucro liquido deve ser 10");
+
+            SaleItem capturedItem = capturedSale.getItems().get(0);
+            assertEquals(0, capturedItem.getUnitDiscount().compareTo(new BigDecimal("5.00")), "Desconto unitario deve ser 5");
+            assertEquals(0, capturedItem.getSubtotal().compareTo(new BigDecimal("30.00")), "Subtotal do item deve ser 30");
+        }
+
+        @Test
+        @DisplayName("Deve calcular corretamente os totais e lucros quando ha apenas desconto global na venda")
+        void save_WithOnlyGlobalDiscount_CalculatesValuesCorrectly() {
+            // Arrange
+            List<SaleItemRequestDTO> discountItemRequestDTOList = List.of(new SaleItemRequestDTO(
+                    1L,
+                    new BigDecimal("2.00"), // quantity
+                    new BigDecimal("0.00") // unitDiscount
+            ));
+
+            SaleRequestDTO discountRequestDTO = new SaleRequestDTO(
+                    1L,
+                    1L,
+                    discountItemRequestDTOList,
+                    new BigDecimal("25.00"), // amountPaid
+                    new BigDecimal("15.00"), // discount (Global)
+                    false,
+                    "",
+                    PaymentStatus.PAID,
+                    PaymentMethod.PIX
+            );
+
+            Batch discountBatch = Batch.builder()
+                    .id(1L)
+                    .product(product)
+                    .batchCode("ABC-123")
+                    .quantityInStock(new BigDecimal("2.00"))
+                    .purchasePrice(new BigDecimal("10.00"))
+                    .build();
+
+            List<Batch> discountBatches = List.of(discountBatch);
+
+            Sale discountSalePersisted = Sale.builder()
+                    .user(user)
+                    .customer(customer)
+                    .total(new BigDecimal("25.00"))
+                    .discount(new BigDecimal("15.00"))
+                    .netProfit(new BigDecimal("5.00")) // lucro normal 20, menos 15 global = 5
+                    .amountPaid(new BigDecimal("25.00"))
+                    .items(List.of(
+                            SaleItem.builder()
+                                    .product(product)
+                                    .batch(discountBatch)
+                                    .unitPrice(new BigDecimal("20.00"))
+                                    .unitDiscount(new BigDecimal("0.00"))
+                                    .subtotal(new BigDecimal("40.00"))
+                                    .build()
+                    ))
+                    .timestamp(OffsetDateTime.now())
+                    .build();
+
+            SaleResponseDTO discountResponseDTO = new SaleResponseDTO(
+                    1L,
+                    OffsetDateTime.now(),
+                    "João",
+                    "Maria",
+                    List.of(new SaleItemResponseDTO(
+                            1L,
+                            "Agua",
+                            new BigDecimal("2.00"),
+                            new BigDecimal("20.00"),
+                            new BigDecimal("40.00"),
+                            new BigDecimal("0.00"),
+                            1L
+                    )),
+                    new BigDecimal("25.00"), // totalAmount
+                    new BigDecimal("15.00"), // discount
+                    new BigDecimal("25.00"), // amountPaid
+                    new BigDecimal("5.00"),  // netProfit
+                    new BigDecimal("0.00"),  // change
+                    "PAID",
+                    ""
+            );
+
+            when(customerRepository.findById(1L)).thenReturn(Optional.of(customer));
+            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+            when(batchService.findBatchesInStock(product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(batchService.decrementBatches(discountBatches, product, new BigDecimal("2.00"))).thenReturn(discountBatches);
+            when(saleRepository.save(any(Sale.class))).thenReturn(discountSalePersisted);
+            when(saleMapper.toResponse(any(Sale.class))).thenReturn(discountResponseDTO);
+
+            // Act
+            SaleResponseDTO response = saleService.save(discountRequestDTO);
+
+            // Assert
+            verify(saleRepository, times(1)).save(saleCaptor.capture());
+            Sale capturedSale = saleCaptor.getValue();
+
+            assertNotNull(response);
+
+            assertEquals(0, capturedSale.getDiscount().compareTo(new BigDecimal("15.00")), "Desconto global deve ser 15");
+            assertEquals(0, capturedSale.getTotal().compareTo(new BigDecimal("25.00")), "Total final da venda deve ser 25");
+            assertEquals(0, capturedSale.getNetProfit().compareTo(new BigDecimal("5.00")), "Lucro liquido deve ser 5");
+
+            SaleItem capturedItem = capturedSale.getItems().get(0);
+            assertEquals(0, capturedItem.getUnitDiscount().compareTo(new BigDecimal("0.00")), "Desconto unitario deve ser 0");
+            assertEquals(0, capturedItem.getSubtotal().compareTo(new BigDecimal("40.00")), "Subtotal do item deve ser 40");
         }
     }
 }

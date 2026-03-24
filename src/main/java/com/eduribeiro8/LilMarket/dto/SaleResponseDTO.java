@@ -19,6 +19,8 @@ public record SaleResponseDTO(
         List<SaleItemResponseDTO> items,
         @Schema(description = "Valor total da venda", example = "25.00")
         BigDecimal totalAmount,
+        @Schema(description = "Desconto global aplicado à venda", example = "5.00")
+        BigDecimal discount,
         @Schema(description = "Valor pago", example = "25.00")
         BigDecimal amountPaid,
         @Schema(description = "Lucro líquido da venda", example = "5.50")

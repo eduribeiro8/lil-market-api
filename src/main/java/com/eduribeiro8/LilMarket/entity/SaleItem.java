@@ -41,6 +41,9 @@ public class SaleItem {
     @Column(name = "unit_price")
     private BigDecimal unitPrice;
 
+    @Column(name = "discount")
+    private BigDecimal unitDiscount;
+
     @Column(name = "subtotal")
     private BigDecimal subtotal;
 

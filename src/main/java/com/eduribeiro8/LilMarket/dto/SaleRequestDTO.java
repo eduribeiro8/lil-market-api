@@ -4,6 +4,7 @@ import com.eduribeiro8.LilMarket.entity.PaymentMethod;
 import com.eduribeiro8.LilMarket.entity.PaymentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +19,8 @@ public record SaleRequestDTO(
         @NotNull List<SaleItemRequestDTO> items,
         @Schema(description = "Valor pago pelo cliente", example = "20.00", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull BigDecimal amountPaid,
+        @Schema(description = "Desconto global aplicado à venda", example = "5.00", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull @PositiveOrZero BigDecimal discount,
         @Schema(description = "Venda em conta (a prazo)", example = "false", requiredMode = Schema.RequiredMode.REQUIRED)
         @NotNull Boolean isOnAccount,
         @Schema(description = "Observações", example = "Embalar para presente")
