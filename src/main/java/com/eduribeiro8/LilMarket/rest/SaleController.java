@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,16 +54,17 @@ public class SaleController {
     @ApiResponse(responseCode = "400", description = "Erro caso a data final for antecedente a data inicial", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "404", description = "Erro caso não há vendas no período", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping("/sale/by-date")
-    public ResponseEntity<List<SaleResponseDTO>> getSalesByDate(
+    public ResponseEntity<Page<SaleResponseDTO>> getSalesByDate(
             @Parameter(required = true, description = "Data inicial", example = "2026-01-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @Parameter(required = true, description = "Data final", example = "2026-01-31")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Pageable pageable) {
 
         OffsetDateTime start = startDate.atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
 
-        return ResponseEntity.ok(saleService.getSalesByDate(start, end));
+        return ResponseEntity.ok(saleService.getSalesByDate(start, end, pageable));
     }
 
     @Operation(summary = "Registra uma nova venda",

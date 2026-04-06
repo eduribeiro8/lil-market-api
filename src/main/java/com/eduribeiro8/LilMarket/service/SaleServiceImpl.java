@@ -9,6 +9,8 @@ import com.eduribeiro8.LilMarket.repository.*;
 import com.eduribeiro8.LilMarket.rest.exception.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -124,18 +126,18 @@ public class SaleServiceImpl implements SaleService{
     }
 
     @Override
-    public List<SaleResponseDTO> getSalesByDate(OffsetDateTime start, OffsetDateTime end) {
+    public Page<SaleResponseDTO> getSalesByDate(OffsetDateTime start, OffsetDateTime end, Pageable pageable) {
         if (start.isAfter(end)){
             throw new InvalidDateIntervalException("A data final não pode ser anterior à data inicial");
         }
 
-        List<Sale> sales = saleRepository.findByTimestampBetween(start, end);
+        Page<Sale> sales = saleRepository.findByTimestampBetween(start, end, pageable);
 
         if (sales.isEmpty()){
             throw new SaleNotFoundException("Nenhuma venda encontrada no intervalo requisitado");
         }
 
-        return saleMapper.toResponseList(sales);
+        return sales.map(saleMapper::toResponse);
     }
 
     @Override

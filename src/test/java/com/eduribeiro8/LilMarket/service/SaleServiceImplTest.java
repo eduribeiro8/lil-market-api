@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -384,24 +389,26 @@ class SaleServiceImplTest {
         }
 
         @Test
-        @DisplayName("Deve retornar um List<SaleResponseDTO> que tem o timestamp entre o intervalo buscado")
+        @DisplayName("Deve retornar uma Page<SaleResponseDTO> que tem o timestamp entre o intervalo buscado")
         void getSalesByDate_Success() {
             //Arrange
             OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
             OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<Sale> salePage = new PageImpl<>(List.of(salePersisted));
 
-            when(saleRepository.findByTimestampBetween(startDate, endDate)).thenReturn(List.of(salePersisted));
-            when(saleMapper.toResponseList(List.of(salePersisted))).thenReturn(List.of(responseDTO));
+            when(saleRepository.findByTimestampBetween(startDate, endDate, pageable)).thenReturn(salePage);
+            when(saleMapper.toResponse(salePersisted)).thenReturn(responseDTO);
 
             //Act
-            List<SaleResponseDTO> responseDTOS = saleService.getSalesByDate(startDate, endDate);
+            Page<SaleResponseDTO> responseDTOS = saleService.getSalesByDate(startDate, endDate, pageable);
 
             //Assert
             assertNotNull(responseDTOS);
-            assertNotNull(responseDTOS.get(0).timestamp());
+            assertNotNull(responseDTOS.getContent().get(0).timestamp());
 
-            assertEquals(0, responseDTOS.get(0).netProfit().compareTo(salePersisted.getNetProfit()));
-            assertEquals(0, responseDTOS.get(0).totalAmount().compareTo(salePersisted.getTotal()));
+            assertEquals(0, responseDTOS.getContent().get(0).netProfit().compareTo(salePersisted.getNetProfit()));
+            assertEquals(0, responseDTOS.getContent().get(0).totalAmount().compareTo(salePersisted.getTotal()));
 
             verifyNoInteractions(batchService, userRepository, customerPaymentRepository,
                     customerRepository, productRepository);
@@ -414,10 +421,11 @@ class SaleServiceImplTest {
             //Arrange
             OffsetDateTime startDate = OffsetDateTime.now().plusDays(2L);
             OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            Pageable pageable = PageRequest.of(0, 10);
 
             //Act
             InvalidDateIntervalException exception = assertThrows(InvalidDateIntervalException.class, () ->
-                saleService.getSalesByDate(startDate, endDate)
+                saleService.getSalesByDate(startDate, endDate, pageable)
             );
 
             //Assert
@@ -433,12 +441,13 @@ class SaleServiceImplTest {
             //Arrange
             OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
             OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            Pageable pageable = PageRequest.of(0, 10);
 
-            when(saleRepository.findByTimestampBetween(startDate, endDate)).thenReturn(List.of());
+            when(saleRepository.findByTimestampBetween(startDate, endDate, pageable)).thenReturn(Page.empty());
 
             //Act
             SaleNotFoundException exception = assertThrows(SaleNotFoundException.class, () ->
-                saleService.getSalesByDate(startDate, endDate)
+                saleService.getSalesByDate(startDate, endDate, pageable)
             );
 
             //Assert
