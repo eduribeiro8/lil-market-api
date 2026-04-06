@@ -63,6 +63,7 @@ public class SecurityConfig {
 
                         // 3. Permite depósito apenas para ‘MANAGER’ ou ADMIN
                         .requestMatchers(HttpMethod.POST, "/customer/*/deposit").hasAnyRole("MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/report/*").hasAnyRole("MANAGER", "ADMIN")
 
                         // 4. Define o que cada role pode fazer
                         .requestMatchers(HttpMethod.GET,
