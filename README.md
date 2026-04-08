@@ -69,9 +69,12 @@ O projeto possui testes unitários utilizando JUnit 5 e Mockito. Para executá-l
 
 # Rodar um método de teste específico
 ./mvnw test -Dtest=NomeDaClasseTest#nomeDoMetodo
+
+# Rodar todos os testes implementados
+./mvnw test -Dtest=UnitTestSuite
 ```
 
-## 📖 Documentação da API (Swagger)
+## Documentação da API (Swagger)
 
 A API possui documentação detalhada gerada automaticamente pelo **SpringDoc OpenAPI**. Com a aplicação em execução, você pode acessá-la através do navegador:
 
@@ -80,7 +83,7 @@ A API possui documentação detalhada gerada automaticamente pelo **SpringDoc Op
 
 Na interface do Swagger, você encontrará os detalhes de todos os endpoints disponíveis, seus parâmetros, *schemas* (DTOs) e exemplos de respostas. A documentação exige autenticação com o token JWT em endpoints protegidos.
 
-## 🏗️ Padrões do Projeto
+## Padrões do Projeto
 
 *   **DTOs (Data Transfer Objects):** Implementados utilizando `records` do Java.
 *   **Mappers:** Uso exclusivo de interfaces MapStruct no pacote `mapper` para conversão de DTO <-> Entity.
