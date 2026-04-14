@@ -61,10 +61,7 @@ public class SaleController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable) {
 
-        OffsetDateTime start = startDate.atStartOfDay().atOffset(ZoneOffset.UTC);
-        OffsetDateTime end = endDate.atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
-
-        return ResponseEntity.ok(saleService.getSalesByDate(start, end, pageable));
+        return ResponseEntity.ok(saleService.getSalesByDate(startDate, endDate, pageable));
     }
 
     @Operation(summary = "Registra uma nova venda",

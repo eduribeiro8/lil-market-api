@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -126,12 +126,18 @@ public class SaleServiceImpl implements SaleService{
     }
 
     @Override
-    public Page<SaleResponseDTO> getSalesByDate(OffsetDateTime start, OffsetDateTime end, Pageable pageable) {
-        if (start.isAfter(end)){
+    public Page<SaleResponseDTO> getSalesByDate(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        if (startDate.isAfter(endDate)){
             throw new InvalidDateIntervalException("A data final não pode ser anterior à data inicial");
         }
 
-        Page<Sale> sales = saleRepository.findByTimestampBetween(start, end, pageable);
+        ZonedDateTime startOfBrtDay = startDate.atStartOfDay(ZoneId.of("America/Sao_Paulo"));
+        OffsetDateTime startUtc = startOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+        ZonedDateTime endOfBrtDay = endDate.atTime(23, 59, 59).atZone(ZoneId.of("America/Sao_Paulo"));
+        OffsetDateTime endUtc = endOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+        Page<Sale> sales = saleRepository.findByTimestampBetween(startUtc, endUtc, pageable);
 
         if (sales.isEmpty()){
             throw new SaleNotFoundException("Nenhuma venda encontrada no intervalo requisitado");

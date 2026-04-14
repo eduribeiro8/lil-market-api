@@ -17,7 +17,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -392,12 +392,18 @@ class SaleServiceImplTest {
         @DisplayName("Deve retornar uma Page<SaleResponseDTO> que tem o timestamp entre o intervalo buscado")
         void getSalesByDate_Success() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            LocalDate startDate = LocalDate.of(2026, 4, 5);
+            LocalDate endDate = LocalDate.of(2026, 4, 6);
             Pageable pageable = PageRequest.of(0, 10);
             Page<Sale> salePage = new PageImpl<>(List.of(salePersisted));
 
-            when(saleRepository.findByTimestampBetween(startDate, endDate, pageable)).thenReturn(salePage);
+            ZonedDateTime startOfBrtDay = startDate.atStartOfDay(ZoneId.of("America/Sao_Paulo"));
+            OffsetDateTime startUtc = startOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+            ZonedDateTime endOfBrtDay = endDate.atTime(23, 59, 59).atZone(ZoneId.of("America/Sao_Paulo"));
+            OffsetDateTime endUtc = endOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+            when(saleRepository.findByTimestampBetween(startUtc, endUtc, pageable)).thenReturn(salePage);
             when(saleMapper.toResponse(salePersisted)).thenReturn(responseDTO);
 
             //Act
@@ -419,8 +425,8 @@ class SaleServiceImplTest {
         @DisplayName("Deve lançar um InvalidDateInterval ao buscar um intervalo impossível")
         void getSalesByDate_Fail_InvalidDateInterval() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().plusDays(2L);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            LocalDate startDate = LocalDate.now().plusDays(2L);
+            LocalDate endDate = LocalDate.now().plusDays(1L);
             Pageable pageable = PageRequest.of(0, 10);
 
             //Act
@@ -439,11 +445,17 @@ class SaleServiceImplTest {
         @DisplayName("Deve lançar um SaleNotFound caso não encontre nenhuma venda no intervalo")
         void getSalesByDate_Fail_SaleNotFound() {
             //Arrange
-            OffsetDateTime startDate = OffsetDateTime.now().minusDays(1L);
-            OffsetDateTime endDate = OffsetDateTime.now().plusDays(1L);
+            LocalDate startDate = LocalDate.of(2026, 4, 5);
+            LocalDate endDate = LocalDate.of(2026, 4, 6);
             Pageable pageable = PageRequest.of(0, 10);
 
-            when(saleRepository.findByTimestampBetween(startDate, endDate, pageable)).thenReturn(Page.empty());
+            ZonedDateTime startOfBrtDay = startDate.atStartOfDay(ZoneId.of("America/Sao_Paulo"));
+            OffsetDateTime startUtc = startOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+            ZonedDateTime endOfBrtDay = endDate.atTime(23, 59, 59).atZone(ZoneId.of("America/Sao_Paulo"));
+            OffsetDateTime endUtc = endOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+
+            when(saleRepository.findByTimestampBetween(startUtc, endUtc, pageable)).thenReturn(Page.empty());
 
             //Act
             SaleNotFoundException exception = assertThrows(SaleNotFoundException.class, () ->
