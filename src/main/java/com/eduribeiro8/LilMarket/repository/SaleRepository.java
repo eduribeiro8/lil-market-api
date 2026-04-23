@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -16,6 +17,15 @@ import java.util.List;
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     Page<Sale> findByTimestampBetween(OffsetDateTime start, OffsetDateTime end, Pageable pageable);
+
+    @Query("SELECT s FROM Sale s WHERE s.customer.id = :customerId " +
+            "AND (:startDate IS NULL OR s.timestamp >= :startDate) " +
+            "AND (:endDate IS NULL OR s.timestamp <= :endDate)")
+    Page<Sale> findSalesByCustomerWithOptionalDates(
+            @Param("customerId") Long customerId,
+            @Param("startDate") OffsetDateTime startDate,
+            @Param("endDate") OffsetDateTime endDate,
+            Pageable pageable);
 
     @Query(value = """
         SELECT\s

@@ -1,13 +1,11 @@
 package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
-import com.eduribeiro8.LilMarket.dto.CustomerDepositRequestDTO;
-import com.eduribeiro8.LilMarket.dto.CustomerPaymentResponseDTO;
-import com.eduribeiro8.LilMarket.dto.CustomerRequestDTO;
-import com.eduribeiro8.LilMarket.dto.CustomerResponseDTO;
+import com.eduribeiro8.LilMarket.dto.*;
 import com.eduribeiro8.LilMarket.entity.CustomerPayment;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.service.CustomerService;
+import com.eduribeiro8.LilMarket.service.SaleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,6 +34,7 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final SaleService saleService;
 
     @GetMapping("/customer/{customerId}")
     @Operation(summary = "Busca um cliente por ID", description = "Retorna o cliente que possui o ID informado")
@@ -148,5 +147,23 @@ public class CustomerController {
             )
             @RequestBody @Valid CustomerDepositRequestDTO customerDepositRequestDTO){
         return ResponseEntity.ok(customerService.addCredit(customerId, customerDepositRequestDTO));
+    }
+
+    @GetMapping("/customer/{customerId}/sales")
+    @Operation(summary = "Busca as vendas de um cliente", description = "Retorna as vendas de um cliente de forma paginada e com filtro opcional de datas")
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<Page<SaleResponseDTO>> getSales(
+            @Parameter(required = true, description = "ID do cliente", example = "1")
+            @PathVariable Long customerId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            Pageable pageable
+    ){
+     return ResponseEntity.ok(saleService.getSalesByDateFromCustomer(startDate, endDate, customerId, pageable));
     }
 }

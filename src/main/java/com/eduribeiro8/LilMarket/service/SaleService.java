@@ -18,5 +18,7 @@ public interface SaleService {
 
     Page<SaleResponseDTO> getSalesByDate(LocalDate start, LocalDate end, Pageable pageable);
 
+    Page<SaleResponseDTO> getSalesByDateFromCustomer(LocalDate startDate, LocalDate endDate, Long customerId, Pageable pageable);
+
     SaleResponseDTO update(SaleRequestDTO sale);
 }

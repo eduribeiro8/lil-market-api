@@ -36,7 +36,7 @@ public class SaleServiceImpl implements SaleService{
         BigDecimal profit = BigDecimal.ZERO;
 
         Customer customer = customerRepository.findById(saleRequestDTO.customerId())
-                .orElseThrow(() -> new CustomerNotFoundException("Customer(id = " + saleRequestDTO.customerId() + " not found"));
+                .orElseThrow(() -> new CustomerNotFoundException("Customer(id = " + saleRequestDTO.customerId() + ") not found"));
         revisedSale.setCustomer(customer);
 
         User user = userRepository.findById(saleRequestDTO.userId())
@@ -154,5 +154,27 @@ public class SaleServiceImpl implements SaleService{
         Sale saleSaved = saleRepository.save(saleToSave);
 
         return  saleMapper.toResponse(saleSaved);
+    }
+
+    @Override
+    public Page<SaleResponseDTO> getSalesByDateFromCustomer(LocalDate startDate, LocalDate endDate, Long customerId, Pageable pageable) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer(id = " + customerId + ") not found"));
+
+        OffsetDateTime startUtc = null;
+        OffsetDateTime endUtc = null;
+
+        if (startDate != null) {
+            ZonedDateTime startOfBrtDay = startDate.atStartOfDay(ZoneId.of("America/Sao_Paulo"));
+            startUtc = startOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+        }
+        if (endDate != null) {
+            ZonedDateTime endOfBrtDay = endDate.atTime(23, 59, 59).atZone(ZoneId.of("America/Sao_Paulo"));
+            endUtc = endOfBrtDay.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
+        }
+
+        Page<Sale> sales = saleRepository.findSalesByCustomerWithOptionalDates(customerId, startUtc, endUtc, pageable);
+
+        return sales.map(saleMapper::toResponse);
     }
 }
