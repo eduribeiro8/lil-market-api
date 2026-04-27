@@ -72,8 +72,15 @@ public class BatchController {
     }
 
     @GetMapping("/batch/restock/{restockId}")
+    @Operation(summary = "Lista todos os lotes de uma reposição", description = "Retorna uma página de lotes que pertencem a uma reposição específica")
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Página de lotes retornada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Reposição não encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public Page<BatchResponseDTO> getAllBatchesByRestockId(
-            @Parameter(required = true, description = "ID do lote", example = "1")
+            @Parameter(required = true, description = "ID da reposição", example = "1")
             @Valid @PathVariable Long restockId,
             Pageable pageable){
         return batchService.getAllBatchesByRestockId(restockId, pageable);

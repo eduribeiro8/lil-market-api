@@ -119,9 +119,19 @@ public class CustomerController {
     }
 
     @GetMapping("/customer/{customerId}/transactions")
+    @Operation(summary = "Busca as transações de um cliente", description = "Retorna o histórico de transações (pagamentos e depósitos) de um cliente")
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Transações retornadas com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<Page<CustomerPaymentResponseDTO>> customerTransactions(
+            @Parameter(required = true, description = "ID do cliente", example = "1")
             @PathVariable Long customerId,
+            @Parameter(required = true, description = "Data inicial", example = "2026-01-01")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @Parameter(required = true, description = "Data final", example = "2026-01-31")
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             Pageable pageable){
         return ResponseEntity.ok(customerService.getCustomerTransactions(customerId, startDate, endDate, pageable));
