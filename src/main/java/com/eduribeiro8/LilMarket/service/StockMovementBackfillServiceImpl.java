@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,28 +53,23 @@ public class StockMovementBackfillServiceImpl implements StockMovementBackfillSe
         List<Batch> batches = batchRepository.findAll();
         List<Product> products = productRepository.findAll();
         Map<Long, Product> productById = new HashMap<>();
+        Map<Long, BigDecimal> currentStockByProductId = new HashMap<>();
         for (Product product : products) {
             productById.put(product.getId(), product);
         }
 
-        Map<Long, BigDecimal> soldByBatchId = new HashMap<>();
-        for (SaleItem saleItem : saleItems) {
-            if (saleItem.getBatch() == null || saleItem.getBatch().getId() == null || saleItem.getQuantity() == null) {
-                continue;
-            }
-            soldByBatchId.merge(saleItem.getBatch().getId(), saleItem.getQuantity(), BigDecimal::add);
-        }
-
         Map<Long, List<MovementEvent>> eventsByProductId = new HashMap<>();
+        for (Product product : products) {
+            eventsByProductId.put(product.getId(), new ArrayList<>());
+        }
 
         for (Batch batch : batches) {
             if (batch.getProduct() == null || batch.getProduct().getId() == null) {
                 continue;
             }
+            currentStockByProductId.merge(batch.getProduct().getId(), nonNull(batch.getQuantityInStock()), BigDecimal::add);
 
-            BigDecimal fallbackEntryQuantity = nonNull(batch.getQuantityInStock())
-                    .add(nonNull(batch.getQuantityLost()))
-                    .add(nonNull(soldByBatchId.get(batch.getId())));
+            BigDecimal fallbackEntryQuantity = nonNull(batch.getQuantityInStock()).add(nonNull(batch.getQuantityLost()));
             BigDecimal entryQuantity = batch.getOriginalQuantity() != null ? batch.getOriginalQuantity() : fallbackEntryQuantity;
             OffsetDateTime restockTimestamp = resolveRestockTimestamp(batch);
 
@@ -146,11 +142,29 @@ public class StockMovementBackfillServiceImpl implements StockMovementBackfillSe
 
             Product product = productById.get(entry.getKey());
 
-            if (product != null && runningStock.compareTo(nonNull(product.getTotalQuantity())) != 0) {
-                throw new BusinessException(
-                        "Inconsistência no backfill para Product(id = " + product.getId() + "): saldo calculado = "
-                                + runningStock + ", total_quantity = " + product.getTotalQuantity()
-                );
+            if (product != null) {
+                BigDecimal expectedStock = currentStockByProductId.getOrDefault(entry.getKey(), nonNull(product.getTotalQuantity()));
+                BigDecimal adjustment = expectedStock.subtract(runningStock);
+
+                if (adjustment.compareTo(BigDecimal.ZERO) > 0) {
+                    movementsToPersist.add(StockMovement.builder()
+                            .product(product)
+                            .movementType(MovementType.ENTRY)
+                            .quantity(adjustment)
+                            .description("Backfill: ajuste de reconciliação")
+                            .referenceId(null)
+                            .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
+                            .build());
+                } else if (adjustment.compareTo(BigDecimal.ZERO) < 0) {
+                    movementsToPersist.add(StockMovement.builder()
+                            .product(product)
+                            .movementType(MovementType.LOSS)
+                            .quantity(adjustment.abs())
+                            .description("Backfill: ajuste de reconciliação")
+                            .referenceId(null)
+                            .timestamp(OffsetDateTime.now(ZoneOffset.UTC))
+                            .build());
+                }
             }
         }
 
