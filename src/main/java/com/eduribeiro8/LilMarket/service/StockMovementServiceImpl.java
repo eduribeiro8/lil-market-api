@@ -3,6 +3,7 @@ package com.eduribeiro8.LilMarket.service;
 import com.eduribeiro8.LilMarket.dto.StockMovementRequestDTO;
 import com.eduribeiro8.LilMarket.dto.StockMovementResponseDTO;
 import com.eduribeiro8.LilMarket.entity.MovementType;
+import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.StockMovement;
 import com.eduribeiro8.LilMarket.repository.StockMovementRepository;
 import com.eduribeiro8.LilMarket.rest.exception.InvalidDateIntervalException;
@@ -55,17 +56,13 @@ public class StockMovementServiceImpl implements StockMovementService {
             return Page.empty(pageable);
         }
 
-        StockMovement first = page.getContent().get(0);
-        BigDecimal runningStock = stockMovementRepository.sumMovementsBefore(
-                filter.productId(), first.getTimestamp(), first.getId());
-
         List<StockMovementResponseDTO> dtos = new ArrayList<>(page.getContent().size());
         for (StockMovement m : page.getContent()) {
-            if (m.getMovementType() == MovementType.ENTRY) {
-                runningStock = runningStock.add(m.getQuantity());
-            } else {
-                runningStock = runningStock.subtract(m.getQuantity());
-            }
+            BigDecimal stockBefore = stockMovementRepository.sumMovementsBefore(
+                    filter.productId(), m.getTimestamp(), m.getId());
+            BigDecimal quantityInStock = m.getMovementType() == MovementType.ENTRY
+                    ? stockBefore.add(m.getQuantity())
+                    : stockBefore.subtract(m.getQuantity());
 
             dtos.add(new StockMovementResponseDTO(
                     m.getId(),
@@ -73,7 +70,7 @@ public class StockMovementServiceImpl implements StockMovementService {
                     m.getProduct().getName(),
                     m.getMovementType(),
                     m.getQuantity(),
-                    runningStock,
+                    quantityInStock,
                     m.getReferenceId(),
                     m.getDescription(),
                     m.getTimestamp()
@@ -81,5 +78,35 @@ public class StockMovementServiceImpl implements StockMovementService {
         }
 
         return new PageImpl<>(dtos, pageable, page.getTotalElements());
+    }
+
+    @Override
+    public void recordEntry(Product product, BigDecimal quantity, Long referenceId, String description, OffsetDateTime timestamp) {
+        record(product, MovementType.ENTRY, quantity, referenceId, description, timestamp);
+    }
+
+    @Override
+    public void recordExit(Product product, BigDecimal quantity, Long referenceId, String description, OffsetDateTime timestamp) {
+        record(product, MovementType.EXIT, quantity, referenceId, description, timestamp);
+    }
+
+    @Override
+    public void recordLoss(Product product, BigDecimal quantity, Long referenceId, String description, OffsetDateTime timestamp) {
+        record(product, MovementType.LOSS, quantity, referenceId, description, timestamp);
+    }
+
+    private void record(Product product, MovementType movementType, BigDecimal quantity, Long referenceId, String description, OffsetDateTime timestamp) {
+        if (product == null || quantity == null || quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+
+        stockMovementRepository.save(StockMovement.builder()
+                .product(product)
+                .movementType(movementType)
+                .quantity(quantity)
+                .referenceId(referenceId)
+                .description(description)
+                .timestamp(timestamp)
+                .build());
     }
 }

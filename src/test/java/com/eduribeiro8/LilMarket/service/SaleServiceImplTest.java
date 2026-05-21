@@ -54,6 +54,9 @@ class SaleServiceImplTest {
     private BatchService batchService;
 
     @Mock
+    private StockMovementService stockMovementService;
+
+    @Mock
     private SaleMapper saleMapper;
 
     @Captor

@@ -16,8 +16,7 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, Lo
     @Query("SELECT m FROM StockMovement m WHERE m.product.id = :productId " +
             "AND (:movementType IS NULL OR m.movementType = :movementType) " +
             "AND (:startDate IS NULL OR m.timestamp >= :startDate) " +
-            "AND (:endDate IS NULL OR m.timestamp <= :endDate) " +
-            "ORDER BY m.timestamp ASC, m.id ASC")
+            "AND (:endDate IS NULL OR m.timestamp <= :endDate)")
     Page<StockMovement> findStockMovementByProductOptionalType(@Param("productId") Long productId,
                                                                @Param("movementType") MovementType movementType,
                                                                @Param("startDate") OffsetDateTime startDate,
