@@ -2,8 +2,13 @@ package com.eduribeiro8.LilMarket.rest;
 
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
 import com.eduribeiro8.LilMarket.dto.StockMovementBackfillResponseDTO;
+import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.service.StockMovementBackfillService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +31,11 @@ public class StockMovementAdminController {
                     "Este endpoint deve ser executado uma única vez."
     )
     @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Backfill executado com sucesso"),
+            @ApiResponse(responseCode = "422", description = "Backfill inválido ou já executado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<StockMovementBackfillResponseDTO> executeBackfill() {
         return ResponseEntity.ok(stockMovementBackfillService.executeOneTimeBackfill());
     }

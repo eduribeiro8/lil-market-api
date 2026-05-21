@@ -146,7 +146,18 @@ public class ProductController {
     }
 
     @GetMapping("/product/movement")
+    @Operation(
+            summary = "Lista movimentações de estoque de um produto",
+            description = "Retorna as movimentações de estoque de um produto com filtros opcionais por tipo e intervalo de datas."
+    )
     @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Movimentações retornadas com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Parâmetros inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     public ResponseEntity<Page<StockMovementResponseDTO>> getProductMovement(
             @Valid @ModelAttribute StockMovementRequestDTO stockMovementRequestDTO,
             Pageable pageable) {
