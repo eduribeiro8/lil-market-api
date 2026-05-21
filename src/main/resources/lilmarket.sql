@@ -231,6 +231,16 @@ CREATE TABLE stock_movement (
         FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
+-- ============================================
+-- CONTROLE DE JOBS ONE-SHOT
+-- ============================================
+CREATE TABLE one_time_job_execution (
+    job_name        VARCHAR(100)    NOT NULL,
+    executed_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (job_name)
+);
+
 
 SET FOREIGN_KEY_CHECKS = 1;
 
