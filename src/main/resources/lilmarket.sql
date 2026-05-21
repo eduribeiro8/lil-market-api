@@ -214,6 +214,22 @@ CREATE TABLE refresh_token(
     INDEX idx_token (token_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================
+-- MOVIMENTAÇÃO DE PRODUTOS NO ESTOQUE
+-- ============================================
+CREATE TABLE stock_movement (
+    movement_id     BIGINT          NOT NULL AUTO_INCREMENT,
+    product_id      BIGINT          NOT NULL,
+    movement_type   VARCHAR(50)     NOT NULL,
+    quantity        DECIMAL(10, 3) NOT NULL,
+    description     VARCHAR(255),
+    reference_id    BIGINT,
+    timestamp       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (movement_id),
+    CONSTRAINT fk_stock_movement_product
+        FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
 
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -222,4 +238,3 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Insere o primeiro user
 INSERT INTO users (user_name, password, first_name, role, active) 
 VALUES ('admin', '$2a$12$vr7ll1URxPrHmLRPKJ2f4e5m/EccBXK86BlmURX30A6faZ1G70hvu', 'Admin', 'ROLE_ADMIN', TRUE);
-
