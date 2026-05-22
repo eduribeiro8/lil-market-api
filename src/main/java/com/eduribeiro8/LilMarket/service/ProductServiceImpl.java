@@ -3,6 +3,8 @@ package com.eduribeiro8.LilMarket.service;
 import com.eduribeiro8.LilMarket.dto.BatchSimulationResponseDTO;
 import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
 import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
+import com.eduribeiro8.LilMarket.dto.StockMovementRequestDTO;
+import com.eduribeiro8.LilMarket.dto.StockMovementResponseDTO;
 import com.eduribeiro8.LilMarket.entity.Product;
 import com.eduribeiro8.LilMarket.entity.ProductCategory;
 import com.eduribeiro8.LilMarket.mapper.ProductMapper;
@@ -29,6 +31,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductMapper productMapper;
+    private final StockMovementService stockMovementService;
 
     private final BatchRepository batchRepository;
 
@@ -193,6 +196,14 @@ public class ProductServiceImpl implements ProductService{
                 currentAvgPrice,
                 simulatedAvgCost
         );
+    }
+
+    @Override
+    public Page<StockMovementResponseDTO> getStockMovement(StockMovementRequestDTO stockMovementRequestDTO, Pageable pageable) {
+        productRepository.findById(stockMovementRequestDTO.productId())
+                .orElseThrow(() -> new ProductNotFoundException("Product(id = " + stockMovementRequestDTO.productId() + ") not found!"));
+
+        return stockMovementService.getStockMovement(stockMovementRequestDTO, pageable);
     }
 
     @Override

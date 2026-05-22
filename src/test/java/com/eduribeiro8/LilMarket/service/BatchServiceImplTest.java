@@ -51,6 +51,9 @@ class BatchServiceImplTest {
     @Mock
     private ProductService productService;
 
+    @Mock
+    private StockMovementService stockMovementService;
+
     @InjectMocks
     private BatchServiceImpl batchService;
 

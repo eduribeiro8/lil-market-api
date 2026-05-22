@@ -3,6 +3,8 @@ package com.eduribeiro8.LilMarket.rest;
 import com.eduribeiro8.LilMarket.config.ApiStandardErrors;
 import com.eduribeiro8.LilMarket.dto.ProductRequestDTO;
 import com.eduribeiro8.LilMarket.dto.ProductResponseDTO;
+import com.eduribeiro8.LilMarket.dto.StockMovementRequestDTO;
+import com.eduribeiro8.LilMarket.dto.StockMovementResponseDTO;
 import com.eduribeiro8.LilMarket.rest.exception.ErrorResponse;
 import com.eduribeiro8.LilMarket.rest.exception.ProductNotFoundException;
 import com.eduribeiro8.LilMarket.service.ProductService;
@@ -141,6 +143,25 @@ public class ProductController {
         }
         ProductResponseDTO updated = productService.updateProduct(productId, productRequestDTO);
         return ResponseEntity.ok(updated);
+    }
+
+    @GetMapping("/product/movement")
+    @Operation(
+            summary = "Lista movimentações de estoque de um produto",
+            description = "Retorna as movimentações de estoque de um produto com filtros opcionais por tipo e intervalo de datas."
+    )
+    @ApiStandardErrors
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Movimentações retornadas com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Parâmetros inválidos",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public ResponseEntity<Page<StockMovementResponseDTO>> getProductMovement(
+            @Valid @ModelAttribute StockMovementRequestDTO stockMovementRequestDTO,
+            Pageable pageable) {
+        return ResponseEntity.ok(productService.getStockMovement(stockMovementRequestDTO, pageable));
     }
 
     @DeleteMapping("/product/{productId}")

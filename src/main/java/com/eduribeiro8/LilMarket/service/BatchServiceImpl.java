@@ -34,6 +34,7 @@ public class BatchServiceImpl implements BatchService{
     private final BatchRepository batchRepository;
     private final BatchMapper batchMapper;
     private final ProductService productService;
+    private final StockMovementService stockMovementService;
     private final SupplierService supplierService;
     private static final Logger logger = LoggerFactory.getLogger(BatchService.class);
 
@@ -74,6 +75,14 @@ public class BatchServiceImpl implements BatchService{
         }).toList();
 
         batchRepository.saveAll(batches);
+
+        batches.forEach(batch -> stockMovementService.recordEntry(
+                batch.getProduct(),
+                batch.getOriginalQuantity(),
+                restock.getId(),
+                "Entrada de estoque por reabastecimento",
+                restock.getCreatedAt()
+        ));
     }
 
     @Override
@@ -204,6 +213,13 @@ public class BatchServiceImpl implements BatchService{
         product.setTotalQuantity(product.getTotalQuantity().subtract(quantity));
 
         batchRepository.save(batch);
+        stockMovementService.recordLoss(
+                product,
+                quantity,
+                batch.getId(),
+                batchLossReport.reason(),
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
         logger.info("LOSS REPORT: Batch(id = {}) was reported with a loss of {} units with the reason of {}", batchId, quantity, reason);
     }
 
@@ -212,13 +228,21 @@ public class BatchServiceImpl implements BatchService{
     public void invalidateBatch(Long batchId, BatchInvalidationRequestDTO batchInvalidation) {
         Batch batch = batchRepository.findById(batchId)
                 .orElseThrow(() -> new BatchNotFoundException("Batch(id = " + batchId + ") not found"));
-        batch.setQuantityLost(batch.getQuantityLost().add(batch.getQuantityInStock()));
+        BigDecimal invalidatedQuantity = batch.getQuantityInStock();
+        batch.setQuantityLost(batch.getQuantityLost().add(invalidatedQuantity));
         batch.setQuantityInStock(BigDecimal.ZERO);
 
         Product product = batch.getProduct();
-        product.setTotalQuantity(product.getTotalQuantity().subtract(batch.getQuantityLost()));
+        product.setTotalQuantity(product.getTotalQuantity().subtract(invalidatedQuantity));
 
         batchRepository.save(batch);
+        stockMovementService.recordLoss(
+                product,
+                invalidatedQuantity,
+                batch.getId(),
+                batchInvalidation.reason(),
+                OffsetDateTime.now(ZoneOffset.UTC)
+        );
         logger.info("INVALIDATING BATCH: Batch(id = {}) was invalidated with the reason of {}", batchId, batchInvalidation.reason());
     }
 

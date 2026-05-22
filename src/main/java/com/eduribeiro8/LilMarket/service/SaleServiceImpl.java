@@ -27,6 +27,7 @@ public class SaleServiceImpl implements SaleService{
     private final CustomerRepository customerRepository;
     private final CustomerPaymentRepository customerPaymentRepository;
     private final BatchService batchService;
+    private final StockMovementService stockMovementService;
     private final SaleMapper saleMapper;
 
     @Override
@@ -102,6 +103,18 @@ public class SaleServiceImpl implements SaleService{
         }
 
         Sale savedSale = saleRepository.save(revisedSale);
+
+        OffsetDateTime saleTimestamp = savedSale.getTimestamp() != null
+                ? savedSale.getTimestamp()
+                : OffsetDateTime.now(ZoneOffset.UTC);
+
+        savedSale.getItems().forEach(item -> stockMovementService.recordExit(
+                item.getProduct(),
+                item.getQuantity(),
+                savedSale.getId(),
+                "Saída de estoque por venda",
+                saleTimestamp
+        ));
 
         if (revisedSale.getAmountPaid().compareTo(BigDecimal.ZERO) > 0) {
             CustomerPayment customerPayment = new CustomerPayment();
