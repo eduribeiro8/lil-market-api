@@ -32,8 +32,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    expose:
-      - "8080"
+    ports:
+      - "127.0.0.1:8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - DB_URL=${DB_URL}
@@ -48,17 +48,6 @@ services:
       resources:
         limits:
           memory: 450M
-
-  nginx:
-    image: nginx:alpine
-    container_name: lilmarket-nginx
-    restart: always
-    depends_on:
-      - api
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   mysql_data:
