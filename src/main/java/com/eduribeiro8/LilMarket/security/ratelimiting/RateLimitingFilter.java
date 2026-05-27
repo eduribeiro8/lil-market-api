@@ -2,6 +2,7 @@ package com.eduribeiro8.LilMarket.security.ratelimiting;
 
 import com.eduribeiro8.LilMarket.entity.User;
 import com.eduribeiro8.LilMarket.rest.exception.UserNotFoundException;
+import com.eduribeiro8.LilMarket.security.RequestIpResolver;
 import com.eduribeiro8.LilMarket.service.UserService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -36,7 +37,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        String ipAddress = request.getRemoteAddr();
+        String ipAddress = RequestIpResolver.resolveClientIp(request);
         Bucket ipBucket = IP_BUCKET.computeIfAbsent(ipAddress, k -> newBucket("ip"));
 
         if (!ipBucket.tryConsume(1)) {

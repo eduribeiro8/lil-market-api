@@ -1,5 +1,6 @@
 package com.eduribeiro8.LilMarket.security.logging;
 
+import com.eduribeiro8.LilMarket.security.RequestIpResolver;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpFilter;
@@ -16,11 +17,12 @@ public class LoggingPreAuthFilter extends HttpFilter {
 
     @Override
     protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        String clientIp = RequestIpResolver.resolveClientIp(request);
 
         Long startTime = System.currentTimeMillis();
 
         logger.info("Incoming request from IP={}: {} {}",
-                request.getRemoteAddr(),
+                clientIp,
                 request.getMethod(),
                 request.getRequestURI());
 
@@ -29,7 +31,7 @@ public class LoggingPreAuthFilter extends HttpFilter {
         Long endTime = System.currentTimeMillis();
 
         logger.info("Response to IP={}: status={} duration={}ms",
-                request.getRemoteAddr(),
+                clientIp,
                 response.getStatus(),
                 endTime - startTime);
     }
