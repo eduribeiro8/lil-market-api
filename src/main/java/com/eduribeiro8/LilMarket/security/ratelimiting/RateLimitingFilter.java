@@ -89,7 +89,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
                     .build();
         } else if ("ip".equals(type)) {
             return Bucket.builder()
-                    .addLimit(Bandwidth.classic(100, Refill.greedy(100, Duration.ofMinutes(1))))
+                    .addLimit(Bandwidth.classic(15, Refill.greedy(5, Duration.ofMinutes(1))))
                     .build();
         }
         return Bucket.builder()
