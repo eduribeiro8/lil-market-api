@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -36,6 +39,25 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (isAuthenticated(authentication)) {
+            String name = authentication.getName();
+
+            try {
+                User user = userDAO.findUserByUsername(name);
+                Bucket userBucket = USER_BUCKET.computeIfAbsent(name, k -> newBucket(String.valueOf(user.getRole())));
+
+                if (userBucket.tryConsume(1)) {
+                    chain.doFilter(request, response);
+                } else {
+                    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                }
+            } catch (UserNotFoundException ex) {
+                chain.doFilter(request, response);
+            }
+            return;
+        }
 
         String ipAddress = RequestIpResolver.resolveClientIp(request);
         Bucket ipBucket = IP_BUCKET.computeIfAbsent(ipAddress, k -> newBucket("ip"));
@@ -45,25 +67,13 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             return;
         }
 
-        String name = request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : null;
+        chain.doFilter(request, response);
+    }
 
-        if (name == null || name.equals("anonymousUser")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        try {
-            User user = userDAO.findUserByUsername(name);
-            Bucket userBucket = USER_BUCKET.computeIfAbsent(name, k -> newBucket(String.valueOf(user.getRole())));
-
-            if (userBucket.tryConsume(1)) {
-                chain.doFilter(request, response);
-            } else {
-                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            }
-        } catch (UserNotFoundException ex) {
-            chain.doFilter(request, response);
-        }
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     @Override

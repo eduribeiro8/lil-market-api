@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class)
+                .addFilterAfter(rateLimitingFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(loggingPreAuthFilter, AuthorizationFilter.class)
                 .addFilterAfter(loggingFilter, AuthorizationFilter.class)
                 .authorizeHttpRequests(auth -> auth
